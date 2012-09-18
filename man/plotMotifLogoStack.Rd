@@ -1,0 +1,37 @@
+\name{plotMotifLogoStack}
+\alias{plotMotifLogoStack}
+\title{plot sequence logos stack}
+\description{
+plot sequence logos stack
+}
+\usage{
+	plotMotifLogoStack(pfms, ...)
+}
+\arguments{
+	\item{pfms}{a list of position frequency matrices, pfms must be a list of class pfm}
+	\item{...}{other parameters can be passed to plotMotifLogo function}
+}
+\value{
+	none
+}
+\examples{
+	pcm1<-matrix(c(0,50,0,50,
+				   100,0,0,0,
+				   0,100,0,0,
+				   0,0,100,0,
+				   0,0,0,100,
+				   50,50,0,0,
+				   0,0,50,50), nrow=4)
+	pcm2<-matrix(c(50,50,0,0,
+				   0,100,0,0,
+				   0,50,50,0,
+				   0,0,0,100,
+				   50,50,0,0,
+				   0,0,50,50), nrow=4)
+	rownames(pcm1)<-c("A","C","G","T")
+	rownames(pcm2)<-c("A","C","G","T")
+	pfms<-list(p1=new("pfm",mat=pcm2pfm(pcm1),name="m1"),
+			   p2=new("pfm",mat=pcm2pfm(pcm2),name="m2"))
+	pfms<-DNAmotifAlignment(pfms)
+	plotMotifLogoStack(pfms)
+}

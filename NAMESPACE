@@ -1,0 +1,17 @@
+import(methods)
+importFrom(grImport, PostScriptTrace, readPicture, picture)
+export(
+	plotMotifLogo, 
+	plotXaxis, plotYaxis, 
+	colorset, 
+	plotMotifLogoStack, plotMotifLogoStackWithTree, 	DNAmotifAlignment, 
+	readPCM, 
+	pcm2pfm
+)
+exportClasses("pfm")
+exportMethods(
+		plot,
+		getIC,
+		matrixReverseComplement,
+		addBlank
+)
