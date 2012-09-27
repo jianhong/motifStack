@@ -1,0 +1,15 @@
+CHANGES IN VERSION 1.0.0
+-----------------------
+
+NEW FEATURES
+
+    o draw DNA/RNA sequence logo
+
+    o draw Amino Acid sequence logo
+
+    o draw aligned motif logo stacks with phylogenetic tree
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)

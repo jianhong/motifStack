@@ -22,22 +22,22 @@
 \tableofcontents
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
-A sequence logo is a graphical representation of an alignment of multiple amino acid or nucleic acid sequences.
-There has been a package seqlogo\cite{Oliver} implemented in R to draw DNA sequence logos. However, it can not draw amino acid sequence logos.
+A sequence logo has been widely used as a graphical representation of an alignment of multiple amino acid or nucleic acid sequences.
+There is a package seqlogo\cite{Oliver} implemented in R to draw DNA sequence logos. However, it does not support amino acid sequence logos.
 
-motifStack is a package that is able to draw amino acid sequence as easy as to draw DNA sequence. 
+We have developed motifStack package for drawing sequence logos for protein, DNA and RNA sequences. 
 motifStack provides the flexibility for users to select the font type and symbol colors. 
-Unlike seqlogo, motifStack is designed for graphical representation of multiple motifs.
+Comparing to seqlogo, motifStack has the capability for graphical representation of multiple motifs.
 
 \section{Prepare environment}
 You will need ghostscript: the full path to the executable can be set by the environment variable R\_GSCMD. 
-If this is unset, a GhostScript executable will be looked for by name on your path: on a Unix alike "gs" is used, 
+If this is unset, a GhostScript executable will be searched by name on your path. For example, on a Unix, linux or Mac "gs" is used for searching, 
 and on Windows the setting of the environment variable GSC is used, otherwise commands "gswi64c.exe" then "gswin32c.exe" are tried.
-For Windows, please install ghostscript first and then try:
 
+Example on Windows: assume that the gswin32c.exe is installed at C:\textbackslash Program Files\textbackslash gs\textbackslash gs9.06\textbackslash bin, then open R and try:
+\begin{scriptsize}
 Sys.setenv(R\_GSCMD="\textbackslash"C:\textbackslash\textbackslash Program Files\textbackslash\textbackslash gs\textbackslash\textbackslash gs9.06\textbackslash\textbackslash bin\textbackslash\textbackslash gswin32c.exe\textbackslash"")
-
-Here we assume that the gswin32c.exe or gswin64c.exe is installed at C:\textbackslash Program Files\textbackslash gs\textbackslash gs9.06\textbackslash bin
+\end{scriptsize}
 
  
 \section{Examples of using motifStack}
@@ -102,7 +102,7 @@ plot(motif)
 
 \subsection{plot sequence logo stack}
 motifStack is designed to show multiple motifs in same canvas. To show the sequence logo stack,
-motifs alignment is required, which can be completed by MotIV\cite{Eloi2010}::motifMatch, 
+motifs need to be aligned first for example by using MotIV\cite{Eloi2010}::motifMatch, 
 which implemented STAMP\cite{Mahony2007}. After alignment, users can use plotMotifLogoStack
 function to draw sequence logos stack or use plotMotifLogoStackWithTree function to show the distance tree
 and sequence logos stack in the same canvas.
