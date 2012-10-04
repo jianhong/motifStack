@@ -121,3 +121,6 @@ test_matrixReverseComplement<-function(){
 	pr<-matrixReverseComplement(p2)
 	checkEqualsNumeric(1, pr@mat[3,5])
 }
+
+test_plotMotifStackWithRadialPhylog<-function(){
+}

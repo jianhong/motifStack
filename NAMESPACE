@@ -1,10 +1,12 @@
 import(methods)
+import(grid)
+import(ade4)
 importFrom(grImport, PostScriptTrace, readPicture, picture)
 export(
-	plotMotifLogo, 
+	plotMotifLogo, plotMotifLogoA,
 	plotXaxis, plotYaxis, 
 	colorset, 
-	plotMotifLogoStack, plotMotifLogoStackWithTree, 	DNAmotifAlignment, 
+	plotMotifLogoStack, plotMotifLogoStackWithTree, 	DNAmotifAlignment, plotMotifStackWithRadialPhylog, 
 	readPCM, 
 	pcm2pfm
 )

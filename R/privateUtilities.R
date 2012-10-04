@@ -14,18 +14,20 @@ getIE<-function(x){
     addPseudolog2(nrow(x))
 }
 
-UngappedAlignment<-function(pfms, i, threshold){
+UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0){
     res<-getAlignedICWithoutGap(pfms[[i-1]], pfms[[i]], threshold)
-    if(res$rev){
-        pfms[[i]]<-matrixReverseComplement(pfms[[i]])
-    }
-    if(res$offset>0){
-        pfms[[i]]<-addBlank(pfms[[i]], res$offset, FALSE)
-    }else{
-        if(res[1]<0){
-            pfms[1:(i-1)]<-lapply(pfms[1:(i-1)],function(.ele) addBlank(.ele, -1*res$offset, FALSE))
-        }
-    }
+	if(res$max>=minimalConsensus){
+		if(res$rev){
+			pfms[[i]]<-matrixReverseComplement(pfms[[i]])
+		}
+		if(res$offset>0){
+			pfms[[i]]<-addBlank(pfms[[i]], res$offset, FALSE)
+		}else{
+			if(res[1]<0){
+				pfms[1:(i-1)]<-lapply(pfms[1:(i-1)],function(.ele) addBlank(.ele, -1*res$offset, FALSE))
+			}
+		}
+	}
     pfms
 }
 getAlignedICWithoutGap<-function(pfm1, pfm2, threshold){
@@ -37,11 +39,13 @@ getAlignedICWithoutGap<-function(pfm1, pfm2, threshold){
     rev<-FALSE
     if(offset1$max < offset2$max){
         rev<-TRUE
+		max<-offset2$max
         offset<-offset2$k
     }else{
+		max<-offset1$max
         offset<-offset1$k
     }
-    list(offset=offset,rev=rev)    
+    list(offset=offset,rev=rev,max=max)    
 }
 getICbyBase<-function(p, pfmj){
     re<-rep(0, 5)

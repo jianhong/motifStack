@@ -88,8 +88,8 @@ protein<-t(protein[,1:20])
 motif<-pcm2pfm(protein)
 motif<-new("pfm", mat=motif, name="CAP", 
             color=colorset(alphabet="AA",colorScheme="chemistry"))
-plot(motif)
 @
+> plot(motif)
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
@@ -133,9 +133,9 @@ motifs<-lapply(names(motifs), function(.ele, motifs){new("pfm",mat=motifs[[.ele]
 ##do alignment
 motifs<-DNAmotifAlignment(motifs)
 ##plot stacks
-plotMotifLogoStack(motifs, ncex=1.0)
-plotMotifLogoStackWithTree(motifs, hc=hc)
 @
+> plotMotifLogoStack(motifs, ncex=1.0)
+> plotMotifLogoStackWithTree(motifs, hc=hc)
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
@@ -153,6 +153,52 @@ plotMotifLogoStackWithTree(motifs, hc=hc)
 \caption{sequence logo stack with hierarchical cluster tree}
 \label{fig:treestack}
 \end{figure}
+
+\subsection{plot sequence logo stack in radial style}
+When the number of motifs is too much to be shown in a vertical stack, motifStack can draw them in a radial style.
+
+\begin{scriptsize}
+<<radialLogoStack,include=FALSE>>=
+library("MotifDb")
+library("MotIV")
+library("motifStack")
+matrix.fly <- query(MotifDb, "Dmelanogaster")
+motifs <- as.list(matrix.fly)
+motifs <- motifs[grepl("Dmelanogaster\\-FlyFactorSurvey\\-", names(motifs))]
+names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+                      gsub("_FBgn\\d+$", "", 
+                            gsub("[^a-zA-Z0-9]","_", 
+                                 gsub("(_\\d+)+$", "", names(motifs)))))
+motifs <- motifs[unique(names(motifs))]
+pfms <- sample(motifs, 50)
+jaspar <- MotIV::readPWMfile(file.path(find.package("MotIV"), "extdata", "jaspar2010.txt"))
+jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+ffs.analysis.jaspar<-MotIV::motifMatch(inputPWM=pfms,align="SWU",
+                                       cc="PCC",database=jaspar, 
+                                       DBscores=jaspar.scores,top=5)
+d <- MotIV::motifDistances(getPWM(ffs.analysis.jaspar))
+hc <- MotIV::motifHclust(d)
+phylog <- hclust2phylog(hc)
+leaves <- names(phylog$leaves)
+pfms <- pfms[leaves]
+pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
+pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
+library(RColorBrewer)
+color <- brewer.pal(12, "Set3")
+@
+> plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.9, cleaves = 0.5, clabel.leaves = 0.7, 
+                                 col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
+\end{scriptsize}
+\begin{figure}[htb]
+\centering
+<<fig5,fig=TRUE,echo=FALSE>>=
+plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.3, cleaves = 0.2, clabel.leaves = 0.6, 
+                                 col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
+@
+\caption{sequence logo stack in radial style}
+\label{fig:treestack}
+\end{figure}
+
 \section{References}
 \begin{thebibliography}{99}
 \bibitem[Oliver Bembom ()]{Oliver} seqLogo: Sequence logos for DNA sequence alignments. R package version 1.22.0. 

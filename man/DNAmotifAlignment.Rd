@@ -5,11 +5,12 @@
 align DNA motifs for plotting motifs stack
 }
 \usage{
-DNAmotifAlignment(pfms, threshold=0.4)
+DNAmotifAlignment(pfms, threshold=0.4, minimalConsensus=0)
 }
 \arguments{
 \item{pfms}{a list of position frequency matrices, pfms must be a list of class pfm}
 \item{threshold}{information content cutoff threshold for useful postions}
+\item{minimalConsensus}{minimal length of consensus for alignment}
 }
 \value{
  a list of aligned motifs
