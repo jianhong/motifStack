@@ -88,8 +88,8 @@ protein<-t(protein[,1:20])
 motif<-pcm2pfm(protein)
 motif<-new("pfm", mat=motif, name="CAP", 
             color=colorset(alphabet="AA",colorScheme="chemistry"))
+plot(motif)
 @
-> plot(motif)
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
@@ -133,9 +133,9 @@ motifs<-lapply(names(motifs), function(.ele, motifs){new("pfm",mat=motifs[[.ele]
 ##do alignment
 motifs<-DNAmotifAlignment(motifs)
 ##plot stacks
+plotMotifLogoStack(motifs, ncex=1.0)
+plotMotifLogoStackWithTree(motifs, hc=hc)
 @
-> plotMotifLogoStack(motifs, ncex=1.0)
-> plotMotifLogoStackWithTree(motifs, hc=hc)
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
