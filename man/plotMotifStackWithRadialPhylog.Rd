@@ -38,11 +38,11 @@ col.bg=NULL)
 		library("MotIV")
 		matrix.fly <- query(MotifDb, "Dmelanogaster")
 		motifs <- as.list(matrix.fly)
-		motifs <- motifs[grepl("Dmelanogaster\\-FlyFactorSurvey\\-", names(motifs))]
+		motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
 		names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
-							  gsub("_FBgn\\d+$", "", 
+							  gsub("_FBgn[0-9]+$", "", 
 									gsub("[^a-zA-Z0-9]","_", 
-										 gsub("(_\\d+)+$", "", names(motifs)))))
+										 gsub("(_[0-9]+)+$", "", names(motifs)))))
 		motifs <- motifs[unique(names(motifs))]
 		pfms <- sample(motifs, 50)
 		jaspar <- MotIV::readPWMfile(file.path(find.package("MotIV"), "extdata", "jaspar2010.txt"))
