@@ -171,8 +171,9 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
     par(opar)
 }
 
-DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0){
+DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="(RC)", revcomp=rep(TRUE, length(pfms))){
     if(length(pfms)<2) stop("less than 2 motifs")
+    if(length(revcomp)!=length(pfms)) stop("length of revcomp and pfms is not identical")
     lapply(pfms,function(.ele){
            if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
            if(.ele@alphabet!="DNA") stop("the alphabet of pfm must be DNA")
@@ -181,7 +182,7 @@ DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0){
     pfmcopy[[1]]<-pfms[[1]]
     for(i in 2:length(pfms)){
         pfmcopy[[i]]<-pfms[[i]]
-        pfmcopy<-UngappedAlignment(pfmcopy, i, threshold, minimalConsensus)
+        pfmcopy<-UngappedAlignment(pfmcopy, i, threshold, minimalConsensus, rcpostfix, revcomp[i])
     }
     l<-unlist(lapply(pfmcopy,function(.ele) ncol(.ele@mat)))
     l<-max(l)-l

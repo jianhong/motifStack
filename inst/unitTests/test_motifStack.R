@@ -23,6 +23,16 @@ test_DNAmotifAlignment<-function(){
 	blank=rep(.25,4)
 	names(blank)=c("A","C","G","T")
 	checkEquals(blank,pfms[[2]]@mat[,1])
+	pfm.gat1.jaspar = new("pfm", mat=query(MotifDb, "gat1")[[1]], 
+						  name="GAT1-JASPAR")
+	pfm.gat1.scertf = new("pfm", mat=query(MotifDb, "gat1")[[2]], 
+						  name="GAT1-ScerTF")
+	pfm.gat1.uniprobe = new("pfm", mat=query(MotifDb, "gat1")[[3]], 
+							name="GAT1-UniPROBE")
+	pfms.revcomp.test<-DNAmotifAlignment(c(pfm.gat1.jaspar, pfm.gat1.scertf, pfm.gat1.uniprobe), 
+							 revcomp=c(TRUE, TRUE, FALSE))
+	checkEquals("GAT1-ScerTF(RC)", pfms.revcomp.test[[2]]@name)
+	checkEquals("GAT1-UniPROBE", pfms.revcomp.test[[3]]@name)
 }
 
 test_hex2psrgb<-function(){
@@ -120,7 +130,4 @@ test_matrixReverseComplement<-function(){
 	p2<-new("pfm",mat=pcm2pfm(pcm2),name="m2")
 	pr<-matrixReverseComplement(p2)
 	checkEqualsNumeric(1, pr@mat[3,5])
-}
-
-test_plotMotifStackWithRadialPhylog<-function(){
 }

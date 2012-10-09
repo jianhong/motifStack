@@ -1,3 +1,17 @@
+CHANGES IN VERSION 1.2.2
+-----------------------
+
+NEW FEATURES
+
+    o Append a pramater revcomp indicates whether the DNAmotifAlignment
+    should use reverse-complement motif for alignment.
+
+BUG FIXES
+
+    o Append a pramater rcpostfix, defaut is "(RC)", to the name slot
+    of the pfm when DNAmotifAlignment using reverse-complement motif
+    for alignment.
+
 CHANGES IN VERSION 1.2.0
 -----------------------
 

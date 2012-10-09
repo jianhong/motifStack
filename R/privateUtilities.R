@@ -14,11 +14,12 @@ getIE<-function(x){
     addPseudolog2(nrow(x))
 }
 
-UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0){
-    res<-getAlignedICWithoutGap(pfms[[i-1]], pfms[[i]], threshold)
+UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0, rcpostfix="(RC)", revcomp=TRUE){
+    res<-getAlignedICWithoutGap(pfms[[i-1]], pfms[[i]], threshold, revcomp)
 	if(res$max>=minimalConsensus){
 		if(res$rev){
 			pfms[[i]]<-matrixReverseComplement(pfms[[i]])
+			pfms[[i]]@name<-paste(pfms[[i]]@name, rcpostfix, sep="")
 		}
 		if(res$offset>0){
 			pfms[[i]]<-addBlank(pfms[[i]], res$offset, FALSE)
@@ -30,11 +31,15 @@ UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0){
 	}
     pfms
 }
-getAlignedICWithoutGap<-function(pfm1, pfm2, threshold){
+getAlignedICWithoutGap<-function(pfm1, pfm2, threshold, revcomp=TRUE){
 	if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
-    pfm3<-matrixReverseComplement(pfm2)
     offset1<-getoffsetPosByIC(pfm1, pfm2, threshold)
-    offset2<-getoffsetPosByIC(pfm1, pfm3, threshold)
+    if(revcomp){
+        pfm3<-matrixReverseComplement(pfm2)
+        offset2<-getoffsetPosByIC(pfm1, pfm3, threshold)
+    }else{
+        offset2<-list(k=0,max=0)
+    }
     offset<-0
     rev<-FALSE
     if(offset1$max < offset2$max){
