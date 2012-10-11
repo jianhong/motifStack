@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.2.3
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o fix the bug that plots x-axis repeatedly in plotMotifLogo(). 
+
+
 CHANGES IN VERSION 1.2.2
 -----------------------
 

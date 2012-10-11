@@ -70,8 +70,8 @@ xlcex=1.2, ylcex=1.2, ncex=1.2){
                 y.pos<-y.pos+h
             }
             x.pos<-x.pos+dw
-            if(xaxis) plotXaxis(pfm, p)
         }
+		if(xaxis) plotXaxis(pfm, p)
         if(yaxis) plotYaxis(pfm)
         if(!is.na(xlab)) mtext(xlab,1,line=2,cex=xlcex)
         if(!is.na(ylab)) mtext(ylab,2,line=2,cex=ylcex)
