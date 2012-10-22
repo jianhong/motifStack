@@ -6,11 +6,16 @@ plot sequence logo stacks with a radial phylogenic tree
 }
 \usage{
 plotMotifStackWithRadialPhylog(phylog, pfms=NULL,  
-circle = 1, cleaves = 1, cnodes = 0, 
-labels.leaves = names(phylog$leaves), clabel.leaves = 1, 
-labels.nodes = names(phylog$nodes), clabel.nodes = 0, 
-draw.box = FALSE, col.leaves=rep("black", length(labels.leaves)),
-col.bg=NULL)
+circle=1, cleaves=1, cnodes=0, 
+labels.leaves=names(phylog$leaves), clabel.leaves=1,
+labels.nodes=names(phylog$nodes), clabel.nodes=0, 
+draw.box=FALSE, 
+col.leaves=rep("black", length(labels.leaves)), 
+col.leaves.bg=NULL, col.leaves.bg.alpha=1,
+col.bg=NULL, col.bg.alpha=1, 
+col.inner.label.circle=NULL, col.outer.label.circle=NULL, outer.label.circle.width="default",
+clockwise =FALSE, init.angle=if(clockwise) 90 else 0, 
+angle=360)
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -24,7 +29,16 @@ col.bg=NULL)
 \item{clabel.nodes}{a character size for the nodes labels, used with par("cex")*clabel.nodes. If zero, no nodes labels are drawn}
 \item{draw.box}{if TRUE draws a box around the current plot with the function box()}
 \item{col.leaves}{a vector of colors for leaves labels}
+\item{col.leaves.bg}{a vector of colors for background of leaves labels}
+\item{col.leaves.bg.alpha}{alpha value [0, 1] for the colors of backgroud of leaves labels}
 \item{col.bg}{a vector of colors for background}
+\item{col.bg.alpha}{a alpha value [0, 1] of colors for background}
+\item{col.inner.label.circle}{a vector of colors for inner cirlce of leaves labels}
+\item{col.outer.label.circle}{a vector of colors for outer circle of leaves labels}
+\item{outer.label.circle.width}{width for outer circle of leaves labels}
+\item{clockwise}{a logical value indicating if slices are drawn clockwise or counter clockwise}
+\item{init.angle}{number specifying the starting angle (in degrees) for the slices. Defaults to 0 (i.e., `3 o'clock`) unless clockwise is true where init.angle defaults to 90 (degrees), (i.e., `12 o'clock`)}
+\item{angle}{number specifying the angle (in degrees) for phylogenic tree. Defaults 360}
 }
 \value{
  none

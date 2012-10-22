@@ -1,7 +1,7 @@
 Package: motifStack
 Type: Package
-Version: 1.2.3
-Date: 2012-10-11
+Version: 1.2.5
+Date: 2012-10-22
 Title: Plot stacked logos for single or multiple DNA, RNA and amino
         acid sequence
 Authors@R: c(person("Jianhong Ou", "Developer", role = c("aut", "cre"),

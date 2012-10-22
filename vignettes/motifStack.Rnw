@@ -186,14 +186,22 @@ pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
 library(RColorBrewer)
 color <- brewer.pal(12, "Set3")
 @
-> plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.9, cleaves = 0.5, clabel.leaves = 0.7, 
-                                 col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
+> plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.5, clabel.leaves = 0.5,  
+                                 col.bg=rep(color, each=5), col.bg.alpha=0.3, 
+                                 col.leaves=rep(color, each=5),
+                                 col.inner.label.circle=rep(color,5),
+                                 col.outer.label.circle=rep(color,5), outer.label.circle.width=0.1, 
+                                 angle=350)
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
 <<fig5,fig=TRUE,echo=FALSE>>=
-plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.3, cleaves = 0.2, clabel.leaves = 0.6, 
-                                 col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
+plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.2, clabel.leaves = 0.5, 
+                                 col.bg=rep(color, each=5), col.bg.alpha=0.3, 
+                                 col.leaves=rep(color, each=5),
+                                 col.inner.label.circle=rep(color,5),
+                                 col.outer.label.circle=rep(color,5), outer.label.circle.width=0.1, 
+                                 angle=350)
 @
 \caption{sequence logo stack in radial style}
 \label{fig:treestack}

@@ -249,15 +249,26 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
 ######## 
 ###############################################################################
 plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,  
-circle = 1, cleaves = 1, cnodes = 0, 
-labels.leaves = names(phylog$leaves), clabel.leaves = 1, 
-labels.nodes = names(phylog$nodes), clabel.nodes = 0, 
-draw.box = FALSE, col.leaves=rep("black", length(labels.leaves)),
-col.bg=NULL) 
+circle=1, cleaves=1, cnodes=0, 
+labels.leaves=names(phylog$leaves), clabel.leaves=1,
+labels.nodes=names(phylog$nodes), clabel.nodes=0, 
+draw.box=FALSE, 
+col.leaves=rep("black", length(labels.leaves)), 
+col.leaves.bg=NULL, col.leaves.bg.alpha=1,
+col.bg=NULL, col.bg.alpha=1, 
+col.inner.label.circle=NULL, col.outer.label.circle=NULL, outer.label.circle.width="default",
+clockwise =FALSE, init.angle=if(clockwise) 90 else 0, 
+angle=360) 
 {
 	if (!inherits(phylog, "phylog")) 
     stop("Non convenient data")
 	leaves.number <- length(phylog$leaves)
+	checkLength <- function(tobechecked){
+		!((length(tobechecked)>=leaves.number)|is.null(tobechecked))
+	}
+	for(tobechecked in c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
+		if(checkLength(eval(as.symbol(tobechecked)))) stop(paste("the length of", tobechecked, "should be same as the length of leaves"))
+	}
 	leaves.names <- names(phylog$leaves)
 	nodes.number <- length(phylog$nodes)
 	nodes.names <- names(phylog$nodes)
@@ -292,7 +303,11 @@ col.bg=NULL)
 					 xaxs = "i", yaxs = "i", frame.plot = FALSE)
 	}
 	d.rayon <- rayon/(nodes.number - 1)
-	alpha <- 2 * pi * (1:leaves.number)/leaves.number
+	if(outer.label.circle.width=="default") outer.label.circle.width<-d.rayon
+	twopi <- if (clockwise)
+    -2 * pi
+	else 2 * pi
+	alpha <- twopi * angle * (1:leaves.number)/leaves.number/360 + init.angle * pi/180
 	names(alpha) <- leaves.names
 	x <- dist.leaves * cos(alpha)
 	y <- dist.leaves * sin(alpha)
@@ -300,41 +315,91 @@ col.bg=NULL)
 	ycar <- (rayon + d.rayon) * sin(alpha)
 ##for logos position
 	if(!is.null(pfms)){
-		beta <- 360 * (1:leaves.number)/leaves.number
+		beta <- alpha * 180 / pi 
 		vpheight <- max(unlist(lapply(leaves.names, strheight, units="figure")))
 		vpheight <- vpheight * asp[2L]
 		mwidth <- max(unlist(lapply(pfms, function(.ele) ncol(.ele@mat))))
 		vpwidth <- vpheight * mwidth / 2
-		rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user")))
-		xm <- (rayon + d.rayon + rayonWidth) * cos(alpha) * asp[1L] / 5 + 0.5
-		ym <- (rayon + d.rayon + rayonWidth) * sin(alpha) * asp[2L] / 5 + 0.5
+		rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user"))) * par("cex") * clabel.leaves
+		xm <- (rayon + d.rayon + rayonWidth + 2.5*vpwidth) * cos(alpha) * asp[1L] / 5 + 0.5
+		ym <- (rayon + d.rayon + rayonWidth + 2.5*vpwidth) * sin(alpha) * asp[2L] / 5 + 0.5
+		if((max(xm)>1-vpwidth) | (min(xm)<vpwidth) | (max(ym)>1-vpheight) | (min(ym)<vpheight) ){
+			if(interactive()){
+				msg <- "Sequence logo will be drawn out of canvas. continue? (Y/n): "
+				repeat{
+					cat(msg)
+					answer <- readLines(n=1)
+					if(answer %in% c("Y","y","N","n"))
+					break
+					if(answer == ""){
+						answer <- "y"
+						break
+					}  
+				}
+				tolower(answer)
+				if(answer == "n"){
+					return()
+				}
+			}
+		}
 	}
 ##for plot background
-	gamma <- 2 * pi * ((1:(leaves.number+1))-0.5)/leaves.number
+	if(!is.null(col.bg)) col.bg <- highlightCol(col.bg, col.bg.alpha)
+	if(!is.null(col.leaves.bg)) col.leaves.bg <- highlightCol(col.leaves.bg, col.leaves.bg.alpha)
+	gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
 	n <- max(2, floor(200*360/leaves.number))
-	plotBgArc <- function(t, bgcol) {
-		t2xy <- function(t) list(x=rayon*cos(t), y=rayon*sin(t))
+	plotBgArc <- function(i, r, bgcol) {
+		t2xy <- function(t) list(x=r*cos(t), y=r*sin(t))
 		P <- t2xy(seq.int(gamma[i], gamma[i+1], length.out=n))
 		polygon(c(P$x, 0), c(P$y, 0), border=bgcol, col=bgcol)
 	}
-	if (clabel.leaves > 0) {
-		for (i in 1:leaves.number) {
-			if(!is.null(col.bg)) plotBgArc(i, col.bg[i])
-			segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
-		}
-		for (i in 1:leaves.number) {
-			par(srt = alpha[i] * 180/pi)
-			text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") * 
-				 clabel.leaves)
-			segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
-			if(!is.null(pfms)){
-				pushViewport(viewport(x=xm[i], y=ym[i], width=vpwidth, height=vpheight, angle=beta[i]))
-				if(!is.null(pfms[[i]])){
-					plotMotifLogoA(pfms[[i]])
-				}
-				popViewport()
+	plotBgArc <- function(r,bgcol,inr){
+		t2xy <- function(rx,t) list(x=rx*cos(t), y=rx*sin(t))
+		oldcol <- bgcol[1]
+		start <- 1
+		icnt <- 1
+		bgcol[length(bgcol)+1]<-NA
+		for(i in 1:leaves.number){
+			oldcol <- bgcol[i]
+			if(bgcol[i+1]!=oldcol){
+				P <- t2xy(r, seq.int(gamma[start], gamma[start+icnt], length.out=n*icnt))
+				polygon(c(P$x, 0), c(P$y, 0), border=bgcol[i], col=bgcol[i])
+				start <- i+1
+				icnt <- 1
+			} else {
+				icnt <- icnt + 1
 			}
 		}
+		if(inr!=0){
+			P <- t2xy(inr, seq.int(0, twopi, length.out=n*leaves.number))
+			polygon(c(P$x, 0), c(P$y, 0), border="white", col="white")
+		}
+	}
+	if (clabel.leaves > 0) {
+		if(!is.null(col.outer.label.circle)) ##plot outer.label.circle
+		plotBgArc(rayon+d.rayon+rayonWidth+outer.label.circle.width, col.outer.label.circle, rayon+d.rayon+rayonWidth)
+		if(!is.null(col.leaves.bg)) ##plot leaves bg
+		plotBgArc(rayon+d.rayon+rayonWidth, col.leaves.bg, rayon+d.rayon)
+		if(!is.null(col.inner.label.circle)) #plot inner.label.circle
+		plotBgArc(rayon+d.rayon, col.inner.label.circle, rayon) 
+		if(!is.null(col.bg)) ##plot center bg
+		plotBgArc(rayon, col.bg, 0)
+		for (i in 1:leaves.number) {
+			segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
+		}
+		tmpout <- lapply(1:leaves.number,function(i) {
+						 par(srt = alpha[i] * 180/pi)
+						 text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") * 
+							  clabel.leaves)
+						 segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
+						 if(!is.null(pfms)){
+						 pushViewport(viewport(x=xm[i], y=ym[i], width=vpwidth, height=vpheight, angle=beta[i]))
+						 if(!is.null(pfms[[i]])){
+						 plotMotifLogoA(pfms[[i]])
+						 }
+						 popViewport()
+						 }
+						 })
 	}
 	if (cleaves > 0) {
 		for (i in 1:leaves.number) points(x[i], y[i], pch = 21, col=col.leaves[i],

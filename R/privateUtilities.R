@@ -5,6 +5,15 @@ hex2psrgb<-function(col){
     col
 }
 
+highlightCol <- function (col, alpha=0.5){
+	n <- names(col)
+	col <- grDevices::col2rgb(col,alpha=T)
+	col <- apply(col, 2, function(.ele, alpha){rgb(.ele[1], .ele[2], .ele[3], alpha=ceiling(alpha*.ele[4]), maxColorValue=255)}, alpha)
+	col <- unlist(col)
+	names(col) <- n
+	col
+}
+
 addPseudolog2<-function(x){
     ifelse(x==0, -10, log2(x))
 }
