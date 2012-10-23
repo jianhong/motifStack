@@ -303,7 +303,7 @@ angle=360)
 					 xaxs = "i", yaxs = "i", frame.plot = FALSE)
 	}
 	d.rayon <- rayon/(nodes.number - 1)
-	if(outer.label.circle.width=="default") outer.label.circle.width<-d.rayon
+	if(outer.label.circle.width=="default") outer.label.circle.width <- rayon-mean(dist.leaves)
 	twopi <- if (clockwise)
     -2 * pi
 	else 2 * pi
@@ -313,6 +313,8 @@ angle=360)
 	y <- dist.leaves * sin(alpha)
 	xcar <- (rayon + d.rayon) * cos(alpha)
 	ycar <- (rayon + d.rayon) * sin(alpha)
+	
+	rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user"))) * par("cex") * clabel.leaves
 ##for logos position
 	if(!is.null(pfms)){
 		beta <- alpha * 180 / pi 
@@ -320,10 +322,9 @@ angle=360)
 		vpheight <- vpheight * asp[2L]
 		mwidth <- max(unlist(lapply(pfms, function(.ele) ncol(.ele@mat))))
 		vpwidth <- vpheight * mwidth / 2
-		rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user"))) * par("cex") * clabel.leaves
 		xm <- (rayon + d.rayon + rayonWidth + 2.5*vpwidth) * cos(alpha) * asp[1L] / 5 + 0.5
 		ym <- (rayon + d.rayon + rayonWidth + 2.5*vpwidth) * sin(alpha) * asp[2L] / 5 + 0.5
-		if((max(xm)>1-vpwidth) | (min(xm)<vpwidth) | (max(ym)>1-vpheight) | (min(ym)<vpheight) ){
+		if((max(xm)>1-0.5*vpwidth) | (min(xm)<0.5*vpwidth) | (max(ym)>1-0.5*vpheight) | (min(ym)<0.5*vpheight) ){
 			if(interactive()){
 				msg <- "Sequence logo will be drawn out of canvas. continue? (Y/n): "
 				repeat{
@@ -348,20 +349,14 @@ angle=360)
 	if(!is.null(col.leaves.bg)) col.leaves.bg <- highlightCol(col.leaves.bg, col.leaves.bg.alpha)
 	gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
 	n <- max(2, floor(200*360/leaves.number))
-	plotBgArc <- function(i, r, bgcol) {
-		t2xy <- function(t) list(x=r*cos(t), y=r*sin(t))
-		P <- t2xy(seq.int(gamma[i], gamma[i+1], length.out=n))
-		polygon(c(P$x, 0), c(P$y, 0), border=bgcol, col=bgcol)
-	}
 	plotBgArc <- function(r,bgcol,inr){
 		t2xy <- function(rx,t) list(x=rx*cos(t), y=rx*sin(t))
 		oldcol <- bgcol[1]
 		start <- 1
 		icnt <- 1
-		bgcol[length(bgcol)+1]<-NA
 		for(i in 1:leaves.number){
 			oldcol <- bgcol[i]
-			if(bgcol[i+1]!=oldcol){
+			if(i==leaves.number || bgcol[i+1]!=oldcol){
 				P <- t2xy(r, seq.int(gamma[start], gamma[start+icnt], length.out=n*icnt))
 				polygon(c(P$x, 0), c(P$y, 0), border=bgcol[i], col=bgcol[i])
 				start <- i+1
@@ -381,12 +376,9 @@ angle=360)
 		if(!is.null(col.leaves.bg)) ##plot leaves bg
 		plotBgArc(rayon+d.rayon+rayonWidth, col.leaves.bg, rayon+d.rayon)
 		if(!is.null(col.inner.label.circle)) #plot inner.label.circle
-		plotBgArc(rayon+d.rayon, col.inner.label.circle, rayon) 
+		plotBgArc(rayon, col.inner.label.circle, mean(dist.leaves)) 
 		if(!is.null(col.bg)) ##plot center bg
-		plotBgArc(rayon, col.bg, 0)
-		for (i in 1:leaves.number) {
-			segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
-		}
+		plotBgArc(mean(dist.leaves), col.bg, 0)
 		tmpout <- lapply(1:leaves.number,function(i) {
 						 par(srt = alpha[i] * 180/pi)
 						 text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") * 
