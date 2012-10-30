@@ -6,7 +6,7 @@ plot sequence logo stacks with a radial phylogenic tree
 }
 \usage{
 plotMotifStackWithRadialPhylog(phylog, pfms=NULL,  
-circle=1, cleaves=1, cnodes=0, 
+circle=1, circle.motif=NA, cleaves=1, cnodes=0, 
 labels.leaves=names(phylog$leaves), clabel.leaves=1,
 labels.nodes=names(phylog$nodes), clabel.nodes=0, 
 draw.box=FALSE, 
@@ -21,6 +21,7 @@ angle=360)
 \item{phylog}{an object of class phylog}
 \item{pfms}{a list of objects of class pfm}
 \item{circle}{a size coefficient for the outer circle}
+\item{circle.motif}{a size coefficient for the motif circle}
 \item{cleaves}{a character size for plotting the points that represent the leaves, used with par("cex")*cleaves. If zero, no points are drawn}
 \item{cnodes}{a character size for plotting the points that represent the nodes, used with par("cex")*cnodes. If zero, no points are drawn}
 \item{labels.leaves}{a vector of strings of characters for the leaves labels}

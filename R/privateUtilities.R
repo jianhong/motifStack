@@ -14,6 +14,27 @@ highlightCol <- function (col, alpha=0.5){
 	col
 }
 
+coloredSymbols <- function(ncha, font, color, rname){
+	symbols<-list()
+	for(i in 1:ncha){
+		ps<-paste("%!PS\n/",font," findfont\n72 scalefont\n",
+				  motifStack:::hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
+				  rname[i],") show",sep="")
+		psfilename<-tempfile()
+		psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)
+# step1 create a ps file
+		cat(ps,file=paste(psfilename,".ps",sep=""))
+# step2 convert it by grImport::PostScriptTrace
+		grImport::PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
+# step3 read by grImport::readPicture
+		symbols[[i]]<-grImport::readPicture(paste(psfilename,".xml",sep=""))
+		unlink(c(paste(psfilename,".ps",sep=""), 
+				 paste("capture",basename(psfilename),".ps",sep=""), 
+				 paste(psfilename,".xml",sep="")))
+	}
+	symbols
+}
+
 addPseudolog2<-function(x){
     ifelse(x==0, -10, log2(x))
 }

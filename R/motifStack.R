@@ -33,24 +33,15 @@ xlcex=1.2, ylcex=1.2, ncex=1.2){
 		text(.5,.5,"Can not locate ghostscript.\nFor windows, please install ghostscript first and then try:\nSys.setenv(R_GSCMD=\"\\\"C:\\\\Path\\\\to\\\\gsbin\\\\gswin32c.exe\\\"\")")
     }else{
         npos<-ncol(pfm)
-        ncha<-nrow(pfm) 
-        symbols<-list()
-        for(i in 1:ncha){
-            ps<-paste("%!PS\n/",font," findfont\n72 scalefont\n",
-                      hex2psrgb(colset[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
-                      rname[i],") show",sep="")
-            psfilename<-tempfile()
-			psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)
-    # step1 create a ps file
-            cat(ps,file=paste(psfilename,".ps",sep=""))
-    # step2 convert it by grImport::PostScriptTrace
-            grImport::PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
-    # step3 read by grImport::readPicture
-            symbols[[i]]<-grImport::readPicture(paste(psfilename,".xml",sep=""))
-            unlink(c(paste(psfilename,".ps",sep=""), 
-                     paste("capture",basename(psfilename),".ps",sep=""), 
-                     paste(psfilename,".xml",sep="")))
-        }
+        ncha<-nrow(pfm)
+		key<-paste("x", ncha, font, paste(colset, collapse=""), paste(rname, collapse=""), sep="_")
+		symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
+		if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
+		else {
+			symbols<-motifStack:::coloredSymbols(ncha, font, colset, rname)
+			symbolsCache[[key]]<-symbols
+			assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
+		}
     #calculate postion of each symbol and plot
         plot.new()
         
@@ -112,10 +103,12 @@ plotMotifLogoStack<-function(pfms, ...){
            if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
            })
     opar<-par(mfrow=c(n,1),mar=c(3.5,3.5,1.5,0.5))
+	assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
     for(i in 1:(n-1)){
         plot(pfms[[n-i+1]],xlab=NA, ...)
     }
     plot(pfms[[1]], ...)
+	rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
     par(opar)
 }
 
@@ -164,10 +157,12 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
     
 #plot logo
     par(mar=c(3.5,3.5,1.5,0.5))
+	assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
     for(i in 1:(n-1)){
         plot(pfms[[n-i+1]],xlab=NA, ...)
     }
     plot(pfms[[1]], ...)
+	rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
     par(opar)
 }
 
@@ -207,23 +202,15 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
 	gscmd <- Sys.getenv("R_GSCMD")
 	npos<-ncol(pfm@mat)
 	ncha<-nrow(pfm@mat) 
-	symbols<-list()
-	for(i in 1:ncha){
-		ps<-paste("%!PS\n/",font," findfont\n72 scalefont\n",
-				  motifStack:::hex2psrgb(pfm@color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
-				  rname[i],") show",sep="")
-		psfilename<-tempfile()
-		psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)
-# step1 create a ps file
-		cat(ps,file=paste(psfilename,".ps",sep=""))
-# step2 convert it by grImport::PostScriptTrace
-		grImport::PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
-# step3 read by grImport::readPicture
-		symbols[[i]]<-grImport::readPicture(paste(psfilename,".xml",sep=""))
-		unlink(c(paste(psfilename,".ps",sep=""), 
-				 paste("capture",basename(psfilename),".ps",sep=""), 
-				 paste(psfilename,".xml",sep="")))
+	key<-paste("x", ncha, font, paste(pfm@color, collapse=""), paste(rname, collapse=""), sep="_")
+	symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
+	if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
+	else {
+		symbols<-motifStack:::coloredSymbols(ncha, font, pfm@color, rname)
+		symbolsCache[[key]]<-symbols
+		assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
 	}
+	
 #calculate postion of each symbol and plot   
 	ic<-motifStack:::getIC(pfm)
 	ie<-motifStack:::getIE(pfm@mat)
@@ -249,7 +236,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
 ######## 
 ###############################################################################
 plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,  
-circle=1, cleaves=1, cnodes=0, 
+circle=1, circle.motif=NA, cleaves=1, cnodes=0,
 labels.leaves=names(phylog$leaves), clabel.leaves=1,
 labels.nodes=names(phylog$nodes), clabel.nodes=0, 
 draw.box=FALSE, 
@@ -266,7 +253,7 @@ angle=360)
 	checkLength <- function(tobechecked){
 		!((length(tobechecked)>=leaves.number)|is.null(tobechecked))
 	}
-	for(tobechecked in c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
+	for(tobechecked in c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle", "pfms")){
 		if(checkLength(eval(as.symbol(tobechecked)))) stop(paste("the length of", tobechecked, "should be same as the length of leaves"))
 	}
 	leaves.names <- names(phylog$leaves)
@@ -314,7 +301,8 @@ angle=360)
 	xcar <- (rayon + d.rayon) * cos(alpha)
 	ycar <- (rayon + d.rayon) * sin(alpha)
 	
-	rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user"))) * par("cex") * clabel.leaves
+	rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user", cex=clabel.leaves)))
+	circle.motif <- ifelse(is.na(circle.motif), rayon + d.rayon + rayonWidth, circle.motif)
 ##for logos position
 	if(!is.null(pfms)){
 		beta <- alpha * 180 / pi 
@@ -322,8 +310,8 @@ angle=360)
 		vpheight <- vpheight * asp[2L]
 		mwidth <- max(unlist(lapply(pfms, function(.ele) ncol(.ele@mat))))
 		vpwidth <- vpheight * mwidth / 2
-		xm <- (rayon + d.rayon + rayonWidth + 2.5*vpwidth) * cos(alpha) * asp[1L] / 5 + 0.5
-		ym <- (rayon + d.rayon + rayonWidth + 2.5*vpwidth) * sin(alpha) * asp[2L] / 5 + 0.5
+		xm <- (circle.motif + 2.5*vpwidth) * cos(alpha) * asp[1L] / 5 + 0.5
+		ym <- (circle.motif + 2.5*vpwidth) * sin(alpha) * asp[2L] / 5 + 0.5
 		if((max(xm)>1-0.5*vpwidth) | (min(xm)<0.5*vpwidth) | (max(ym)>1-0.5*vpheight) | (min(ym)<0.5*vpheight) ){
 			if(interactive()){
 				msg <- "Sequence logo will be drawn out of canvas. continue? (Y/n): "
@@ -345,8 +333,8 @@ angle=360)
 		}
 	}
 ##for plot background
-	if(!is.null(col.bg)) col.bg <- highlightCol(col.bg, col.bg.alpha)
-	if(!is.null(col.leaves.bg)) col.leaves.bg <- highlightCol(col.leaves.bg, col.leaves.bg.alpha)
+	if(!is.null(col.bg)) col.bg <- motifStack:::highlightCol(col.bg, col.bg.alpha)
+	if(!is.null(col.leaves.bg)) col.leaves.bg <- motifStack:::highlightCol(col.leaves.bg, col.leaves.bg.alpha)
 	gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
 	n <- max(2, floor(200*360/leaves.number))
 	plotBgArc <- function(r,bgcol,inr){
@@ -372,26 +360,28 @@ angle=360)
 	}
 	if (clabel.leaves > 0) {
 		if(!is.null(col.outer.label.circle)) ##plot outer.label.circle
-		plotBgArc(rayon+d.rayon+rayonWidth+outer.label.circle.width, col.outer.label.circle, rayon+d.rayon+rayonWidth)
+		plotBgArc(circle.motif+outer.label.circle.width, col.outer.label.circle, rayon+d.rayon+rayonWidth)
 		if(!is.null(col.leaves.bg)) ##plot leaves bg
-		plotBgArc(rayon+d.rayon+rayonWidth, col.leaves.bg, rayon+d.rayon)
+		plotBgArc(circle.motif, col.leaves.bg, rayon+d.rayon)
 		if(!is.null(col.inner.label.circle)) #plot inner.label.circle
 		plotBgArc(rayon, col.inner.label.circle, mean(dist.leaves)) 
 		if(!is.null(col.bg)) ##plot center bg
 		plotBgArc(mean(dist.leaves), col.bg, 0)
-		tmpout <- lapply(1:leaves.number,function(i) {
-						 par(srt = alpha[i] * 180/pi)
-						 text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") * 
-							  clabel.leaves)
-						 segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
-						 if(!is.null(pfms)){
-						 pushViewport(viewport(x=xm[i], y=ym[i], width=vpwidth, height=vpheight, angle=beta[i]))
-						 if(!is.null(pfms[[i]])){
-						 plotMotifLogoA(pfms[[i]])
-						 }
-						 popViewport()
-						 }
-						 })
+		assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+		for(i in 1:leaves.number) {
+			par(srt = alpha[i] * 180/pi)
+			text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") * 
+				 clabel.leaves)
+			segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
+			if(!is.null(pfms)){
+				pushViewport(viewport(x=xm[i], y=ym[i], width=vpwidth, height=vpheight, angle=beta[i]))
+				if(!is.null(pfms[[i]])){
+					plotMotifLogoA(pfms[[i]])
+				}
+				popViewport()
+			}
+		}
+		rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
 	}
 	if (cleaves > 0) {
 		for (i in 1:leaves.number) points(x[i], y[i], pch = 21, col=col.leaves[i],
