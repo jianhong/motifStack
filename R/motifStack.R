@@ -431,3 +431,331 @@ angle=360)
     box()
 	return(invisible())
 }
+
+
+###############################################################################
+######## motif cloud
+######## 
+###############################################################################
+motifCloud <- function(pfms, phylog, groupDistance, 
+layout=c("rectangles", "cloud"), 
+min.freq=2, scale=c(6, .5), rot.per=.1, trim=0.8, 
+draw.box=TRUE, draw.freq=TRUE, 
+box.col="gray", freq.col="gray")
+{
+	if (!inherits(phylog, "phylog")) 
+    stop("Non convenient data")
+	leaves.number <- length(phylog$leaves)
+	if (length(pfms)!=leaves.number)
+    stop("length of pfms and leaves should be identical.")
+	if (missing(groupDistance))
+    stop("groupDistance is required.")
+	layout <- match.arg(layout, c("cloud","rectangles"), several.ok=TRUE)
+	layout <- layout[1]
+	dist <- as.matrix(phylog$Wdist)
+	gp <- list()
+	g <- 1
+	gp[[g]] <- 1
+	for(i in 1:(leaves.number-1)){
+		if(dist[i,i+1] <= groupDistance){
+			gp[[g]] <- c(gp[[g]], i+1)
+		}else{
+			g <- g+1
+			gp[[g]] <- i+1
+		}
+	}
+	getSignature <- function(.pfm){
+		re <- .pfm[[1]]
+		for(i in 1:ncol(re@mat)){
+			.mat <- matrix(nrow=nrow(re@mat),ncol=length(.pfm))
+			for(j in 1:length(.pfm)){
+				.mat[,j] <- .pfm[[j]]@mat[,i]
+			}
+			re@mat[,i] <- rowMeans(.mat)
+		}
+		re
+	}
+	signatures <- lapply(gp, function(.gp){
+						 .pfm <- pfms[.gp]
+						 if(length(.pfm)>1){
+##do alignment
+						 .pfm <- DNAmotifAlignment(.pfm)
+##use average for each position as signatures
+						 .pfm <- getSignature(.pfm)
+						 }else{
+						 .pfm <- .pfm[[1]]
+						 }
+						 .sw <- c(0,0)
+						 ic<-motifStack:::getIC(.pfm)
+						 for(i in 1:ncol(.pfm@mat)){
+						 if(ic[i]>trim){
+						 if(.sw[1]==0) .sw[1] <- i
+						 else .sw[2] <- i
+						 }
+						 }
+						 if(.sw[1]<.sw[2]-2) .pfm@mat <- .pfm@mat[,.sw[1]:.sw[2]]
+						 else .pfm<-NA
+						 .pfm
+						 })
+	freq <- unlist(lapply(gp, length))
+	ord <- unlist(lapply(signatures, function(.ele){inherits(.ele,"pfm")}))
+	signatures <- signatures[ord]
+	freq <- freq[ord]
+	if(min.freq > max(freq)) min.freq <- 0
+	ord <- order(freq, decreasing=TRUE)
+	signatures <- signatures[ord]
+	freq <- freq[ord]
+	signatures <- signatures[freq>=min.freq]
+	freq <- freq[freq>=min.freq]
+	if(length(freq)==0){
+		if(interactive()) warning("All frequency are smaller than min.freq.")
+		return(FALSE)
+	}
+	normedFreq <- freq/max(freq)
+	size <- (scale[1]-scale[2])*normedFreq + scale[2]
+	op <- par(mar=c(0,0,0,0))
+	on.exit(par(op))
+	plot.new()
+	if(layout=="rectangles"){
+		boxesInch <- list()
+		minWid <- .Machine$integer.max
+		minHt <- .Machine$integer.max
+		for(i in 1:length(signatures)){
+			ht <- strheight("ACGT", units="inches", cex=size[i])
+			wid <- ht*ncol(signatures[[i]]@mat)/2
+			boxesInch[[i]] <- new("Rect", width=wid, height=ht)
+			if(ht < minHt) minHt <- ht
+			if(wid < minWid) minWid <- wid
+		}
+		pin <- par("pin")
+		bin <- new("Rect", width=pin[1], height=pin[2])
+		bin.ratio <- bin@height / bin@width
+		basic1.wd <- max(boxesInch[[1]]@width, boxesInch[[1]]@height)
+		if(bin.ratio < 1) {
+			basic1.ht <- basic1.wd * bin.ratio
+		}else{
+			basic1.ht <- basic1.wd
+			basic1.wd <- basic1.ht/bin.ratio
+		}
+		basic1 <- new("Rect", width=basic1.wd, height=basic1.ht)
+		freeRect <- list(basic1)
+		bestNodelist <- list()
+		maxX <- 0
+		maxY <- 0
+		for(i in 1:length(signatures)){
+			if(length(freeRect)<1){
+				if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
+				break
+			}
+			getBestNode <- function(freeRect, boxesInch, i, bin, basic1){
+				bestNode <- new("Rect")
+				bestX <- basic1@width
+				bestY <- basic1@height
+				for(j in 1:length(freeRect)){
+					if(freeRect[[j]]@width >= boxesInch[[i]]@width && freeRect[[j]]@height >= boxesInch[[i]]@height){
+						topSideY <- freeRect[[j]]@y + boxesInch[[i]]@height
+						if(topSideY < bestY || (topSideY == bestY && freeRect[[j]]@x < bestX)){
+							bestNode@x <- freeRect[[j]]@x
+							bestNode@y <- freeRect[[j]]@y
+							bestNode@width <- boxesInch[[i]]@width
+							bestNode@height <- boxesInch[[i]]@height
+							bestY <- topSideY
+							bestX <- freeRect[[j]]@x
+						}
+					}
+					if(freeRect[[j]]@width >= boxesInch[[i]]@height && freeRect[[j]]@height >= boxesInch[[i]]@width){
+						topSideY <- freeRect[[j]]@y + boxesInch[[i]]@width
+						if(topSideY < bestY || (topSideY == bestY && freeRect[[j]]@x < bestX)){
+							bestNode@x <- freeRect[[j]]@x
+							bestNode@y <- freeRect[[j]]@y
+							bestNode@width <- boxesInch[[i]]@height
+							bestNode@height <- boxesInch[[i]]@width
+							bestY <- topSideY
+							bestX <- freeRect[[j]]@x
+						}
+					}
+				}
+				if(bestNode@height==0){
+					basic2.wd <- min(boxesInch[[i]]@width, boxesInch[[i]]@height)
+					basic2.ht <- basic2.wd * bin.ratio
+					if(bin.ratio < 1) {
+						basic2.ht <- basic2.wd * bin.ratio
+					}else{
+						basic2.ht <- basic2.wd
+						basic2.wd <- basic2.ht/bin.ratio
+					}
+					basic2 <- new("Rect", width=basic1@width+basic2.wd, height=basic1@height+basic2.ht)
+					freeRect <- lapply(freeRect, function(.ele){
+									   if(.ele@x+.ele@width==basic1@width) .ele@width <- .ele@width + basic2.wd
+									   if(.ele@y+.ele@height==basic1@height) .ele@height <- .ele@height + basic2.ht
+									   .ele
+									   })
+					freeRect <- c(freeRect, new("Rect", x=basic1@width, y=0, width=basic2.wd, height=basic2@height), new("Rect", x=0, y=basic1@height, width=basic2@width, height=basic2.ht))
+					basic1 <- basic2
+					bestNodeRes <- Recall(freeRect, boxesInch, i, bin, basic1)
+					bestNode <- bestNodeRes[["bestNode"]]
+					freeRect <- bestNodeRes[["freeRect"]]
+					basic1 <- bestNodeRes[["basic1"]]
+				}
+				list(bestNode=bestNode, freeRect=freeRect, basic1=basic1)
+			}
+			bestNodeRes <- getBestNode(freeRect, boxesInch, i, bin, basic1)
+			bestNode <- bestNodeRes[["bestNode"]]
+			freeRect <- bestNodeRes[["freeRect"]]
+			basic1 <- bestNodeRes[["basic1"]]
+			if(bestNode@height==0){
+				if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
+				break
+			}
+			tobeAppend <- list()
+			leftNodes <- lapply(freeRect, function(freeNode, usedNode){
+								if(usedNode@x >= freeNode@x + freeNode@width || usedNode@x + usedNode@width <= freeNode@x ||
+								   usedNode@y >= freeNode@y + freeNode@height || usedNode@y + usedNode@height <= freeNode@y){
+								TRUE
+								}else{
+								if(usedNode@x < freeNode@x + freeNode@width && usedNode@x + usedNode@width > freeNode@x){
+## New node at the top side of the used node
+								if(usedNode@y > freeNode@y && usedNode@y <freeNode@y + freeNode@height){
+								newFreeNode <- freeNode
+								newFreeNode@height <- usedNode@y - newFreeNode@y
+								tobeAppend <<- c(tobeAppend, newFreeNode)
+								}
+## New node at the bottom side of the used node
+								if(usedNode@y + usedNode@height < freeNode@y + freeNode@height){
+								newFreeNode <- freeNode
+								newFreeNode@y <- usedNode@y + usedNode@height
+								newFreeNode@height <- freeNode@y + freeNode@height - (usedNode@y + usedNode@height)
+								tobeAppend <<- c(tobeAppend, newFreeNode)
+								}
+								}
+								if(usedNode@y < freeNode@y + freeNode@height && usedNode@y + usedNode@height > freeNode@y){
+## New node at the left side of the used node
+								if(usedNode@x > freeNode@x && usedNode@x <freeNode@x + freeNode@width){
+								newFreeNode <- freeNode
+								newFreeNode@width <- usedNode@x - newFreeNode@x
+								tobeAppend <<- c(tobeAppend, newFreeNode)
+								}
+## New node at the right side of the used node
+								if(usedNode@x + usedNode@width < freeNode@x + freeNode@width){
+								newFreeNode <- freeNode
+								newFreeNode@x <- usedNode@x + usedNode@width
+								newFreeNode@width <- freeNode@x + freeNode@width - (usedNode@x + usedNode@width)
+								tobeAppend <<- c(tobeAppend, newFreeNode)
+								}
+								}
+								FALSE
+								}
+								}, bestNode)     
+			freeRect <- c(freeRect[unlist(leftNodes)], tobeAppend)
+## prune freeRect
+			if(length(freeRect)>1){
+				leftNodes <- rep(TRUE, length(freeRect))
+				for(m in 1:(length(freeRect)-1)){
+					if(leftNodes[m]){
+						for(n in (m+1):length(freeRect)){
+							if(leftNodes[n]){
+								if(isContainedIn(freeRect[[m]], freeRect[[n]])){
+									leftNodes[m] <- FALSE
+									break;
+								}
+								if(isContainedIn(freeRect[[n]], freeRect[[m]])){
+									leftNodes[n] <- FALSE
+								}
+							}
+						}
+					}
+				}
+				freeRect <- freeRect[leftNodes]
+			}
+			
+##push bestNode
+			bestNodelist <- c(bestNodelist, bestNode)
+			maxX <- max(unlist(lapply(freeRect, function(.ele){.ele@x+.ele@width})))
+			maxY <- max(unlist(lapply(freeRect, function(.ele){.ele@y+.ele@height})))
+		}
+		ratio <- min(bin@width/maxX, bin@height/maxY)
+		for(i in 1:length(bestNodelist)){
+			bestNode <- bestNodelist[[i]]
+## draw logo in bestNode
+			if(bestNode@width<bestNode@height){
+				pushViewport(viewport(x=unit(ratio*bestNode@x, "inches"), y=unit(ratio*bestNode@y+ratio*bestNode@height, "inches"), width=unit(ratio*bestNode@height, "inches"), height=unit(ratio*bestNode@width, "inches"), just=c("left","bottom"), angle=-90))
+			}else{
+				pushViewport(viewport(x=unit(ratio*bestNode@x, "inches"), y=unit(ratio*bestNode@y, "inches"), width=unit(ratio*bestNode@width, "inches"), height=unit(ratio*bestNode@height, "inches"), just=c("left","bottom")))
+			}
+			if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed"))
+			plotMotifLogoA(signatures[[i]])
+			if(draw.freq) grid.text(label=freq[i],x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq[i]), just=c("right","top"))
+			popViewport()
+		}
+	}else{
+		last <- 1
+		overlap <- function(x1, y1, sw1, sh1){
+			s <- 0
+			if(length(boxes)==0) return(FALSE)
+			for(i in c(last, 1:length(boxes))){
+				bnds <- boxes[[i]]
+				x2 <- bnds[1]
+				y2 <- bnds[2]
+				sw2 <- bnds[3]
+				sh2 <- bnds[4]
+				if(x1 < x2) overlap <- x1+sw1 > x2-s
+				else overlap <- x2 +sw2 > x1-s
+				if(y1 <y2) overlap <- overlap && (y1+sh1 > y2-s)
+				else overlap <- overlap && (y2 +sh2 > y1-s)
+				if(overlap){
+					last <- i
+					return(TRUE)
+				}
+			}
+			FALSE
+		}
+		thetaStep <- .1
+		rStep <- .05
+		plot.window(c(0,1), c(0,1), asp=1)
+		boxes <- list()
+		
+		for(i in 1:length(signatures)){
+			sig <- signatures[[i]]
+			rotWord <- runif(1)<rot.per
+			r <- 0
+			theta <- runif(1, 0, 2*pi)
+			x1 <- .5
+			y1 <- .5
+			ht <- strheight("ACGT", cex=size[i])
+			wid <- ht * ncol(sig@mat) / 2
+			if(rotWord){
+				tmp <- ht
+				ht <- wid
+				wid <- tmp
+			}
+			isOverlapped <- TRUE
+			while(isOverlapped){
+				if(!overlap(x1-.5*wid, y1-.5*ht, wid, ht) &&
+				   x1-.5*wid>0 && y1-.5*ht>0 &&
+				   x1+.5*wid<1 && y1+.5*ht<1){
+					if(rotWord){
+						pushViewport(viewport(x=x1, y=y1, width=ht, height=wid, angle=90))
+					}else{
+						pushViewport(viewport(x=x1, y=y1, width=wid, height=ht))
+					}
+					if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed"))
+					plotMotifLogoA(sig)
+					if(draw.freq) grid.text(label=freq[i],x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq[i]), just=c("right","top"))
+					popViewport()
+					boxes[[length(boxes)+1]] <- c(x1-.5*wid, y1-.5*ht, wid, ht)
+					isOverlapped <- FALSE
+				}else{
+					if(r>sqrt(.5)){
+						if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
+						isOverlapped <- FALSE
+					}
+					theta <- theta+thetaStep
+					r <- r+rStep*thetaStep/(2*pi)
+					x1 <- .5+r*cos(theta)
+					y1 <- .5+r*sin(theta)
+				}
+			}
+		}
+	}
+	return(invisible())
+}

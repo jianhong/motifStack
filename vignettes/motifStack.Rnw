@@ -186,12 +186,16 @@ pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
 library(RColorBrewer)
 color <- brewer.pal(12, "Set3")
 @
+\begin{Schunk}
+\begin{Sinput}
 > plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.5, clabel.leaves = 0.5,  
                                  col.bg=rep(color, each=5), col.bg.alpha=0.3, 
                                  col.leaves=rep(color, each=5),
                                  col.inner.label.circle=rep(color,5),
                                  col.outer.label.circle=rep(color,5), outer.label.circle.width=0.1, 
                                  angle=350)
+\end{Sinput}
+\end{Schunk}
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
@@ -205,6 +209,24 @@ plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.2, clabel.l
 @
 \caption{sequence logo stack in radial style}
 \label{fig:treestack}
+\end{figure}
+
+\subsection{plot a sequence logo cloud}
+We can also plot a sequence logo cloud for DNA sequence logo.
+\begin{scriptsize}
+\begin{Schunk}
+\begin{Sinput}
+> motifCloud(pfms, phylog, groupDistance=1, scale=c(6, .5))
+\end{Sinput}
+\end{Schunk}
+\end{scriptsize}
+\begin{figure}[htb]
+\centering
+<<fig6,fig=TRUE,echo=FALSE>>=
+motifCloud(pfms, phylog, groupDistance=1, scale=c(6, .5))
+@
+\caption{a sequence logo cloud}
+\label{fig:motifCloud}
 \end{figure}
 
 \section{References}

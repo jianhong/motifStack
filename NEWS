@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.2.8
+-----------------------
+
+NEW FEATURES
+
+    o New function motifCloud to draw motif cloud
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
+
 CHANGES IN VERSION 1.2.7
 -----------------------
 

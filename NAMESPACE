@@ -6,7 +6,7 @@ export(
 	plotMotifLogo, plotMotifLogoA,
 	plotXaxis, plotYaxis, 
 	colorset, 
-	plotMotifLogoStack, plotMotifLogoStackWithTree, 	DNAmotifAlignment, plotMotifStackWithRadialPhylog, 
+	plotMotifLogoStack, plotMotifLogoStackWithTree, 	DNAmotifAlignment, plotMotifStackWithRadialPhylog, motifCloud,
 	readPCM, 
 	pcm2pfm
 )

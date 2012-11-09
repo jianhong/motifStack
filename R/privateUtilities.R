@@ -122,3 +122,14 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
     max=ifelse(score1[k1]<score2[k2], score2[k2], score1[k1])
     list(k=k,max=max)
 }
+
+setClass("Rect", 
+		representation(x="numeric", y="numeric", width="numeric", height="numeric"), 
+		prototype=prototype(x=0, y=0, width=0, height=0)
+)
+
+setGeneric("isContainedIn", function(a, b) standardGeneric("isContainedIn"))
+
+setMethod("isContainedIn", signature(a="Rect", b="Rect"), function(a, b){
+	a@x >= b@x && a@y >= b@y && a@x+a@width <= b@x+b@width && a@y+a@height <= b@y+b@height
+})
