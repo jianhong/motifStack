@@ -133,3 +133,12 @@ setGeneric("isContainedIn", function(a, b) standardGeneric("isContainedIn"))
 setMethod("isContainedIn", signature(a="Rect", b="Rect"), function(a, b){
 	a@x >= b@x && a@y >= b@y && a@x+a@width <= b@x+b@width && a@y+a@height <= b@y+b@height
 })
+
+
+setClass("ouNode", representation(left="character", 
+right="character", 
+parent="character", 
+distl="numeric", 
+distr="numeric",
+sizel="numeric",
+sizer="numeric"))

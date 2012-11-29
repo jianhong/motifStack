@@ -437,11 +437,12 @@ angle=360)
 ######## motif cloud
 ######## 
 ###############################################################################
-motifCloud <- function(pfms, phylog, groupDistance, 
-layout=c("rectangles", "cloud"), 
+motifCloud <- function(pfms, phylog, groupDistance, rcpostfix="(RC)", 
+layout=c("rectangles", "cloud", "tree"), 
 min.freq=2, scale=c(6, .5), rot.per=.1, trim=0.8, 
 draw.box=TRUE, draw.freq=TRUE, 
-box.col="gray", freq.col="gray")
+box.col="gray", freq.col="gray",
+group.col=NULL, groups=NULL, draw.legend=FALSE)
 {
 	if (!inherits(phylog, "phylog")) 
     stop("Non convenient data")
@@ -450,21 +451,76 @@ box.col="gray", freq.col="gray")
     stop("length of pfms and leaves should be identical.")
 	if (missing(groupDistance))
     stop("groupDistance is required.")
-	layout <- match.arg(layout, c("cloud","rectangles"), several.ok=TRUE)
+	if((!is.null(group.col)) && (!is.null(groups))){
+		if(!all(names(table(groups)) %in% names(group.col)))
+		stop("some value of groups has no corresponding color in group.col")
+		names(groups) <- gsub(rcpostfix,"",names(groups), fixed=T)
+		pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
+		pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
+		if(!all(pfmNames %in% names(groups)))
+		stop("not all pfms has a given group")
+	}
+	layout <- match.arg(layout, c("cloud","rectangles", "tree"), several.ok=TRUE)
 	layout <- layout[1]
-	dist <- as.matrix(phylog$Wdist)
-	gp <- list()
-	g <- 1
-	gp[[g]] <- 1
-	for(i in 1:(leaves.number-1)){
-		if(dist[i,i+1] <= groupDistance){
-			gp[[g]] <- c(gp[[g]], i+1)
+#generate the new phylog from newick tree
+	tree <- phylog$tre
+	droot <- phylog$droot
+	tree <- gsub(";$","",tree)
+	str <- unlist(strsplit(gsub("^\\((.*?)\\)([^\\)\\(;,]+)$","\\1///\\2",tree),"///",fixed=T))[1]
+	nodelist <- list()
+	getNodelist <- function(str, nodelist=list()){
+		ge <- gregexpr("\\(([^\\(\\),]+),([^\\(\\),]+)\\)([^\\(\\),]+)", str)
+		if(ge[[1]][1]!=-1){
+			start <- ge[[1]]
+			stop <- attr(ge[[1]],"match.length")
+			trec<-c()
+			for(i in 1:length(start)){
+				trec<- c(trec,substr(str, start[i],start[i]+stop[i]-1))
+			}
+			nodes <- do.call(rbind,strsplit(trec,"\\)|\\(|,"))[,2:4,drop=F]
+			newnodes <- apply(nodes, 1, function(.ele) new("ouNode",left=.ele[1], right=.ele[2], parent=.ele[3], sizel=0, sizer=0))
+			names(newnodes) <- nodes[,3]
+			nodelist <- c(newnodes,nodelist)
+			for(i in 1:length(trec)){
+				str<-gsub(trec[i],gsub(".*?\\)(.*?)$","\\1",trec[i]),str,fixed=T)
+			}
+			Recall(str=str, nodelist=nodelist)
 		}else{
-			g <- g+1
-			gp[[g]] <- i+1
+			nodes <- unlist(strsplit(str, ","))
+			Root <- new("ouNode", left=nodes[1], right=nodes[2], parent="Root", sizel=0, sizer=0)
+			nodelist <- c(Root=Root, nodelist)
+			return(nodelist)
 		}
 	}
-	getSignature <- function(.pfm){
+	nodelist <- getNodelist(str)
+	buildTree <- function(nodelist, nodename, droot, dpar=0){
+		nodelist[[nodename]]@distl <<- droot[nodelist[[nodename]]@left] - dpar
+		nodelist[[nodename]]@distr <<- droot[nodelist[[nodename]]@right] - dpar
+		if(!is.null(nodelist[[nodelist[[nodename]]@left]])){
+			buildTree(nodelist, nodelist[[nodename]]@left, droot, droot[nodelist[[nodename]]@left])
+		}
+		if(!is.null(nodelist[[nodelist[[nodename]]@right]])){
+			buildTree(nodelist, nodelist[[nodename]]@right, droot, droot[nodelist[[nodename]]@right])
+		}
+	}
+	buildTree(nodelist, "Root", droot, dpar=0)
+	leaves <- names(phylog$leaves)
+	getParentNode <- function(nodelist, nodename){
+		for(i in 1:length(nodelist)){
+			currNode <- nodelist[[i]]
+			if(currNode@left==nodename) return(c(currNode@parent, "left"))
+			if(currNode@right==nodename) return(c(currNode@parent, "right"))
+		}
+		NULL
+	}
+	
+	getPFMid <- function(pfms, nodename, rcpostfix="(RC)"){
+		pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
+		pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
+		which(pfmNames==nodename)
+	}
+	getSignature <- function(pfm1, pfm2, pfmname){
+		.pfm <- DNAmotifAlignment(list(pfm1, pfm2), rcpostfix="")
 		re <- .pfm[[1]]
 		for(i in 1:ncol(re@mat)){
 			.mat <- matrix(nrow=nrow(re@mat),ncol=length(.pfm))
@@ -473,50 +529,136 @@ box.col="gray", freq.col="gray")
 			}
 			re@mat[,i] <- rowMeans(.mat)
 		}
+		colnames(re@mat) <- 1:ncol(re@mat)
+		re@name <- pfmname
 		re
 	}
-	signatures <- lapply(gp, function(.gp){
-						 .pfm <- pfms[.gp]
-						 if(length(.pfm)>1){
-##do alignment
-						 .pfm <- DNAmotifAlignment(.pfm)
-##use average for each position as signatures
-						 .pfm <- getSignature(.pfm)
-						 }else{
-						 .pfm <- .pfm[[1]]
-						 }
+	mergeNodes <- function(nodelist, leaves, groupDistance, pfms, rcpostfix){
+		l <- length(nodelist)
+		for(i in 1:l){
+			nodename <- names(nodelist)[i]
+			currNode <- nodelist[[nodename]]
+			if(currNode@left %in% leaves && currNode@right %in% leaves){
+				if(currNode@distl < groupDistance && currNode@distr < groupDistance){
+					parNodeInfo <- getParentNode(nodelist, nodename)
+					if(!is.null(parNodeInfo)[1]){
+						if(parNodeInfo[2]=="left") {
+							nodelist[[parNodeInfo[1]]]@sizel <- nodelist[[parNodeInfo[1]]]@sizel + max(currNode@sizel, 1) + max(currNode@sizer, 1)
+							nodelist[[parNodeInfo[1]]]@distl <- nodelist[[parNodeInfo[1]]]@distl + (currNode@distl + currNode@distr)/2
+							pfm1id <- getPFMid(pfms, currNode@left, rcpostfix)
+							pfm2id <- getPFMid(pfms, currNode@right, rcpostfix)
+							pfm <- getSignature(pfms[[pfm1id]], pfms[[pfm2id]], paste(currNode@left, currNode@right, sep=";"))
+							nodelist[[parNodeInfo[1]]]@left <- paste(currNode@left, currNode@right, sep=";")
+							pfms <- c(pfms[-c(pfm1id, pfm2id)], pfm)
+							leaves <- c(leaves[!leaves %in% c(currNode@left, currNode@right)], paste(currNode@left, currNode@right, sep=";"))
+							nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", parent="NULL", sizel=0, sizer=0)
+						}
+						else if(parNodeInfo[2]=="right") {
+							nodelist[[parNodeInfo[1]]]@sizer <- nodelist[[parNodeInfo[1]]]@sizer + max(currNode@sizel, 1) + max(currNode@sizer, 1)
+							nodelist[[parNodeInfo[1]]]@distr <- nodelist[[parNodeInfo[1]]]@distr + (currNode@distl + currNode@distr)/2
+							pfm1id <- getPFMid(pfms, currNode@left, rcpostfix)
+							pfm2id <- getPFMid(pfms, currNode@right, rcpostfix)
+							pfm <- getSignature(pfms[[pfm1id]], pfms[[pfm2id]], paste(currNode@left, currNode@right, sep=";"))
+							nodelist[[parNodeInfo[1]]]@right <- paste(currNode@left, currNode@right, sep=";")
+							pfms <- c(pfms[-c(pfm1id, pfm2id)], pfm)
+							leaves <- c(leaves[!leaves %in% c(currNode@left, currNode@right)], paste(currNode@left, currNode@right, sep=";"))
+							nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", parent="NULL", sizel=0, sizer=0)
+						}
+					}
+				}
+			}
+		}
+		sel <- unlist(lapply(nodelist, function(.ele) .ele@parent=="NULL"))
+		nodelist <- nodelist[!sel]
+		nodelist <<- nodelist
+		pfms <<- pfms
+		leaves <<- leaves
+		if(length(nodelist)<l) mergeNodes(nodelist, leaves, groupDistance, pfms, rcpostfix)
+	}
+	
+	mergeNodes(nodelist, leaves, groupDistance, pfms, rcpostfix)
+#get signatures and frequences (count of frequences should greater than min.freq)
+	signatures <- list()
+	freq <- c()
+	for(i in 1:length(nodelist)){
+		if(nodelist[[i]]@sizel>=min.freq){
+			signatures <- c(signatures, pfms[[getPFMid(pfms, nodelist[[i]]@left, rcpostfix)]])
+			freq <- c(freq, nodelist[[i]]@sizel)
+		}
+		if(nodelist[[i]]@sizer>=min.freq){
+			signatures <- c(signatures, pfms[[getPFMid(pfms, nodelist[[i]]@right, rcpostfix)]])
+			freq <- c(freq, nodelist[[i]]@sizer)
+		}
+	}
+	
+#trime signatures
+	signatures <- lapply(signatures, function(.pfm){
 						 .sw <- c(0,0)
-						 ic<-motifStack:::getIC(.pfm)
+						 ic <- motifStack:::getIC(.pfm)
 						 for(i in 1:ncol(.pfm@mat)){
 						 if(ic[i]>trim){
 						 if(.sw[1]==0) .sw[1] <- i
 						 else .sw[2] <- i
 						 }
 						 }
-						 if(.sw[1]<.sw[2]-2) .pfm@mat <- .pfm@mat[,.sw[1]:.sw[2]]
-						 else .pfm<-NA
+						 if(.sw[1]<.sw[2]-2) .pfm@mat <- .pfm@mat[, .sw[1]:.sw[2]]
+						 else .pfm <- NA
 						 .pfm
 						 })
-	freq <- unlist(lapply(gp, length))
 	ord <- unlist(lapply(signatures, function(.ele){inherits(.ele,"pfm")}))
 	signatures <- signatures[ord]
 	freq <- freq[ord]
-	if(min.freq > max(freq)) min.freq <- 0
+#sort signatures
 	ord <- order(freq, decreasing=TRUE)
 	signatures <- signatures[ord]
 	freq <- freq[ord]
-	signatures <- signatures[freq>=min.freq]
-	freq <- freq[freq>=min.freq]
 	if(length(freq)==0){
 		if(interactive()) warning("All frequency are smaller than min.freq.")
 		return(FALSE)
 	}
 	normedFreq <- freq/max(freq)
 	size <- (scale[1]-scale[2])*normedFreq + scale[2]
+	grid.pie <- function(x, edges = 200, radius = 0.8, col = NULL, cex=1){
+		if (!is.numeric(x) || any(is.na(x) | x < 0)) 
+		stop("'x' values must be positive.")
+		x <- c(0, cumsum(x)/sum(x))
+		dx <- diff(x)
+		nx <- length(dx)
+		if (is.null(col)) 
+		col <- c("white", "lightblue", "mistyrose", "lightcyan", 
+				 "lavender", "cornsilk")
+		col <- rep(col, length.out = nx)
+		twopi <- 2 * pi
+		t2xy <- function(t) {
+			t2p <- twopi * t
+			list(x = radius * cos(t2p)/2 + 0.5, y = radius * sin(t2p)/2 + 0.5)
+		}
+		for (i in 1L:nx) {
+			n <- max(2, floor(edges * dx[i]))
+			P <- t2xy(seq.int(x[i], x[i + 1], length.out = n))
+			grid.polygon(c(P$x, 0.5), c(P$y, 0.5), gp=gpar(col = col[i], fill = col[i]))
+		}
+	}
+	plotSignature <- function(x, y, wid, ht, just, angle, sig, freq, normedFreq){
+		pushViewport(viewport(x=x, y=y, width=wid, height=ht, just=just, angle=angle))
+		if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed", fill="transparent"))
+		plotMotifLogoA(sig)
+		if(draw.freq) grid.text(label=freq,x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq), just=c("right","top"))
+		if((!is.null(group.col)) & (!is.null(groups))) {
+			sigNames <- unlist(strsplit(sig@name,";"))
+			gps <- table(groups[sigNames])
+			gp.col <- group.col[names(gps)]
+			pushViewport(viewport(x=.1*as.numeric(ht)/as.numeric(wid), y=.9, width=.2*as.numeric(ht)/as.numeric(wid), height=.2))
+			grid.pie(gps, col=gp.col, cex=normedFreq)
+			popViewport()
+		}
+		popViewport()
+	}
+	
 	op <- par(mar=c(0,0,0,0))
-	on.exit(par(op))
-	plot.new()
+	
 	if(layout=="rectangles"){
+		plot.new()
 		boxesInch <- list()
 		minWid <- .Machine$integer.max
 		minHt <- .Machine$integer.max
@@ -678,16 +820,29 @@ box.col="gray", freq.col="gray")
 			bestNode <- bestNodelist[[i]]
 ## draw logo in bestNode
 			if(bestNode@width<bestNode@height){
-				pushViewport(viewport(x=unit(ratio*bestNode@x, "inches"), y=unit(ratio*bestNode@y+ratio*bestNode@height, "inches"), width=unit(ratio*bestNode@height, "inches"), height=unit(ratio*bestNode@width, "inches"), just=c("left","bottom"), angle=-90))
+				plotSignature(x=unit(ratio*bestNode@x, "inches"), 
+							  y=unit(ratio*bestNode@y+ratio*bestNode@height, "inches"),
+							  wid=unit(ratio*bestNode@height, "inches"), 
+							  ht=unit(ratio*bestNode@width, "inches"), 
+							  just=c("left","bottom"), 
+							  angle=-90,
+							  sig=signatures[[i]], 
+							  freq=freq[i], 
+							  normedFreq=normedFreq[i])
 			}else{
-				pushViewport(viewport(x=unit(ratio*bestNode@x, "inches"), y=unit(ratio*bestNode@y, "inches"), width=unit(ratio*bestNode@width, "inches"), height=unit(ratio*bestNode@height, "inches"), just=c("left","bottom")))
+				plotSignature(x=unit(ratio*bestNode@x, "inches"), 
+							  y=unit(ratio*bestNode@y, "inches"), 
+							  wid=unit(ratio*bestNode@width, "inches"), 
+							  ht=unit(ratio*bestNode@height, "inches"), 
+							  just=c("left","bottom"),
+							  angle=0,
+							  sig=signatures[[i]], 
+							  freq=freq[i], 
+							  normedFreq=normedFreq[i])
 			}
-			if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed"))
-			plotMotifLogoA(signatures[[i]])
-			if(draw.freq) grid.text(label=freq[i],x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq[i]), just=c("right","top"))
-			popViewport()
 		}
-	}else{
+	}else if(layout=="cloud"){
+		plot.new()
 		last <- 1
 		overlap <- function(x1, y1, sw1, sh1){
 			s <- 0
@@ -734,14 +889,10 @@ box.col="gray", freq.col="gray")
 				   x1-.5*wid>0 && y1-.5*ht>0 &&
 				   x1+.5*wid<1 && y1+.5*ht<1){
 					if(rotWord){
-						pushViewport(viewport(x=x1, y=y1, width=ht, height=wid, angle=90))
+						plotSignature(x1, y1, ht, wid, "center", 90, sig, freq[i], normedFreq[i])
 					}else{
-						pushViewport(viewport(x=x1, y=y1, width=wid, height=ht))
+						plotSignature(x1, y1, wid, ht, "center", 0, sig, freq[i], normedFreq[i])
 					}
-					if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed"))
-					plotMotifLogoA(sig)
-					if(draw.freq) grid.text(label=freq[i],x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq[i]), just=c("right","top"))
-					popViewport()
 					boxes[[length(boxes)+1]] <- c(x1-.5*wid, y1-.5*ht, wid, ht)
 					isOverlapped <- FALSE
 				}else{
@@ -756,6 +907,170 @@ box.col="gray", freq.col="gray")
 				}
 			}
 		}
+	}else{
+#trim nodelist
+#get all path for each signature
+		sigNames <- as.character(unlist(lapply(signatures, function(.ele) .ele@name)))
+		sigNames <- gsub(rcpostfix, "", sigNames, fixed=T)
+		paths <- lapply(sigNames, function(.ele, nodelist){
+						pt <- c()
+						getPath <- function(nodelist, nodename, pt){
+						parent <- getParentNode(nodelist, nodename)
+						if(!is.null(parent[1])){
+						pt <- c(pt, parent[1])
+						pt <- Recall(nodelist, parent[1], pt)
+						}
+						pt
+						}
+						pt <- getPath(nodelist, .ele, pt)
+						pt
+						}, nodelist)
+#leave the nodes in the paths
+		paths <- unique(unlist(paths))
+		nodelist <- nodelist[paths]
+		
+		last <- 1
+		overlap <- function(x1, y1, sw1, sh1){
+			s <- 0
+			if(length(boxes)==0) return(FALSE)
+			for(i in c(last, 1:length(boxes))){
+				bnds <- boxes[[i]]
+				x2 <- bnds[1]
+				y2 <- bnds[2]
+				sw2 <- bnds[3]
+				sh2 <- bnds[4]
+				if(x1 < x2) overlap <- x1+sw1 > x2-s
+				else overlap <- x2 +sw2 > x1-s
+				if(y1 <y2) overlap <- overlap && (y1+sh1 > y2-s)
+				else overlap <- overlap && (y2 +sh2 > y1-s)
+				if(overlap){
+					last <- i
+					return(TRUE)
+				}
+			}
+			FALSE
+		}
+		boxes <- list()
+		step <- .1
+		plot.default(0, 0, type = "n", asp = 1, xlab = "", ylab = "", 
+					 xaxt = "n", yaxt = "n", xlim = c(0, 1), ylim = c(0, 1), 
+					 xaxs = "i", yaxs = "i", frame.plot = FALSE)
+		getRdist <- function(nodelist, Rdist=c(), nodename="Root", distp=0){
+			currNode <- nodelist[[nodename]]
+			distl <- distp + currNode@distl
+			distr <- distp + currNode@distr
+			currDist <- c(distl, distr)
+			names(currDist) <- c(currNode@left, currNode@right)
+			Rdist <- c(Rdist, currDist)
+			if(!is.null(nodelist[[currNode@left]])) Rdist <- getRdist(nodelist, Rdist, currNode@left, distp=distl)
+			if(!is.null(nodelist[[currNode@right]])) Rdist <- getRdist(nodelist, Rdist, currNode@right, distp=distr)
+			Rdist
+		}
+		Rdist <- getRdist(nodelist)
+		longestRdist <- 4*max(Rdist)
+		plotUnrootedTree <- function(signatures, nodelist, nodename="Root", AXIS=0, ANGLE=2*pi, orignalX=0.5, orignalY=0.5, longestRdist=0){
+			currNode <- nodelist[[nodename]]
+			RdistTotal <- 0
+			if(currNode@left %in% c(paths, sigNames))
+			RdistTotal <- currNode@distl
+			if(currNode@right %in% c(paths, sigNames)) 
+			RdistTotal <- RdistTotal + currNode@distr
+#plot left node
+			start <- AXIS - ANGLE/2
+			alpha <- 0
+			if(currNode@left %in% c(paths, sigNames)){
+				alpha <- ANGLE*currNode@distl/RdistTotal
+				beta <- start + alpha/2
+				x <- currNode@distl/longestRdist * cos(beta) + orignalX
+				y <- currNode@distl/longestRdist * sin(beta) + orignalY
+				if(!is.null(nodelist[[currNode@left]])) {
+					segments(orignalX, orignalY, x, y)
+					plotUnrootedTree(signatures, nodelist, nodename=currNode@left, AXIS=beta, ANGLE=alpha, orignalX=x, orignalY=y, longestRdist=longestRdist)
+				}else{
+					pfmlid <- getPFMid(signatures, currNode@left)
+					if(length(pfmlid)>0){
+						isOverlapped <- TRUE
+						ht <- strheight("ACGT", cex=size[pfmlid])
+						wid <- ht * ncol(signatures[[pfmlid]]@mat) / 2
+						segments(orignalX, orignalY, x, y)
+						x1 <- x
+						y1 <- y
+						while(isOverlapped){
+							if(!overlap(x1-.5*wid, y1-.5*ht, wid, ht)){
+								segments(x,y,x1,y1,lty="dashed", col="gray")
+#plot signature
+								plotSignature(x1, y1, wid, ht, "center", 0, signatures[[pfmlid]], freq[[pfmlid]], normedFreq[pfmlid])
+								boxes[[length(boxes)+1]] <<- c(x1-.5*wid, y1-.5*ht, wid, ht)
+								isOverlapped <- FALSE
+							}else{
+								if((x1==1-.5*ht || x1==.5*wid) && (y1==.5*ht || y1==1-.5*ht)){
+									if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
+									isOverlapped <- FALSE
+								}
+								r <- sqrt(wid*wid + ht*ht)*step
+								if(((beta %% pi) - pi/2) < 0.0001) beta <- beta + pi/90
+								x1 <- x1+r*cos(beta)
+								y1 <- y1+r*sin(beta)
+								if(x1-.5*wid<0) x1 <- .5*wid
+								if(x1+.5*wid>1) x1 <-1-.5*wid
+								if(y1-.5*ht<0) y1 <- .5*ht
+								if(y1+.5*ht>1) y1 <-1-.5*ht
+							}
+						}
+					}
+				}
+			}
+#plot right node
+			if(currNode@right %in% c(paths, sigNames)){
+				start <- start + alpha
+				alpha <- ANGLE*currNode@distr/RdistTotal
+				beta <- start + alpha/2
+				x <- currNode@distr/longestRdist * cos(beta) + orignalX
+				y <- currNode@distr/longestRdist * sin(beta) + orignalY
+				if(!is.null(nodelist[[currNode@right]])) {
+					segments(orignalX, orignalY, x, y)
+					plotUnrootedTree(signatures, nodelist, nodename=currNode@right, AXIS=beta, ANGLE=alpha, orignalX=x, orignalY=y, longestRdist=longestRdist)
+				}else{
+					pfmrid <- getPFMid(signatures, currNode@right)
+					if(length(pfmrid)>0){
+						isOverlapped <- TRUE
+						ht <- strheight("ACGT", cex=size[pfmrid])
+						wid <- ht * ncol(signatures[[pfmrid]]@mat) / 2
+						segments(orignalX, orignalY, x, y)
+						x1 <- x
+						y1 <- y
+						while(isOverlapped){
+							if(!overlap(x1-.5*wid, y1-.5*ht, wid, ht)){
+								segments(x,y,x1,y1,lty="dashed", col="gray")
+#plot signature
+								plotSignature(x1, y1, wid, ht, "center", 0, signatures[[pfmrid]], freq[[pfmrid]], normedFreq[pfmrid])
+								boxes[[length(boxes)+1]] <<- c(x1-.5*wid, y1-.5*ht, wid, ht)
+								isOverlapped <- FALSE
+							}else{
+								if((x1==1-.5*ht || x1==.5*wid) && (y1==.5*ht || y1==1-.5*ht)){
+									if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
+									isOverlapped <- FALSE
+								}
+								r <- sqrt(wid*wid + ht*ht)*step
+								if(((beta %% pi) - pi/2) < 0.0001) beta <- beta + pi/90
+								x1 <- x1+r*cos(beta)
+								y1 <- y1+r*sin(beta)
+								if(x1-.5*wid<0) x1 <- .5*wid
+								if(x1+.5*wid>1) x1 <-1-.5*wid
+								if(y1-.5*ht<0) y1 <- .5*ht
+								if(y1+.5*ht>1) y1 <-1-.5*ht
+							}
+						} 
+					}
+				}
+			}
+		}
+		plotUnrootedTree(signatures, nodelist, longestRdist=longestRdist)
+	}
+#plot group legend
+	par(op)
+	if((!is.null(group.col)) && (!is.null(groups)) && draw.legend){
+		legend("topright", names(group.col), fill=group.col, cex=0.5)
 	}
 	return(invisible())
 }

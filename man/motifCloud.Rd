@@ -5,17 +5,19 @@
 	Plot a DNA sequence logo cloud
 }
 \usage{
-motifCloud(pfms, phylog, groupDistance, 
-layout=c("rectangles", "cloud"), 
+motifCloud(pfms, phylog, groupDistance, rcpostfix="(RC)", 
+layout=c("rectangles", "cloud", "tree"), 
 min.freq=2, scale=c(6, .5), rot.per=.1, trim=0.8, 
 draw.box=TRUE, draw.freq=TRUE, 
-box.col="gray", freq.col="gray")
+box.col="gray", freq.col="gray",
+group.col=NULL, groups=NULL, draw.legend=FALSE)
 }
 \arguments{
 \item{pfms}{a list of objects of class pfm}
 \item{phylog}{an object of class phylog}
 \item{groupDistance}{maxmal distance of motifs in the same group}
-\item{layout}{layout of the logo cloud, rectangles or cloud}
+\item{rcpostfix}{postfix for reverse-complement motif names, default: (RC)}
+\item{layout}{layout of the logo cloud, rectangles, cloud or tree}
 \item{min.freq}{signatures with frequency below min.freq will not be plotted}
 \item{scale}{A vector of length 2 indicating the range of the size of the sequence logo. }
 \item{rot.per}{proportion sequence logo with 90 degree rotation. Only work for "cloud" layout}
@@ -24,6 +26,9 @@ box.col="gray", freq.col="gray")
 \item{draw.freq}{label frequency of each signature or not}
 \item{box.col}{color of box for each sequence logo}
 \item{freq.col}{color of frequency label}
+\item{group.col}{color setting for groups}
+\item{groups}{a named vectors of motif groups}
+\item{draw.legend}{draw group color legend or not}
 }
 \value{
  none
