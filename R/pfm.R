@@ -60,11 +60,6 @@ setAs(from="pfm", to="matrix", function(from){
 	from@mat
 })
 
-
-setGeneric("getIC", function(x, p) standardGeneric("getIC"))
-setGeneric("matrixReverseComplement", function(x) standardGeneric("matrixReverseComplement"))
-setGeneric("addBlank", function(x, n, b) standardGeneric("addBlank"))
-
 ## get information content profile from PFM
 setMethod("getIC", signature(x="pfm"), function(x, p="missing"){
 	colSums(x@mat * (addPseudolog2(x@mat) - addPseudolog2(x@background)))

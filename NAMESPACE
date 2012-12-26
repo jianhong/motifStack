@@ -2,18 +2,24 @@ import(methods)
 import(grid)
 import(ade4)
 importFrom(grImport, PostScriptTrace, readPicture, picture)
+importFrom(MotIV, readDBScores, motifDistances, motifHclust)
 export(
 	plotMotifLogo, plotMotifLogoA,
 	plotXaxis, plotYaxis, 
-	colorset, 
-	plotMotifLogoStack, plotMotifLogoStackWithTree, 	DNAmotifAlignment, plotMotifStackWithRadialPhylog, motifCloud,
-	readPCM, 
-	pcm2pfm
+	colorset,
+	motifStack,
+	plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
+	motifSignature, motifCloud,
+	readPCM
 )
-exportClasses("pfm")
+exportClasses("pfm", "pcm", "ouNode", "motifSig")
 exportMethods(
 		plot,
 		getIC,
 		matrixReverseComplement,
-		addBlank
+		addBlank,
+		pcm2pfm,
+		signatures,
+		frequence,
+		nodelist
 )

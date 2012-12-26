@@ -1,3 +1,7 @@
+checkInteger <- function(N){
+    !length(grep("[^[:digit:]]", as.character(N)))
+}
+
 hex2psrgb<-function(col){
     col<-grDevices::col2rgb(col)
     col<-col/255
@@ -45,7 +49,14 @@ getIE<-function(x){
 }
 
 UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0, rcpostfix="(RC)", revcomp=TRUE){
+	if(class(pfms[[i]])!="pfm"){
+	   pcms <- pfms
+	   pfms <- lapply(pfms, pcm2pfm)
+	}else{
+	   pcms <- NULL
+	}
     res<-getAlignedICWithoutGap(pfms[[i-1]], pfms[[i]], threshold, revcomp)
+	if(!is.null(pcms)) pfms <- pcms
 	if(res$max>=minimalConsensus){
 		if(res$rev){
 			pfms[[i]]<-matrixReverseComplement(pfms[[i]])
@@ -134,11 +145,21 @@ setMethod("isContainedIn", signature(a="Rect", b="Rect"), function(a, b){
 	a@x >= b@x && a@y >= b@y && a@x+a@width <= b@x+b@width && a@y+a@height <= b@y+b@height
 })
 
+setClass("pos",
+	representation(box="Rect", beta="numeric", sig="pfm", freq="numeric", norm="numeric")
+)
 
-setClass("ouNode", representation(left="character", 
-right="character", 
-parent="character", 
-distl="numeric", 
-distr="numeric",
-sizel="numeric",
-sizer="numeric"))
+getPFMid <- function(pfms, nodename, rcpostfix="(RC)"){
+	pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
+	pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
+	which(pfmNames==nodename)
+}
+
+getParentNode <- function(nodelist, nodename){
+	for(i in 1:length(nodelist)){
+		currNode <- nodelist[[i]]
+		if(currNode@left==nodename) return(c(currNode@parent, "left"))
+		if(currNode@right==nodename) return(c(currNode@parent, "right"))
+	}
+	NULL
+}

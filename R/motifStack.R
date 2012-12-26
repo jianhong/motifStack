@@ -170,7 +170,7 @@ DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="
     if(length(pfms)<2) stop("less than 2 motifs")
     if(length(revcomp)!=length(pfms)) stop("length of revcomp and pfms is not identical")
     lapply(pfms,function(.ele){
-           if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+           if(class(.ele)!="pfm" && class(.ele)!="pcm") stop("pfms must be a list of class pfm")
            if(.ele@alphabet!="DNA") stop("the alphabet of pfm must be DNA")
            })
     pfmcopy<-list(length=length(pfms))
@@ -229,6 +229,107 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
 		}
 		x.pos<-x.pos+dw
 	}
+}
+
+###############################################################################
+######## phylog style stack
+######## 
+###############################################################################
+
+plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
+f.phylog = 0.3, f.logo = NULL, cleaves =1, cnodes =0,
+labels.leaves = names(phylog$leaves), clabel.leaves=1,
+labels.nodes = names(phylog$nodes), clabel.nodes = 0
+){
+	if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
+	n<-length(pfms)
+	lapply(pfms,function(.ele){
+		   if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+		   })
+	leaves.number <- length(phylog$leaves)
+	leaves.names<- names(phylog$leaves)
+	nodes.number <- length(phylog$nodes)
+	nodes.names <- names(phylog$nodes)
+	if (length(labels.leaves) != leaves.number) labels.leaves <- names(phylog$leaves)
+	if (length(labels.nodes) != nodes.number) labels.nodes <- names(phylog$nodes)
+	leaves.car <- gsub("[_]"," ",labels.leaves)
+	nodes.car <- gsub("[_]"," ",labels.nodes)
+	opar <- par(mar = c(0, 0, 0, 0))
+	on.exit(par(opar))
+	
+	if (f.phylog < 0.05) f.phylog <- 0.05 
+	if (f.phylog > 0.75) f.phylog <- 0.75
+	
+	maxx <- max(phylog$droot)
+	plot.default(0, 0, type = "n", xlab = "", ylab = "", xaxt = "n", 
+				 yaxt = "n", xlim = c(-maxx*0.15, maxx/f.phylog), ylim = c(-0, 1), xaxs = "i", 
+				 yaxs = "i", frame.plot = FALSE)
+	
+	x.leaves <- phylog$droot[leaves.names]
+	x.nodes <- phylog$droot[nodes.names]
+	
+	y <- (leaves.number:1)/(leaves.number + 1)
+	names(y) <- leaves.names
+	
+	xcar <- maxx*1.05
+	xx <- c(x.leaves, x.nodes)
+	
+	assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+	if(is.null(f.logo)){
+		f.logo <- max(unlist(lapply(leaves.names, strwidth, units="figure", cex=clabel.leaves)))
+		if(clabel.leaves>0) f.logo <- f.phylog+f.logo+.01
+		else f.logo <- f.phylog+.05
+	}else{
+		if (f.logo > 0.85) f.logo <- 0.85
+		if (f.logo < f.phylog) f.logo <- f.phylog+.05 
+	}
+	for (i in 1:leaves.number) {
+		if(clabel.leaves>0) 
+		text(xcar, y[i], leaves.car[i], adj = 0, cex = par("cex") * 
+			 clabel.leaves)
+		segments(xcar, y[i], xx[i], y[i], col = grey(0.7))
+		if(!is.null(pfms)){
+			vpheight <- strheight(leaves.names[i], units="figure")
+			vpwidth <- vpheight * ncol(pfms[[i]]@mat) / 2
+			pushViewport(viewport(x=f.logo, y=y[i], width=vpwidth, height=vpheight, just=c(0, .5)))
+			if(!is.null(pfms[[i]])) plotMotifLogoA(pfms[[i]])
+			popViewport()
+		}
+	}
+	rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+	
+	yleaves <- y[1:leaves.number]
+	xleaves <- xx[1:leaves.number]
+	if (cleaves > 0) {
+		for (i in 1:leaves.number) {
+			points(xx[i], y[i], pch = 21, bg=1, cex = par("cex") * cleaves)
+		}
+	}
+	yn <- rep(0, nodes.number)
+	names(yn) <- nodes.names
+	y <- c(y, yn)
+	for (i in 1:length(phylog$parts)) {
+		w <- phylog$parts[[i]]
+		but <- names(phylog$parts)[i]
+		y[but] <- mean(y[w])
+		b <- range(y[w])
+		segments(xx[but], b[1], xx[but], b[2])
+		x1 <- xx[w]
+		y1 <- y[w]
+		x2 <- rep(xx[but], length(w))
+		segments(x1, y1, x2, y1)
+	}
+	if (cnodes > 0) {
+		for (i in nodes.names) {
+			points(xx[i], y[i], pch = 21, bg="white", cex = cnodes)
+		}
+	}
+	if (clabel.nodes > 0) {
+		scatterutil.eti(xx[names(x.nodes)], y[names(x.nodes)], nodes.car, 
+						clabel.nodes)
+	}
+	if (cleaves > 0) points(xleaves, yleaves, pch = 21, bg=1, cex = par("cex") * cleaves)
+	return(invisible())
 }
 
 ###############################################################################
@@ -434,34 +535,77 @@ angle=360)
 
 
 ###############################################################################
+####### motifstack
+motifStack <-function(pfms, layout=c("stack", "treeview", "phylog", "radialPhylog"), ...){
+	layout <- match.arg(layout, c("stack", "treeview", "phylog", "radialPhylog"), several.ok=TRUE)
+	layout <- layout[1]
+	if (any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm"))))) 
+    stop("pfms must be a list of pfm objects")
+	if (length(pfms)<2)
+    stop("length of pfms less than 2")
+	pfmList2matrixList <- function(pfms){
+		m <- lapply(pfms, function(.ele) as(.ele, "matrix"))
+		names(m) <- unlist(lapply(pfms, function(.ele) .ele@name))
+		m
+	}
+	switch(layout,
+		   stack = {
+           plotMotifLogoStack(pfms, ...)
+		   },
+		   treeview = {
+		   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+           d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+           hc <- MotIV::motifHclust(d)
+           pfms <- pfms[hc$order]
+           pfms <- DNAmotifAlignment(pfms)
+           plotMotifLogoStackWithTree(pfms, hc=hc, ...)
+		   },
+		   phylog = {
+		   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+           d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+           hc <- MotIV::motifHclust(d)
+           pfms <- pfms[hc$order]
+           pfms <- DNAmotifAlignment(pfms)
+           phylog <- hclust2phylog(hc)
+           plotMotifStackWithPhylog(phylog=phylog, pfms=pfms, ...)
+		   },
+		   radialPhylog = {
+		   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+           d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+           hc <- MotIV::motifHclust(d)
+           pfms <- pfms[hc$order]
+           pfms <- DNAmotifAlignment(pfms)
+           phylog <- hclust2phylog(hc)
+           plotMotifStackWithRadialPhylog(phylog=phylog, pfms=pfms, ...)
+		   },
+		   {
+		   plotMotifLogoStack(pfms, ...)
+		   }
+		   )
+}
+
+###############################################################################
 ######## motif cloud
 ######## 
 ###############################################################################
-motifCloud <- function(pfms, phylog, groupDistance, rcpostfix="(RC)", 
-layout=c("rectangles", "cloud", "tree"), 
-min.freq=2, scale=c(6, .5), rot.per=.1, trim=0.8, 
-draw.box=TRUE, draw.freq=TRUE, 
-box.col="gray", freq.col="gray",
-group.col=NULL, groups=NULL, draw.legend=FALSE)
-{
+motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)", 
+min.freq=2, trim=0.2, families=list()){
 	if (!inherits(phylog, "phylog")) 
-    stop("Non convenient data")
+    stop("phylog should be an object of phylog of package ade4")
 	leaves.number <- length(phylog$leaves)
 	if (length(pfms)!=leaves.number)
-    stop("length of pfms and leaves should be identical.")
-	if (missing(groupDistance))
-    stop("groupDistance is required.")
-	if((!is.null(group.col)) && (!is.null(groups))){
-		if(!all(names(table(groups)) %in% names(group.col)))
-		stop("some value of groups has no corresponding color in group.col")
-		names(groups) <- gsub(rcpostfix,"",names(groups), fixed=T)
-		pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
-		pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
-		if(!all(pfmNames %in% names(groups)))
-		stop("not all pfms has a given group")
+    stop("length of pfms and leaves of phylog should be identical.")
+	if (all(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm"))))){
+		pfms.class="pcm"
+		if(any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pcm")))))
+			stop("pfms should be a list of objects of pfm or pcm")
+	}else{
+		pfms.class="pfm"
+		if(any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm")))))
+			stop("pfms should be a list of objects of pfm or pcm")
 	}
-	layout <- match.arg(layout, c("cloud","rectangles", "tree"), several.ok=TRUE)
-	layout <- layout[1]
+	if (missing(groupDistance))
+		groupDistance <- max(phylog$droot)/10
 #generate the new phylog from newick tree
 	tree <- phylog$tre
 	droot <- phylog$droot
@@ -505,35 +649,8 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 	}
 	buildTree(nodelist, "Root", droot, dpar=0)
 	leaves <- names(phylog$leaves)
-	getParentNode <- function(nodelist, nodename){
-		for(i in 1:length(nodelist)){
-			currNode <- nodelist[[i]]
-			if(currNode@left==nodename) return(c(currNode@parent, "left"))
-			if(currNode@right==nodename) return(c(currNode@parent, "right"))
-		}
-		NULL
-	}
 	
-	getPFMid <- function(pfms, nodename, rcpostfix="(RC)"){
-		pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
-		pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
-		which(pfmNames==nodename)
-	}
-	getSignature <- function(pfm1, pfm2, pfmname){
-		.pfm <- DNAmotifAlignment(list(pfm1, pfm2), rcpostfix="")
-		re <- .pfm[[1]]
-		for(i in 1:ncol(re@mat)){
-			.mat <- matrix(nrow=nrow(re@mat),ncol=length(.pfm))
-			for(j in 1:length(.pfm)){
-				.mat[,j] <- .pfm[[j]]@mat[,i]
-			}
-			re@mat[,i] <- rowMeans(.mat)
-		}
-		colnames(re@mat) <- 1:ncol(re@mat)
-		re@name <- pfmname
-		re
-	}
-	mergeNodes <- function(nodelist, leaves, groupDistance, pfms, rcpostfix){
+	mergeNodes <- function(nodelist, leaves, groupDistance){
 		l <- length(nodelist)
 		for(i in 1:l){
 			nodename <- names(nodelist)[i]
@@ -545,22 +662,14 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 						if(parNodeInfo[2]=="left") {
 							nodelist[[parNodeInfo[1]]]@sizel <- nodelist[[parNodeInfo[1]]]@sizel + max(currNode@sizel, 1) + max(currNode@sizer, 1)
 							nodelist[[parNodeInfo[1]]]@distl <- nodelist[[parNodeInfo[1]]]@distl + (currNode@distl + currNode@distr)/2
-							pfm1id <- getPFMid(pfms, currNode@left, rcpostfix)
-							pfm2id <- getPFMid(pfms, currNode@right, rcpostfix)
-							pfm <- getSignature(pfms[[pfm1id]], pfms[[pfm2id]], paste(currNode@left, currNode@right, sep=";"))
 							nodelist[[parNodeInfo[1]]]@left <- paste(currNode@left, currNode@right, sep=";")
-							pfms <- c(pfms[-c(pfm1id, pfm2id)], pfm)
 							leaves <- c(leaves[!leaves %in% c(currNode@left, currNode@right)], paste(currNode@left, currNode@right, sep=";"))
 							nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", parent="NULL", sizel=0, sizer=0)
 						}
 						else if(parNodeInfo[2]=="right") {
 							nodelist[[parNodeInfo[1]]]@sizer <- nodelist[[parNodeInfo[1]]]@sizer + max(currNode@sizel, 1) + max(currNode@sizer, 1)
 							nodelist[[parNodeInfo[1]]]@distr <- nodelist[[parNodeInfo[1]]]@distr + (currNode@distl + currNode@distr)/2
-							pfm1id <- getPFMid(pfms, currNode@left, rcpostfix)
-							pfm2id <- getPFMid(pfms, currNode@right, rcpostfix)
-							pfm <- getSignature(pfms[[pfm1id]], pfms[[pfm2id]], paste(currNode@left, currNode@right, sep=";"))
 							nodelist[[parNodeInfo[1]]]@right <- paste(currNode@left, currNode@right, sep=";")
-							pfms <- c(pfms[-c(pfm1id, pfm2id)], pfm)
 							leaves <- c(leaves[!leaves %in% c(currNode@left, currNode@right)], paste(currNode@left, currNode@right, sep=";"))
 							nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", parent="NULL", sizel=0, sizer=0)
 						}
@@ -571,23 +680,67 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 		sel <- unlist(lapply(nodelist, function(.ele) .ele@parent=="NULL"))
 		nodelist <- nodelist[!sel]
 		nodelist <<- nodelist
-		pfms <<- pfms
 		leaves <<- leaves
-		if(length(nodelist)<l) mergeNodes(nodelist, leaves, groupDistance, pfms, rcpostfix)
+		if(length(nodelist)<l) mergeNodes(nodelist, leaves, groupDistance)
 	}
 	
-	mergeNodes(nodelist, leaves, groupDistance, pfms, rcpostfix)
+	getSignature <- function(pfms, pfmnames, rcpostfix, pfms.class){
+		.pfmnames <- unlist(strsplit(pfmnames, ";"))
+		.pfms <- lapply(.pfmnames, function(.name, pfms) pfms[[getPFMid(pfms, .name, rcpostfix=rcpostfix)]], pfms)
+		.pfms <- DNAmotifAlignment(.pfms, rcpostfix="")
+		.rown <- rownames(.pfms[[1]]@mat)
+		.mats <- lapply(.rown, function(i, .pfms){
+							do.call(rbind,lapply(.pfms, function(.ele, i) .ele@mat[i, , drop=F], i))
+						}, .pfms)
+		if(pfms.class=="pfms"){
+			.mats <- do.call(rbind, lapply(.mats, colMeans))
+		}
+		else{
+			.mats <- do.call(rbind, lapply(.mats, colSums))
+			.mats <- pcm2pfm(.mats)
+		}
+		rownames(.mats) <- .rown
+		colnames(.mats) <- 1:ncol(.mats)
+		new("pfm", mat=.mats, name=pfmnames, alphabet=.pfms[[1]]@alphabet, color=.pfms[[1]]@color, background=.pfms[[1]]@background)
+	}
+	
+	mergeNodes(nodelist, leaves, groupDistance)
 #get signatures and frequences (count of frequences should greater than min.freq)
+	filterFamilies <- function(pfmnames, size, families){
+		if(length(families)>0){
+			pfmnames <- unlist(strsplit(pfmnames, ";"))
+			if(length(pfmnames)!=size) stop("pfm names contain ';'")
+			for(j in 1:length(families)){
+				inters <- intersect(families[[j]], pfmnames)
+				if(length(inters)>1){
+					pfmnames <- pfmnames[!pfmnames %in% inters[2:length(inters)]]
+				}
+			}
+			size <- length(pfmnames)
+			pfmnames <- paste(pfmnames, sep="", collapse=";")
+		}
+		list(name=pfmnames,size=size)
+	}
 	signatures <- list()
 	freq <- c()
 	for(i in 1:length(nodelist)){
 		if(nodelist[[i]]@sizel>=min.freq){
-			signatures <- c(signatures, pfms[[getPFMid(pfms, nodelist[[i]]@left, rcpostfix)]])
-			freq <- c(freq, nodelist[[i]]@sizel)
+			ftmp <- filterFamilies(nodelist[[i]]@left, nodelist[[i]]@sizel, families)
+			nodelist[[i]]@left <- ftmp[["name"]]
+			nodelist[[i]]@sizel <- ftmp[["size"]]
+			if(ftmp[["size"]]>=min.freq){
+				signatures <- c(signatures, getSignature(pfms, nodelist[[i]]@left, rcpostfix, pfms.class=pfms.class))
+				freq <- c(freq, nodelist[[i]]@sizel)
+			}
 		}
 		if(nodelist[[i]]@sizer>=min.freq){
-			signatures <- c(signatures, pfms[[getPFMid(pfms, nodelist[[i]]@right, rcpostfix)]])
-			freq <- c(freq, nodelist[[i]]@sizer)
+			ftmp <- filterFamilies(nodelist[[i]]@right, nodelist[[i]]@sizer, families)
+			nodelist[[i]]@right <- ftmp[["name"]]
+			nodelist[[i]]@sizer <- ftmp[["size"]]
+			if(ftmp[["size"]]>=min.freq){
+				signatures <- c(signatures, getSignature(pfms, nodelist[[i]]@right, rcpostfix, pfms.class=pfms.class))
+				freq <- c(freq, nodelist[[i]]@sizer)
+			}
 		}
 	}
 	
@@ -616,6 +769,32 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 		if(interactive()) warning("All frequency are smaller than min.freq.")
 		return(FALSE)
 	}
+	return(new("motifSig", signatures=signatures, freq=freq, nodelist=nodelist))
+}
+
+motifCloud <- function(motifSig, rcpostfix="(RC)", 
+layout=c("rectangles", "cloud", "tree"), 
+scale=c(6, .5), rot.per=.1,
+draw.box=TRUE, draw.freq=TRUE, 
+box.col="gray", freq.col="gray",
+group.col=NULL, groups=NULL, draw.legend=FALSE)
+{
+	if (!inherits(motifSig, "motifSig")) 
+    stop("motifSig be object of motifSig. You could try\n?motifSignature\nto get a motifSig.")
+	signatures=signatures(motifSig)
+	freq=frequence(motifSig)
+	nodelist=nodelist(motifSig)
+	if((!is.null(group.col)) && (!is.null(groups))){
+		if(!all(names(table(groups)) %in% names(group.col)))
+		stop("some value of groups has no corresponding color in group.col")
+		names(groups) <- gsub(rcpostfix,"",names(groups), fixed=T)
+		pfmNames <- as.character(unlist(lapply(signatures, function(.ele) unlist(strsplit(.ele@name, ";")))))
+		pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
+		if(!all(pfmNames %in% names(groups)))
+		stop("not all pfms has a given group")
+	}
+	layout <- match.arg(layout, c("cloud","rectangles", "tree"), several.ok=TRUE)
+	layout <- layout[1]
 	normedFreq <- freq/max(freq)
 	size <- (scale[1]-scale[2])*normedFreq + scale[2]
 	grid.pie <- function(x, edges = 200, radius = 0.8, col = NULL, cex=1){
@@ -656,6 +835,7 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 	}
 	
 	op <- par(mar=c(0,0,0,0))
+	on.exit(par(op))
 	
 	if(layout=="rectangles"){
 		plot.new()
@@ -968,7 +1148,7 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 		}
 		Rdist <- getRdist(nodelist)
 		longestRdist <- 4*max(Rdist)
-		plotUnrootedTree <- function(signatures, nodelist, nodename="Root", AXIS=0, ANGLE=2*pi, orignalX=0.5, orignalY=0.5, longestRdist=0){
+		plotUnrootedTree <- function(signatures, nodelist, positions, nodename="Root", AXIS=0, ANGLE=2*pi, orignalX=0.5, orignalY=0.5, longestRdist=0){
 			currNode <- nodelist[[nodename]]
 			RdistTotal <- 0
 			if(currNode@left %in% c(paths, sigNames))
@@ -985,38 +1165,15 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 				y <- currNode@distl/longestRdist * sin(beta) + orignalY
 				if(!is.null(nodelist[[currNode@left]])) {
 					segments(orignalX, orignalY, x, y)
-					plotUnrootedTree(signatures, nodelist, nodename=currNode@left, AXIS=beta, ANGLE=alpha, orignalX=x, orignalY=y, longestRdist=longestRdist)
+					positions <- plotUnrootedTree(signatures, nodelist, positions, nodename=currNode@left, AXIS=beta, ANGLE=alpha, orignalX=x, orignalY=y, longestRdist=longestRdist)
 				}else{
 					pfmlid <- getPFMid(signatures, currNode@left)
 					if(length(pfmlid)>0){
-						isOverlapped <- TRUE
 						ht <- strheight("ACGT", cex=size[pfmlid])
 						wid <- ht * ncol(signatures[[pfmlid]]@mat) / 2
 						segments(orignalX, orignalY, x, y)
-						x1 <- x
-						y1 <- y
-						while(isOverlapped){
-							if(!overlap(x1-.5*wid, y1-.5*ht, wid, ht)){
-								segments(x,y,x1,y1,lty="dashed", col="gray")
-#plot signature
-								plotSignature(x1, y1, wid, ht, "center", 0, signatures[[pfmlid]], freq[[pfmlid]], normedFreq[pfmlid])
-								boxes[[length(boxes)+1]] <<- c(x1-.5*wid, y1-.5*ht, wid, ht)
-								isOverlapped <- FALSE
-							}else{
-								if((x1==1-.5*ht || x1==.5*wid) && (y1==.5*ht || y1==1-.5*ht)){
-									if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
-									isOverlapped <- FALSE
-								}
-								r <- sqrt(wid*wid + ht*ht)*step
-								if(((beta %% pi) - pi/2) < 0.0001) beta <- beta + pi/90
-								x1 <- x1+r*cos(beta)
-								y1 <- y1+r*sin(beta)
-								if(x1-.5*wid<0) x1 <- .5*wid
-								if(x1+.5*wid>1) x1 <-1-.5*wid
-								if(y1-.5*ht<0) y1 <- .5*ht
-								if(y1+.5*ht>1) y1 <-1-.5*ht
-							}
-						}
+						cp <- new("Rect", x=x, y=y, width=wid, height=ht)
+						positions <- c(positions, new("pos", box=cp, beta=beta, sig=signatures[[pfmlid]], freq=freq[[pfmlid]], norm=normedFreq[pfmlid]))
 					}
 				}
 			}
@@ -1029,46 +1186,57 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 				y <- currNode@distr/longestRdist * sin(beta) + orignalY
 				if(!is.null(nodelist[[currNode@right]])) {
 					segments(orignalX, orignalY, x, y)
-					plotUnrootedTree(signatures, nodelist, nodename=currNode@right, AXIS=beta, ANGLE=alpha, orignalX=x, orignalY=y, longestRdist=longestRdist)
+					positions <- plotUnrootedTree(signatures, nodelist, positions, nodename=currNode@right, AXIS=beta, ANGLE=alpha, orignalX=x, orignalY=y, longestRdist=longestRdist)
 				}else{
 					pfmrid <- getPFMid(signatures, currNode@right)
 					if(length(pfmrid)>0){
-						isOverlapped <- TRUE
 						ht <- strheight("ACGT", cex=size[pfmrid])
 						wid <- ht * ncol(signatures[[pfmrid]]@mat) / 2
 						segments(orignalX, orignalY, x, y)
-						x1 <- x
-						y1 <- y
-						while(isOverlapped){
-							if(!overlap(x1-.5*wid, y1-.5*ht, wid, ht)){
-								segments(x,y,x1,y1,lty="dashed", col="gray")
-#plot signature
-								plotSignature(x1, y1, wid, ht, "center", 0, signatures[[pfmrid]], freq[[pfmrid]], normedFreq[pfmrid])
-								boxes[[length(boxes)+1]] <<- c(x1-.5*wid, y1-.5*ht, wid, ht)
-								isOverlapped <- FALSE
-							}else{
-								if((x1==1-.5*ht || x1==.5*wid) && (y1==.5*ht || y1==1-.5*ht)){
-									if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
-									isOverlapped <- FALSE
-								}
-								r <- sqrt(wid*wid + ht*ht)*step
-								if(((beta %% pi) - pi/2) < 0.0001) beta <- beta + pi/90
-								x1 <- x1+r*cos(beta)
-								y1 <- y1+r*sin(beta)
-								if(x1-.5*wid<0) x1 <- .5*wid
-								if(x1+.5*wid>1) x1 <-1-.5*wid
-								if(y1-.5*ht<0) y1 <- .5*ht
-								if(y1+.5*ht>1) y1 <-1-.5*ht
-							}
-						} 
+						cp <- new("Rect", x=x, y=y, width=wid, height=ht)
+						positions <- c(positions, new("pos", box=cp, beta=beta, sig=signatures[[pfmrid]], freq=freq[[pfmrid]], norm=normedFreq[pfmrid]))
 					}
 				}
 			}
+			positions
 		}
-		plotUnrootedTree(signatures, nodelist, longestRdist=longestRdist)
+		positions <- plotUnrootedTree(signatures, nodelist, positions=list(), longestRdist=longestRdist)
+		positions <- positions[order(unlist(lapply(positions, function(.ele) .ele@freq)), decreasing=T)]
+		for(i in 1:length(positions)){
+			isOverlapped <- TRUE
+			thisMotif <- positions[[i]]
+			x <- thisMotif@box@x
+			y <- thisMotif@box@y
+			wid <- thisMotif@box@width
+			ht <- thisMotif@box@height
+			beta <- thisMotif@beta
+			x1 <- x
+			y1 <- y
+			while(isOverlapped){
+				if(!overlap(x1-.5*wid, y1-.5*ht, wid, ht)){
+					segments(x,y,x1,y1,lty="dashed", col="gray")
+#plot signature
+					plotSignature(x1, y1, wid, ht, "center", 0, thisMotif@sig, thisMotif@freq, thisMotif@norm)
+					boxes[[length(boxes)+1]] <- c(x1-.5*wid, y1-.5*ht, wid, ht)
+					isOverlapped <- FALSE
+				}else{
+					if((x1>=1-.5*wid || x1<=.5*wid) && (y1<=.5*ht || y1>=1-.5*ht)){
+						if(interactive()) warning("signature could not be fit on page. It will not be plotted.")
+						isOverlapped <- FALSE
+					}
+					r <- sqrt(wid*wid + ht*ht)*step
+					if(((beta %% pi) - pi/2) < 0.0001) beta <- beta + pi/90
+					x1 <- x1+r*cos(beta)
+					y1 <- y1+r*sin(beta)
+					if(x1-.5*wid<0) x1 <- .5*wid
+					if(x1+.5*wid>1) x1 <-1-.5*wid
+					if(y1-.5*ht<0) y1 <- .5*ht
+					if(y1+.5*ht>1) y1 <-1-.5*ht
+				}
+			}
+		}
 	}
 #plot group legend
-	par(op)
 	if((!is.null(group.col)) && (!is.null(groups)) && draw.legend){
 		legend("topright", names(group.col), fill=group.col, cex=0.5)
 	}

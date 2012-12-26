@@ -8,7 +8,7 @@
 \alias{getIC,matrix,numeric-method}
 \alias{matrixReverseComplement}
 \alias{matrixReverseComplement,pfm-method}
-\alias{plot,pfm-method}
+\alias{plot,pfm,ANY-method}
 
 \title{"pfm" methods}
 \description{
@@ -20,7 +20,7 @@
 	\S4method{getIC}{pfm,ANY}(x,p="missing")
 	\S4method{getIC}{matrix,numeric}(x,p)
 	\S4method{matrixReverseComplement}{pfm}(x)
-	\S4method{plot}{pfm}(x,y="missing",\dots)
+	\S4method{plot}{pfm,ANY}(x,y="missing",\dots)
 }
 
 \arguments{

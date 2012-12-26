@@ -1,0 +1,33 @@
+\name{motifStack}
+\alias{motifStack}
+\title{plot a DNA sequence logo stack}
+\description{
+	Plot a DNA sequence logo stack
+}
+\usage{
+motifStack(pfms, layout=c("stack", "treeview", "phylog", "radialPhylog"), ...)
+}
+\arguments{
+\item{pfms}{a list of objects of class \link{pfm}}
+\item{layout}{layout of the logo stack, stack, treeview or radialPhylog}
+\item{\dots}{any parameters could to pass to \link{plotMotifLogoStack}, \link{plotMotifLogoStackWithTree}, \link{plotMotifStackWithPhylog} or \link{plotMotifStackWithRadialPhylog}}
+}
+\value{
+ none
+}
+\examples{
+	if(interactive()){
+		library("MotifDb")
+		matrix.fly <- query(MotifDb, "Dmelanogaster")
+		motifs <- as.list(matrix.fly)
+		motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
+		names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+							  gsub("_FBgn[0-9]+$", "", 
+									gsub("[^a-zA-Z0-9]","_", 
+										 gsub("(_[0-9]+)+$", "", names(motifs)))))
+		motifs <- motifs[unique(names(motifs))]
+		pfms <- sample(motifs, 50)
+		pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
+		motifStack(pfms, "radialPhylog")
+	}
+}

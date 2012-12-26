@@ -50,7 +50,6 @@ angle=360)
 \examples{
 	if(interactive()){
 		library("MotifDb")
-		library("MotIV")
 		matrix.fly <- query(MotifDb, "Dmelanogaster")
 		motifs <- as.list(matrix.fly)
 		motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
@@ -60,10 +59,8 @@ angle=360)
 										 gsub("(_[0-9]+)+$", "", names(motifs)))))
 		motifs <- motifs[unique(names(motifs))]
 		pfms <- sample(motifs, 50)
-		jaspar <- MotIV::readPWMfile(file.path(find.package("MotIV"), "extdata", "jaspar2010.txt"))
 		jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-		ffs.analysis.jaspar<-MotIV::motifMatch(inputPWM=pfms,align="SWU",cc="PCC",database=jaspar, DBscores=jaspar.scores,top=5)
-		d <- MotIV::motifDistances(getPWM(ffs.analysis.jaspar))
+		d <- MotIV::motifDistances(pfms)
 		hc <- MotIV::motifHclust(d)
 		phylog <- hclust2phylog(hc)
 		leaves <- names(phylog$leaves)

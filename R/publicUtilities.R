@@ -7,12 +7,6 @@ readPCM<-function(path=".", pattern=NULL){
     pcml
 }
 
-pcm2pfm<-function(pcm){
-    s<-apply(pcm,2,sum)
-    p<-apply(pcm,1,function(.ele) .ele/s)
-    t(p)
-}
-
 colorset<-function(alphabet="DNA", colorScheme='auto'){
     if(!alphabet %in% c("DNA","RNA","AA")) stop("alphabet must be one of 'DNA', 'RNA' or 'AA'")
     if(alphabet=='PROTEIN' & !(colorScheme %in% c('auto', 'charge', 'chemistry', 'classic', 'hydrophobicity')))

@@ -49,8 +49,10 @@ library(motifStack)
 pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
 pcm <- pcm[,3:ncol(pcm)]
 rownames(pcm) <- c("A","C","G","T")
-motif <- pcm2pfm(pcm)
-motif <- new("pfm", mat=motif, name="bin_SOLEXA")
+motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+##pfm object
+#motif <- pcm2pfm(pcm)
+#motif <- new("pfm", mat=motif, name="bin_SOLEXA")
 plot(motif)
 #try a different font
 plot(motif, font="mono,Courier")
@@ -102,93 +104,46 @@ plot(motif)
 
 \subsection{plot sequence logo stack}
 motifStack is designed to show multiple motifs in same canvas. To show the sequence logo stack,
-motifs need to be aligned first for example by using MotIV\cite{Eloi2010}::motifMatch, 
+the distance of motifs need to be calculated first for example by using MotIV\cite{Eloi2010}::motifDistances, 
 which implemented STAMP\cite{Mahony2007}. After alignment, users can use plotMotifLogoStack
 function to draw sequence logos stack or use plotMotifLogoStackWithTree function to show the distance tree
-and sequence logos stack in the same canvas.
+with the sequence logos stack or use plotMotifStackWithRadialPhylog function to plot sequence logo stack in radial style 
+in the same canvas. There is a shortcut function named as motifStack. Use stack layout to call
+plotMotifLogoStack, treeview layout to call plotMotifLogoStackWithTree and radialPhylog to call
+plotMotifStackWithRadialPhylog.
 
 \begin{scriptsize}
 <<seqLogoStack,include=FALSE>>=
 library(motifStack)
-library("MotIV")
-#####Database and Scores#####
-jaspar <- MotIV::readPWMfile(file.path(find.package("MotIV"), "extdata", "jaspar2010.txt"))
-jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
 #####Input#####
 pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
 pcms<-lapply(pcms,function(.ele){.ele<-.ele[,3:ncol(.ele)];rownames(.ele)<-c("A","C","G","T");.ele})
 motifs<-lapply(pcms,pcm2pfm)
-
-#####Analysis#####
-foxa1.analysis.jaspar<-MotIV::motifMatch(inputPWM=motifs,
-                                         align="SWU",cc="PCC",
-                                         database=jaspar, DBscores=jaspar.scores,top=5)
-#####Clustering#####
-d <- MotIV::motifDistances(getPWM(foxa1.analysis.jaspar))
-hc <- MotIV::motifHclust(d)
-
-##reorder the motifs for plotMotifLogoStack
-motifs<-motifs[hc$order]
 motifs<-lapply(names(motifs), function(.ele, motifs){new("pfm",mat=motifs[[.ele]], name=.ele)},motifs)
-##do alignment
-motifs<-DNAmotifAlignment(motifs)
+
 ##plot stacks
-plotMotifLogoStack(motifs, ncex=1.0)
-plotMotifLogoStackWithTree(motifs, hc=hc)
-@
-\end{scriptsize}
-\begin{figure}[htb]
-\centering
-<<fig3,fig=TRUE,echo=FALSE>>=
-plotMotifLogoStack(motifs, ncex=1.0)
-@
-\caption{sequence logo stack}
-\label{fig:logostack}
-\end{figure}
-\begin{figure}[htb]
-\centering
-<<fig4,fig=TRUE,echo=FALSE>>=
-plotMotifLogoStackWithTree(motifs, hc=hc)
-@
-\caption{sequence logo stack with hierarchical cluster tree}
-\label{fig:treestack}
-\end{figure}
+motifStack(motifs, layout="stack", ncex=1.0)
+motifStack(motifs, layout="tree")
 
-\subsection{plot sequence logo stack in radial style}
-When the number of motifs is too much to be shown in a vertical stack, motifStack can draw them in a radial style.
-
-\begin{scriptsize}
-<<radialLogoStack,include=FALSE>>=
+###When the number of motifs is too much to be shown in a vertical stack, 
+###motifStack can draw them in a radial style.
 library("MotifDb")
-library("MotIV")
-library("motifStack")
 matrix.fly <- query(MotifDb, "Dmelanogaster")
-motifs <- as.list(matrix.fly)
-motifs <- motifs[grepl("Dmelanogaster\\-FlyFactorSurvey\\-", names(motifs))]
-names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+motifs2 <- as.list(matrix.fly)
+motifs2 <- motifs2[grepl("Dmelanogaster\\-FlyFactorSurvey\\-", names(motifs2))]
+names(motifs2) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
                       gsub("_FBgn\\d+$", "", 
                             gsub("[^a-zA-Z0-9]","_", 
-                                 gsub("(_\\d+)+$", "", names(motifs)))))
-motifs <- motifs[unique(names(motifs))]
-pfms <- sample(motifs, 50)
-jaspar <- MotIV::readPWMfile(file.path(find.package("MotIV"), "extdata", "jaspar2010.txt"))
-jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-ffs.analysis.jaspar<-MotIV::motifMatch(inputPWM=pfms,align="SWU",
-                                       cc="PCC",database=jaspar, 
-                                       DBscores=jaspar.scores,top=5)
-d <- MotIV::motifDistances(getPWM(ffs.analysis.jaspar))
-hc <- MotIV::motifHclust(d)
-phylog <- hclust2phylog(hc)
-leaves <- names(phylog$leaves)
-pfms <- pfms[leaves]
-pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
-pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
+                                 gsub("(_\\d+)+$", "", names(motifs2)))))
+motifs2 <- motifs2[unique(names(motifs2))]
+pfms <- sample(motifs2, 50)
+motifs2 <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
 library(RColorBrewer)
 color <- brewer.pal(12, "Set3")
 @
 \begin{Schunk}
 \begin{Sinput}
-> plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.5, clabel.leaves = 0.5,  
+>motifStack(motifs2, layout="radialPhylog", 
 +                                 col.bg=rep(color, each=5), col.bg.alpha=0.3, 
 +                                 col.leaves=rep(color, each=5),
 +                                 col.inner.label.circle=rep(color,5),
@@ -199,8 +154,25 @@ color <- brewer.pal(12, "Set3")
 \end{scriptsize}
 \begin{figure}[htb]
 \centering
+<<fig3,fig=TRUE,echo=FALSE>>=
+motifStack(motifs, layout="stack", ncex=1.0)
+@
+\caption{sequence logo stack}
+\label{fig:logostack}
+\end{figure}
+\begin{figure}[htb]
+\centering
+<<fig4,fig=TRUE,echo=FALSE>>=
+motifStack(motifs, layout="tree")
+@
+\caption{sequence logo stack with hierarchical cluster tree}
+\label{fig:treestack}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
 <<fig5,fig=TRUE,echo=FALSE>>=
-plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.2, clabel.leaves = 0.5, 
+motifStack(motifs2, layout="radialPhylog", circle=0.4, cleaves = 0.2, clabel.leaves = 0.5, 
                                  col.bg=rep(color, each=5), col.bg.alpha=0.3, 
                                  col.leaves=rep(color, each=5),
                                  col.inner.label.circle=rep(color,5),
@@ -208,23 +180,29 @@ plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.4, cleaves = 0.2, clabel.l
                                  angle=350)
 @
 \caption{sequence logo stack in radial style}
-\label{fig:treestack}
+\label{fig:radialstack}
 \end{figure}
 
 \subsection{plot a sequence logo cloud}
 We can also plot a sequence logo cloud for DNA sequence logo.
 \begin{scriptsize}
 <<motifCloud,include=FALSE>>=
-pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
-pfmNames <- gsub("(RC)","",pfmNames, fixed=T)
 groups <- rep(paste("group",1:5,sep=""), each=10)
-names(groups) <- pfmNames
+names(groups) <- names(pfms)
 group.col <- brewer.pal(5, "Set3")
 names(group.col)<-paste("group",1:5,sep="")
+jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+d <- MotIV::motifDistances(pfms)
+hc <- MotIV::motifHclust(d)
+phylog <- hclust2phylog(hc)
+leaves <- names(phylog$leaves)
+pfms <- pfms[leaves]
+pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
+motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
 @
 \begin{Schunk}
 \begin{Sinput}
-> motifCloud(pfms, phylog, groupDistance=0.1, scale=c(6, .5), 
+> motifCloud(motifSig, scale=c(6, .5), 
 +			layout="rectangles", group.col=group.col, groups=groups, draw.legend=T)
 \end{Sinput}
 \end{Schunk}
@@ -232,7 +210,7 @@ names(group.col)<-paste("group",1:5,sep="")
 \begin{figure}[htb]
 \centering
 <<fig6,fig=TRUE,echo=FALSE>>=
-motifCloud(pfms, phylog, groupDistance=0.1, scale=c(6, .5), layout="rectangles", group.col=group.col, groups=groups, draw.legend=T)
+motifCloud(motifSig, scale=c(6, .5), layout="rectangles", group.col=group.col, groups=groups, draw.legend=T)
 @
 \caption{a sequence logo cloud with rectangle packing layout}
 \label{fig:motifCloud}
