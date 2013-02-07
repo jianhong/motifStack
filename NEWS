@@ -1,4 +1,16 @@
-CHANGES IN VERSION 1.2.9
+CHANGES IN VERSION 1.2.12
+-----------------------
+
+NEW FEATURES
+
+    o New methods add to pcm and pfm class.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
+CHANGES IN VERSION 1.2.10
 -----------------------
 
 NEW FEATURES
@@ -6,7 +18,7 @@ NEW FEATURES
     o New function motifStack
     o motifCloud function is separated into two functions: motifSignature
     and motifCloud
-    o New class cpm and motifSig
+    o New class pcm and motifSig
 
 BUG FIXES
 

@@ -637,9 +637,12 @@ min.freq=2, trim=0.2, families=list()){
 		}
 	}
 	nodelist <- getNodelist(str)
+	leaves <- names(phylog$leaves)
 	buildTree <- function(nodelist, nodename, droot, dpar=0){
 		nodelist[[nodename]]@distl <<- droot[nodelist[[nodename]]@left] - dpar
 		nodelist[[nodename]]@distr <<- droot[nodelist[[nodename]]@right] - dpar
+		if(nodelist[[nodename]]@left %in% leaves) nodelist[[nodename]]@sizel <<- 1
+		if(nodelist[[nodename]]@right %in% leaves) nodelist[[nodename]]@sizer <<- 1
 		if(!is.null(nodelist[[nodelist[[nodename]]@left]])){
 			buildTree(nodelist, nodelist[[nodename]]@left, droot, droot[nodelist[[nodename]]@left])
 		}
@@ -648,7 +651,6 @@ min.freq=2, trim=0.2, families=list()){
 		}
 	}
 	buildTree(nodelist, "Root", droot, dpar=0)
-	leaves <- names(phylog$leaves)
 	
 	mergeNodes <- function(nodelist, leaves, groupDistance){
 		l <- length(nodelist)
@@ -687,20 +689,25 @@ min.freq=2, trim=0.2, families=list()){
 	getSignature <- function(pfms, pfmnames, rcpostfix, pfms.class){
 		.pfmnames <- unlist(strsplit(pfmnames, ";"))
 		.pfms <- lapply(.pfmnames, function(.name, pfms) pfms[[getPFMid(pfms, .name, rcpostfix=rcpostfix)]], pfms)
-		.pfms <- DNAmotifAlignment(.pfms, rcpostfix="")
-		.rown <- rownames(.pfms[[1]]@mat)
-		.mats <- lapply(.rown, function(i, .pfms){
-							do.call(rbind,lapply(.pfms, function(.ele, i) .ele@mat[i, , drop=F], i))
-						}, .pfms)
-		if(pfms.class=="pfms"){
-			.mats <- do.call(rbind, lapply(.mats, colMeans))
+		if(length(.pfms)>1){
+			.pfms <- DNAmotifAlignment(.pfms, rcpostfix="")
+			.rown <- rownames(.pfms[[1]]@mat)
+			.mats <- lapply(.rown, function(i, .pfms){
+								do.call(rbind,lapply(.pfms, function(.ele, i) .ele@mat[i, , drop=F], i))
+							}, .pfms)
+			if(pfms.class=="pfms"){
+				.mats <- do.call(rbind, lapply(.mats, colMeans))
+			}
+			else{
+				.mats <- do.call(rbind, lapply(.mats, colSums))
+				.mats <- pcm2pfm(.mats)
+			}
+			rownames(.mats) <- .rown
+			colnames(.mats) <- 1:ncol(.mats)
+		}else{
+			if(pfms.class=="pfms") .mats <- .pfms[[1]]@mat
+			else .mats <- pcm2pfm(.pfms[[1]]@mat)
 		}
-		else{
-			.mats <- do.call(rbind, lapply(.mats, colSums))
-			.mats <- pcm2pfm(.mats)
-		}
-		rownames(.mats) <- .rown
-		colnames(.mats) <- 1:ncol(.mats)
 		new("pfm", mat=.mats, name=pfmnames, alphabet=.pfms[[1]]@alphabet, color=.pfms[[1]]@color, background=.pfms[[1]]@background)
 	}
 	
@@ -745,19 +752,7 @@ min.freq=2, trim=0.2, families=list()){
 	}
 	
 #trime signatures
-	signatures <- lapply(signatures, function(.pfm){
-						 .sw <- c(0,0)
-						 ic <- motifStack:::getIC(.pfm)
-						 for(i in 1:ncol(.pfm@mat)){
-						 if(ic[i]>trim){
-						 if(.sw[1]==0) .sw[1] <- i
-						 else .sw[2] <- i
-						 }
-						 }
-						 if(.sw[1]<.sw[2]-2) .pfm@mat <- .pfm@mat[, .sw[1]:.sw[2]]
-						 else .pfm <- NA
-						 .pfm
-						 })
+	signatures <- lapply(signatures, trimMotif, trim)
 	ord <- unlist(lapply(signatures, function(.ele){inherits(.ele,"pfm")}))
 	signatures <- signatures[ord]
 	freq <- freq[ord]

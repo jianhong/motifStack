@@ -42,6 +42,8 @@
     \item{matrixReverseComplement}{\code{signature(x = "pfm")} get the 
   	reverse complement of position frequency matrix.}
   	
+  	\item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
+  	
 	\item{plot}{\code{signature(x = "pfm")} Plots the
     sequence logo of the position frequency matrix. }
  } 

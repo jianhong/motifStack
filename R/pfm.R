@@ -70,6 +70,29 @@ setMethod("getIC", signature(x="matrix", p="numeric"), function(x, p){
 	colSums(x * (addPseudolog2(x) - addPseudolog2(p)))
 })
 
+setMethod("trimMotif", signature(x="pfm", t="numeric"), function(x, t){
+	.sw <- c(0, 0)
+	ic <- getIC(x)
+	for(i in 1:ncol(x@mat)){
+		if(ic[i]>=t){
+			.flag <- FALSE
+			if(i<ncol(x@mat)){
+				if(ic[i+1]>=t) .flag<-TRUE
+				else if(ic[i]>=min(2*t, 0.5)) .flag<-TRUE
+			}else{
+				.flag<-TRUE
+			}
+			if(.flag){
+				if(.sw[1]==0) .sw[1] <- i
+				else .sw[2] <- i
+			}
+		}
+	}
+	if(.sw[1]<.sw[2]-1) x@mat <- x@mat[, .sw[1]:.sw[2]]
+	else x <- NA
+	x
+})
+
 setMethod("matrixReverseComplement", "pfm", function(x){
 	if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
 	mat<-x@mat

@@ -10,6 +10,8 @@
 \alias{pcm2pfm,data.frame,ANY-method}
 \alias{pcm2pfm,data.frame,numeric-method}
 \alias{matrixReverseComplement,pcm-method}
+\alias{trimMotif}
+\alias{trimMotif,pcm,numeric-method}
 \alias{plot,pcm,ANY-method}
 
 \title{"pcm" methods}
@@ -27,6 +29,7 @@
 	\S4method{pcm2pfm}{matrix,numeric}(x,background)
 	\S4method{pcm2pfm}{data.frame,ANY}(x,background="missing")
 	\S4method{pcm2pfm}{data.frame,numeric}(x,background)
+	\S4method{trimMotif}{pcm,numeric}(x,t)
 }
 
 \arguments{
@@ -39,6 +42,7 @@
 	\item{n}{how many spaces should be added.}
 	\item{b}{logical value to indicate where the space should be added.}
 	\item{background}{a \code{"numeric"} vector. The background frequency.}
+	\item{t}{numeric value of information content threshold for trimming.}
 	\item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
 }
 
@@ -59,6 +63,8 @@
   	
 	\item{plot}{\code{signature(x = "pcm")} Plots the
     sequence logo of the position count matrix. }
+    
+    \item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
  } 
 }
 \examples{

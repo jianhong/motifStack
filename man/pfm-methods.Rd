@@ -8,6 +8,7 @@
 \alias{getIC,matrix,numeric-method}
 \alias{matrixReverseComplement}
 \alias{matrixReverseComplement,pfm-method}
+\alias{trimMotif,pfm,numeric-method}
 \alias{plot,pfm,ANY-method}
 
 \title{"pfm" methods}
@@ -21,6 +22,7 @@
 	\S4method{getIC}{matrix,numeric}(x,p)
 	\S4method{matrixReverseComplement}{pfm}(x)
 	\S4method{plot}{pfm,ANY}(x,y="missing",\dots)
+	\S4method{trimMotif}{pfm,numeric}(x,t)
 }
 
 \arguments{
@@ -30,6 +32,7 @@
 	\item{p}{p is the background frequency.}
 	\item{n}{how many spaces should be added.}
 	\item{b}{logical value to indicate where the space should be added.}
+	\item{t}{numeric value of information content threshold for trimming.}
 	\item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
 }
 
@@ -51,6 +54,8 @@
   	
   \item{plot}{\code{signature(x = "pfm")} Plots the
     sequence logo of the position frequency matrix. }
+    
+  \item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
  } 
 }
 \examples{
