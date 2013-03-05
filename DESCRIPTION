@@ -11,7 +11,7 @@ Authors@R: c(person("Jianhong Ou", "Developer", role = c("aut", "cre"),
         email = "Michael.Brodsky@umassmed.edu"), 
         person("Scot Wolfe", "User", role = "ctb", 
         email = "Scot.Wolfe@umassmed.edu"))
-Author: Jianhong Ou and Lihua Julie Zhu
+Author: Jianhong Ou, Lihua Julie Zhu, Michael Brodsky and Scot Wolfe
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
 Imports: grImport, grid, XML, ade4
 Depends: R (>= 2.15.1), methods, grImport, grid, MotIV, ade4
