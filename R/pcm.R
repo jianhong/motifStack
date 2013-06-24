@@ -2,7 +2,7 @@ setClass("pcm",
 		representation(mat="matrix", name="character", alphabet="character", color="character", background="numeric"),
 		validity=function(object){
 			re<-TRUE
-			if (checkInteger(unlist(object@mat))) re<-"Columns of pcm must add up to 1.0"
+			if (checkInteger(unlist(object@mat))) re<-"Columns of pcm must be integer"
 			if (is.null(rownames(object@mat))) re<-"rownames of pcm is empty"
 			if (is.null(names(object@color))) re<-"names of color is empty"
 			if (length(setdif(rownames(object@mat), names(object@color)))>0) re<-"not every alphabet in pcm has a corresponding color"
@@ -17,6 +17,7 @@ setClass("pcm",
 )
 
 setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, background){
+    if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
 	if(is.null(rownames(mat))) stop("rownames of pcm is empty")
 	rownames(mat)<-toupper(rownames(mat))
 	if(missing(alphabet)){

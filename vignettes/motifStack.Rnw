@@ -39,10 +39,9 @@ Example on Windows: assume that the gswin32c.exe is installed at C:\textbackslas
 Sys.setenv(R\_GSCMD="\textbackslash"C:\textbackslash\textbackslash Program Files\textbackslash\textbackslash gs\textbackslash\textbackslash gs9.06\textbackslash\textbackslash bin\textbackslash\textbackslash gswin32c.exe\textbackslash"")
 \end{scriptsize}
 
- 
 \section{Examples of using motifStack}
 \subsection{plot a DNA sequence logo with different fonts and colors}
-Users can select different fonts and colors to draw the sequence logo.
+Users can select different fonts and colors to draw the sequence logo (Figure \ref{fig:font}).
 \begin{scriptsize}
 <<DNAseqLogo,include=FALSE>>=
 library(motifStack)
@@ -81,7 +80,7 @@ par<-opar
 
 \subsection{plot an amino acid sequence logo}
 Given that motifStack allows to use any letters as symbols, 
-it can also be used to draw amino acid sequence logos.
+it can also be used to draw amino acid sequence logos (Figure \ref{fig:protein}).
 \begin{scriptsize}
 <<AAseqLogo,include=FALSE>>=
 library(motifStack)
@@ -106,8 +105,10 @@ plot(motif)
 motifStack is designed to show multiple motifs in same canvas. To show the sequence logo stack,
 the distance of motifs need to be calculated first for example by using MotIV\cite{Eloi2010}::motifDistances, 
 which implemented STAMP\cite{Mahony2007}. After alignment, users can use plotMotifLogoStack
-function to draw sequence logos stack or use plotMotifLogoStackWithTree function to show the distance tree
-with the sequence logos stack or use plotMotifStackWithRadialPhylog function to plot sequence logo stack in radial style 
+function to draw sequence logos stack (Figure \ref{fig:logostack}) or use plotMotifLogoStackWithTree function 
+to show the distance tree with the sequence logos stack (Figure \ref{fig:treestack}) or 
+use plotMotifStackWithRadialPhylog function to plot sequence logo stack in radial style 
+(Figure \ref{fig:radialstack}) 
 in the same canvas. There is a shortcut function named as motifStack. Use stack layout to call
 plotMotifLogoStack, treeview layout to call plotMotifLogoStackWithTree and radialPhylog to call
 plotMotifStackWithRadialPhylog.
@@ -172,7 +173,7 @@ motifStack(motifs, layout="tree")
 \begin{figure}[htb]
 \centering
 <<fig5,fig=TRUE,echo=FALSE>>=
-motifStack(motifs2, layout="radialPhylog", circle=0.4, cleaves = 0.2, clabel.leaves = 0.5, 
+motifStack(motifs2, layout="radialPhylog", circle=0.3, cleaves = 0.2, clabel.leaves = 0.5, 
                                  col.bg=rep(color, each=5), col.bg.alpha=0.3, 
                                  col.leaves=rep(color, each=5),
                                  col.inner.label.circle=rep(color,5),
@@ -184,7 +185,7 @@ motifStack(motifs2, layout="radialPhylog", circle=0.4, cleaves = 0.2, clabel.lea
 \end{figure}
 
 \subsection{plot a sequence logo cloud}
-We can also plot a sequence logo cloud for DNA sequence logo.
+We can also plot a sequence logo cloud for DNA sequence logo (Figure \ref{fig:motifCloud}).
 \begin{scriptsize}
 <<motifCloud,include=FALSE>>=
 groups <- rep(paste("group",1:5,sep=""), each=10)
@@ -198,7 +199,7 @@ phylog <- hclust2phylog(hc)
 leaves <- names(phylog$leaves)
 pfms <- pfms[leaves]
 pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
-motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
+motifSig <- motifSignature(pfms, phylog, groupDistance=0.01, min.freq=1)
 @
 \begin{Schunk}
 \begin{Sinput}
@@ -214,6 +215,50 @@ motifCloud(motifSig, scale=c(6, .5), layout="rectangles", group.col=group.col, g
 @
 \caption{a sequence logo cloud with rectangle packing layout}
 \label{fig:motifCloud}
+\end{figure}
+
+\subsection{plot grouped sequence logo}
+To plot grouped sequence logo, except do motifCloud, we can also plot it with radialPhylog style (Figure \ref{fig:motifRadialPhylog}).
+\begin{scriptsize}
+<<groupedMotif,include=FALSE>>=
+sig <- signatures(motifSig)
+pfmNames <- lapply(sig, function(.ele){unlist(strsplit(.ele@name, ";"))})
+pfmNames <- mapply(function(.ele, .name){cbind(.ele, .name)}, 
+      pfmNames, paste("gps", 1:length(pfmNames), sep=""))
+pfmNames <- do.call(rbind, pfmNames)
+pfmNames <- pfmNames[match(names(phylog$leaves), pfmNames[,1]),]
+bd.color <- c("gray80","gray30")
+in.color <- rle(pfmNames[,2])
+in.color$values <- bd.color[rep(1:2, length(in.color$lengths))[1:length(in.color$lengths)]]
+pfmNames <- cbind(pfmNames, color=inverse.rle(in.color))
+@
+\begin{Schunk}
+\begin{Sinput}
+> plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, circle=0.4, cleaves = 0.3, 
++                               clabel.leaves = 0.5, 
++                               col.bg=rep(color, each=5), col.bg.alpha=0.3, 
++                               col.leaves=rep(color, each=5),
++                               col.inner.label.circle=pfmNames[,3], 
++                               inner.label.circle.width=0.03,
++                               angle=350, circle.motif=1.2, 
++                               motifScale="logarithmic")
+\end{Sinput}
+\end{Schunk}
+\end{scriptsize}
+
+\begin{figure}[htb]
+\centering
+<<fig7,fig=TRUE,echo=FALSE>>=
+plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, circle=0.4, cleaves = 0.3, 
+                              clabel.leaves = 0.5, 
+                              col.bg=rep(color, each=5), col.bg.alpha=0.3, 
+                              col.leaves=rep(color, each=5),
+                              col.inner.label.circle=pfmNames[,3], 
+                              inner.label.circle.width=0.03,
+                              angle=350, circle.motif=1.2, motifScale="logarithmic")
+@
+\caption{grouped sequence logo with radialPhylog style layout}
+\label{fig:motifRadialPhylog}
 \end{figure}
 
 \section{References}

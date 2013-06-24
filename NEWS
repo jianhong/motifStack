@@ -1,3 +1,17 @@
+CHANGES IN VERSION 1.5.1
+-----------------------
+
+NEW FEATURES
+
+    o plotMotifStackWithRadialPhylog can draw motif cloud in 
+      RadialPhylog style. Check vignette to see the details
+
+BUG FIXES
+
+    o check mode of pcm and pfm matrix, which should be numeric
+
+
+
 CHANGES IN VERSION 1.2.12
 -----------------------
 

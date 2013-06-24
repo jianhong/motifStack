@@ -336,35 +336,42 @@ labels.nodes = names(phylog$nodes), clabel.nodes = 0
 ######## radial style stack
 ######## 
 ###############################################################################
-plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,  
+plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
 circle=1, circle.motif=NA, cleaves=1, cnodes=0,
 labels.leaves=names(phylog$leaves), clabel.leaves=1,
-labels.nodes=names(phylog$nodes), clabel.nodes=0, 
-draw.box=FALSE, 
-col.leaves=rep("black", length(labels.leaves)), 
+labels.nodes=names(phylog$nodes), clabel.nodes=0,
+draw.box=FALSE,
+col.leaves=rep("black", length(labels.leaves)),
 col.leaves.bg=NULL, col.leaves.bg.alpha=1,
-col.bg=NULL, col.bg.alpha=1, 
-col.inner.label.circle=NULL, col.outer.label.circle=NULL, outer.label.circle.width="default",
-clockwise =FALSE, init.angle=if(clockwise) 90 else 0, 
-angle=360) 
+col.bg=NULL, col.bg.alpha=1,
+col.inner.label.circle=NULL, inner.label.circle.width="default",
+col.outer.label.circle=NULL, outer.label.circle.width="default",
+clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
+angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarithmic"))
 {
-	if (!inherits(phylog, "phylog")) 
+	if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
 	leaves.number <- length(phylog$leaves)
 	checkLength <- function(tobechecked){
-		!((length(tobechecked)>=leaves.number)|is.null(tobechecked))
+		!((length(tobechecked)>=leaves.number)||is.null(tobechecked))
 	}
-	for(tobechecked in c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle", "pfms")){
+	checkNA <- function(tobechecked){
+		if(is.null(tobechecked)) return(FALSE)
+		return(any(is.na(tobechecked)))
+	}
+	for(tobechecked in c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
 		if(checkLength(eval(as.symbol(tobechecked)))) stop(paste("the length of", tobechecked, "should be same as the length of leaves"))
+		if(checkNA(eval(as.symbol(tobechecked)))) stop(paste("contain NA in", tobechecked))
 	}
+    motifScale <- match.arg(motifScale)
 	leaves.names <- names(phylog$leaves)
 	nodes.number <- length(phylog$nodes)
 	nodes.names <- names(phylog$nodes)
-	if (length(labels.leaves) != leaves.number) 
+	if (length(labels.leaves) != leaves.number)
     labels.leaves <- names(phylog$leaves)
-	if (length(labels.nodes) != nodes.number) 
+	if (length(labels.nodes) != nodes.number)
     labels.nodes <- names(phylog$nodes)
-	if (circle < 0) 
+	if (circle < 0)
     stop("'circle': non convenient value")
 	leaves.car <- gsub("[_]", " ", labels.leaves)
 	nodes.car <- gsub("[_]", " ", labels.nodes)
@@ -379,19 +386,18 @@ angle=360)
 	dist.nodes <- dis[nodes.names]
 	asp <- c(1, 1)
 	if(is.null(pfms)){
-		plot.default(0, 0, type = "n", asp = 1, xlab = "", ylab = "", 
-					 xaxt = "n", yaxt = "n", xlim = c(-2, 2), ylim = c(-2, 2), 
-					 xaxs = "i", yaxs = "i", frame.plot = FALSE)
+		plot.default(0, 0, type = "n", asp = 1, xlab = "", ylab = "",
+        xaxt = "n", yaxt = "n", xlim = c(-2, 2), ylim = c(-2, 2),
+        xaxs = "i", yaxs = "i", frame.plot = FALSE)
 	}else{
 		pin <- par("pin")
 		if (pin[1L] > pin[2L]) asp <- c(pin[2L]/pin[1L], 1)
 		else asp <- c(1, pin[1L]/pin[2L])
-		plot.default(0, 0, type = "n", asp=1, xlab = "", ylab = "", 
-					 xaxt = "n", yaxt = "n", xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5), 
-					 xaxs = "i", yaxs = "i", frame.plot = FALSE)
+		plot.default(0, 0, type = "n", asp=1, xlab = "", ylab = "",
+        xaxt = "n", yaxt = "n", xlim = c(-2.5, 2.5), ylim = c(-2.5, 2.5),
+        xaxs = "i", yaxs = "i", frame.plot = FALSE)
 	}
 	d.rayon <- rayon/(nodes.number - 1)
-	if(outer.label.circle.width=="default") outer.label.circle.width <- rayon-mean(dist.leaves)
 	twopi <- if (clockwise)
     -2 * pi
 	else 2 * pi
@@ -404,36 +410,19 @@ angle=360)
 	
 	rayonWidth <- max(unlist(lapply(leaves.names, strwidth, units="user", cex=clabel.leaves)))
 	circle.motif <- ifelse(is.na(circle.motif), rayon + d.rayon + rayonWidth, circle.motif)
-##for logos position
+    ##for logos position
+    maxvpwidth <- 0
 	if(!is.null(pfms)){
-		beta <- alpha * 180 / pi 
-		vpheight <- max(unlist(lapply(leaves.names, strheight, units="figure")))
+		beta <- alpha * 180 / pi
+		vpheight <- strheight("ACGT", units="figure")
 		vpheight <- vpheight * asp[2L]
-		mwidth <- max(unlist(lapply(pfms, function(.ele) ncol(.ele@mat))))
-		vpwidth <- vpheight * mwidth / 2
-		xm <- (circle.motif + 2.5*vpwidth) * cos(alpha) * asp[1L] / 5 + 0.5
-		ym <- (circle.motif + 2.5*vpwidth) * sin(alpha) * asp[2L] / 5 + 0.5
-		if((max(xm)>1-0.5*vpwidth) | (min(xm)<0.5*vpwidth) | (max(ym)>1-0.5*vpheight) | (min(ym)<0.5*vpheight) ){
-			if(interactive()){
-				msg <- "Sequence logo will be drawn out of canvas. continue? (Y/n): "
-				repeat{
-					cat(msg)
-					answer <- readLines(n=1)
-					if(answer %in% c("Y","y","N","n"))
-					break
-					if(answer == ""){
-						answer <- "y"
-						break
-					}  
-				}
-				tolower(answer)
-				if(answer == "n"){
-					return()
-				}
-			}
-		}
+		xm <- circle.motif * cos(alpha) * asp[1L] / 5 + 0.5
+		ym <- circle.motif * sin(alpha) * asp[2L] / 5 + 0.5
+		maxvpwidth <- max(unlist(lapply(pfms, function(.ele) ncol(.ele@mat)))) * vpheight * 2.5
 	}
-##for plot background
+	if(inner.label.circle.width=="default") inner.label.circle.width <- rayonWidth/10
+	if(outer.label.circle.width=="default") outer.label.circle.width <- rayonWidth/10
+    ##for plot background
 	if(!is.null(col.bg)) col.bg <- motifStack:::highlightCol(col.bg, col.bg.alpha)
 	if(!is.null(col.leaves.bg)) col.leaves.bg <- motifStack:::highlightCol(col.leaves.bg, col.leaves.bg.alpha)
 	gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
@@ -461,32 +450,55 @@ angle=360)
 	}
 	if (clabel.leaves > 0) {
 		if(!is.null(col.outer.label.circle)) ##plot outer.label.circle
-		plotBgArc(circle.motif+outer.label.circle.width, col.outer.label.circle, rayon+d.rayon+rayonWidth)
+		plotBgArc(circle.motif+maxvpwidth+outer.label.circle.width, col.outer.label.circle, circle.motif+maxvpwidth)
 		if(!is.null(col.leaves.bg)) ##plot leaves bg
 		plotBgArc(circle.motif, col.leaves.bg, rayon+d.rayon)
 		if(!is.null(col.inner.label.circle)) #plot inner.label.circle
-		plotBgArc(rayon, col.inner.label.circle, mean(dist.leaves)) 
+		plotBgArc(circle.motif, col.inner.label.circle, circle.motif - inner.label.circle.width)
 		if(!is.null(col.bg)) ##plot center bg
 		plotBgArc(mean(dist.leaves), col.bg, 0)
-		assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
 		for(i in 1:leaves.number) {
 			par(srt = alpha[i] * 180/pi)
-			text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") * 
-				 clabel.leaves)
+			text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") *
+            clabel.leaves)
 			segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
-			if(!is.null(pfms)){
-				pushViewport(viewport(x=xm[i], y=ym[i], width=vpwidth, height=vpheight, angle=beta[i]))
-				if(!is.null(pfms[[i]])){
+		}
+		
+		assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+		if(!is.null(pfms)){
+			##extract names
+            for(metaChar in c("\\","$","*","+",".","?","[","]","^","{","}","|","(",")"))
+            {
+                rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),rcpostfix,fixed=TRUE)
+            }
+			pfmNames <- lapply(pfms, function(.ele) .ele@name)
+			for(i in 1:length(pfmNames)){
+				pfmname <- unlist(strsplit(pfmNames[[i]], pfmNameSpliter))
+                pfmname <- gsub(paste(rcpostfix,"$",sep=""),"",pfmname)
+				pfmIdx <- which(labels.leaves %in% pfmname)
+                if(length(pfmIdx)==0) pfmIdx <- which(names(phylog$leaves) %in% pfmname)
+				if(length(pfmIdx)>0){
+					vph <- ifelse(motifScale=="linear",
+                                    vpheight*length(pfmname),
+                                    vpheight*(1+log2(length(pfmname))))
+					vpw <- vph * ncol(pfms[[i]]@mat) / 2
+					vpd <- sqrt(vph*vph+vpw*vpw) / 2
+					vpx <- median(xm[pfmIdx]) + vpd * cos(median(alpha[pfmIdx])) * asp[1L]
+					vpy <- median(ym[pfmIdx]) + vpd * sin(median(alpha[pfmIdx])) * asp[2L]
+					angle <- median(beta[pfmIdx])
+					pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
 					plotMotifLogoA(pfms[[i]])
-				}
-				popViewport()
+					popViewport()
+				}else{
+                    warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
+                }
 			}
 		}
 		rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
 	}
 	if (cleaves > 0) {
 		for (i in 1:leaves.number) points(x[i], y[i], pch = 21, col=col.leaves[i],
-										  bg = col.leaves[i], cex = par("cex") * cleaves)
+        bg = col.leaves[i], cex = par("cex") * cleaves)
 	}
 	ang <- rep(0, length(dist.nodes))
 	names(ang) <- names(dist.nodes)
@@ -509,26 +521,26 @@ angle=360)
 			w <- phylog$parts[[i]]
 			but <- names(phylog$parts)[i]
 			ang[but] <- mean(ang[w])
-			points(dis[but] * cos(ang[but]), dis[but] * sin(ang[but]), 
-				   pch = 21, bg = "white", cex = par("cex") * cnodes)
+			points(dis[but] * cos(ang[but]), dis[but] * sin(ang[but]),
+            pch = 21, bg = "white", cex = par("cex") * cnodes)
 		}
 	}
 	points(0, 0, pch = 21, cex = par("cex") * 2, bg = "red")
 	if (clabel.nodes > 0) {
-		delta <- strwidth(as.character(length(dist.nodes)), cex = par("cex") * 
-						  clabel.nodes)
+		delta <- strwidth(as.character(length(dist.nodes)), cex = par("cex") *
+        clabel.nodes)
 		for (j in 1:length(dist.nodes)) {
 			i <- names(dist.nodes)[j]
 			par(srt = (ang[i] * 360/2/pi + 90))
 			x1 <- dis[i] * cos(ang[i])
 			y1 <- dis[i] * sin(ang[i])
-			symbols(x1, y1, delta, bg = "white", add = TRUE, 
-					inches = FALSE)
-			text(x1, y1, nodes.car[j], adj = 0.5, cex = par("cex") * 
-				 clabel.nodes)
+			symbols(x1, y1, delta, bg = "white", add = TRUE,
+            inches = FALSE)
+			text(x1, y1, nodes.car[j], adj = 0.5, cex = par("cex") *
+            clabel.nodes)
 		}
 	}
-	if (draw.box) 
+	if (draw.box)
     box()
 	return(invisible())
 }

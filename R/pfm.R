@@ -17,6 +17,7 @@ setClass("pfm",
 )
 
 setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, background){
+    if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
 	if(is.null(rownames(mat))) stop("rownames of PFM is empty")
 	rownames(mat)<-toupper(rownames(mat))
 	if(missing(alphabet)){

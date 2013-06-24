@@ -18,10 +18,11 @@ highlightCol <- function (col, alpha=0.5){
 	col
 }
 
-coloredSymbols <- function(ncha, font, color, rname){
+motifStack_private_fontsize <- 72
+coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private_fontsize){
 	symbols<-list()
 	for(i in 1:ncha){
-		ps<-paste("%!PS\n/",font," findfont\n72 scalefont\n",
+		ps<-paste("%!PS\n/",font," findfont\n",fontsize," scalefont\n",
 				  motifStack:::hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
 				  rname[i],") show",sep="")
 		psfilename<-tempfile()
