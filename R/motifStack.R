@@ -588,7 +588,13 @@ motifStack <-function(pfms, layout=c("stack", "treeview", "phylog", "radialPhylo
            pfms <- pfms[hc$order]
            pfms <- DNAmotifAlignment(pfms)
            phylog <- hclust2phylog(hc)
-           plotMotifStackWithRadialPhylog(phylog=phylog, pfms=pfms, ...)
+           args <- list(phylog=phylog, pfms=pfms, ...)
+           for(i in names(args)){
+               if(i %in% c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
+                   args[[i]] <- args[[i]][hc$order]
+               }
+           }
+           do.call(plotMotifStackWithRadialPhylog, args)
 		   },
 		   {
 		   plotMotifLogoStack(pfms, ...)

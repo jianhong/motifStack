@@ -100,6 +100,10 @@ getICbyBase<-function(p, pfmj){
     re[5]<-sum(re[1:4])
     re
 }
+getALLRbyBase <- function(b, pfmi, pfmj){##return 2x ALLR
+    sum(pfmj * (addPseudolog2(pfmi) - addPseudolog2(b))) 
+            + sum(pfmi * (addPseudolog2(pfmj) - addPseudolog2(b)))
+}
 getoffsetPosByIC<-function(pfm1, pfm2, threshold){
 	if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
     score1<-rep(0, ncol(pfm1@mat))
@@ -109,10 +113,12 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
         for(j in 1:J){
             ic1<-getICbyBase(pfm1@background, pfm1@mat[,i+j-1])
             ic2<-getICbyBase(pfm2@background, pfm2@mat[,j])
+            ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,i+j-1], pfm2@mat[,j])
             if(ic1[5]>threshold & ic2[5]>threshold){
-                a<-ic1[1:4]>mean(ic1[1:4])
-                b<-ic2[1:4]>mean(ic2[1:4])
-                if(any((a&b))) score1[i]<-score1[i]+1
+ #               a<-ic1[1:4]>mean(ic1[1:4])
+ #               b<-ic2[1:4]>mean(ic2[1:4])
+ #               if(any((a&b))) score1[i]<-score1[i]+1
+                if(ic3>0) score1[i]<-score1[i]+1
             }
         }
     }
@@ -121,10 +127,12 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
         for(j in 1:J){
             ic2<-getICbyBase(pfm2@background, pfm2@mat[,i+j-1])
             ic1<-getICbyBase(pfm1@background, pfm1@mat[,j])
+            ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,j], pfm2@mat[,i+j-1])
             if(ic1[5]>threshold & ic2[5]>threshold){
-                a<-ic1[1:4]>mean(ic1[1:4])
-                b<-ic2[1:4]>mean(ic2[1:4])
-                if(any((a&b))) score2[i]<-score2[i]+1
+ #               a<-ic1[1:4]>mean(ic1[1:4])
+ #               b<-ic2[1:4]>mean(ic2[1:4])
+ #               if(any((a&b))) score2[i]<-score2[i]+1
+                if(ic3>0) score2[i]<-score2[i]+1
             }
         }
     }

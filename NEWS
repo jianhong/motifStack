@@ -1,3 +1,29 @@
+CHANGES IN VERSION 1.5.3
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o fix the bug that motifStack can not plot color correctly for 
+    radialPhylog layout in motifStack(). 
+
+CHANGES IN VERSION 1.5.2
+-----------------------
+
+NEW FEATURES
+
+    o use log-likelihood ratio (ALLR) to do alignment
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
+
 CHANGES IN VERSION 1.5.1
 -----------------------
 
