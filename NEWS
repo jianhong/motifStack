@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.5.4
+-----------------------
+
+NEW FEATURES
+
+    o use BiocStyle to write vignette
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.5.3
 -----------------------
 

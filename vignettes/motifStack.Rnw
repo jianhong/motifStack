@@ -3,18 +3,20 @@
 %\VignetteKeywords{sequence logo}
 %\VignettePackage{motifStack}
 \documentclass[12pt]{article}
+
+<<style, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage[numbers]{natbib}
 \usepackage{graphicx}
 \bibliographystyle{plainnat}
 
-\newcommand{\Rfunction}[1]{{\texttt{#1}}}
-\newcommand{\Robject}[1]{{\texttt{#1}}}
-\newcommand{\Rpackage}[1]{{\textit{#1}}}
-
-\author{Jianhong Ou\footnote{jianhong.ou@umassmed.edu}, Lihua Julie Zhu\footnote{Julie.Zhu@umassmed.edu}}
+\author{Jianhong Ou, Lihua Julie Zhu}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 \title{motifStack guide}
 
 \maketitle
@@ -35,54 +37,41 @@ If this is unset, a GhostScript executable will be searched by name on your path
 and on Windows the setting of the environment variable GSC is used, otherwise commands "gswi64c.exe" then "gswin32c.exe" are tried.
 
 Example on Windows: assume that the gswin32c.exe is installed at C:\textbackslash Program Files\textbackslash gs\textbackslash gs9.06\textbackslash bin, then open R and try:
-\begin{scriptsize}
-Sys.setenv(R\_GSCMD="\textbackslash"C:\textbackslash\textbackslash Program Files\textbackslash\textbackslash gs\textbackslash\textbackslash gs9.06\textbackslash\textbackslash bin\textbackslash\textbackslash gswin32c.exe\textbackslash"")
-\end{scriptsize}
+\begin{Schunk}
+\begin{Sinput}
+> Sys.setenv(R_GSCMD="\"C:\\Program Files\\gs\\gs9.06\\bin\\gswin32c.exe\"")
+\end{Sinput}
+\end{Schunk}
 
 \section{Examples of using motifStack}
 \subsection{plot a DNA sequence logo with different fonts and colors}
-Users can select different fonts and colors to draw the sequence logo (Figure \ref{fig:font}).
-\begin{scriptsize}
-<<DNAseqLogo,include=FALSE>>=
+Users can select different fonts and colors to draw the sequence logo (Figure \ref{motifStack-DNAseqLogo}).
+<<DNAseqLogo,fig=TRUE,include=FALSE,width=6,height=6>>=
 library(motifStack)
-pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
+pcm <- read.table(file.path(find.package("motifStack"), 
+                            "extdata", "bin_SOLEXA.pcm"))
 pcm <- pcm[,3:ncol(pcm)]
 rownames(pcm) <- c("A","C","G","T")
 motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 ##pfm object
 #motif <- pcm2pfm(pcm)
 #motif <- new("pfm", mat=motif, name="bin_SOLEXA")
+opar<-par(mfrow=c(3,1))
 plot(motif)
 #try a different font
 plot(motif, font="mono,Courier")
 #try a different font and a different color group
 motif@color <- colorset(colorScheme='basepairing')
 plot(motif,font="Times")
-@
-\end{scriptsize}
-\begin{figure}[htb]
-\centering
-<<fig1,fig=TRUE,echo=FALSE>>=
-opar<-par(mfrow=c(3,1))
-motif@color<-colorset(colorScheme='auto')
-motif@name="bin_SOLEXA, font='Helvetica', color='auto'"
-plot(motif)
-motif@name="bin_SOLEXA, font='mono,Courier', color='auto'"
-plot(motif, font="mono,Courier")
-motif@color <- colorset(colorScheme='basepairing')
-motif@name="bin_SOLEXA, font='mono,Courier', color='basepairing'"
-plot(motif,font="Times")
 par<-opar
 @
-\caption{DNA sequence logo}
-\label{fig:font}
-\end{figure}
+\incfig{motifStack-DNAseqLogo}{0.6\textwidth}{DNA sequence logo.}
+{Plot a DNA sequence logo with different fonts and colors.}
 
 \subsection{plot an amino acid sequence logo}
 Given that motifStack allows to use any letters as symbols, 
-it can also be used to draw amino acid sequence logos (Figure \ref{fig:protein}).
-\begin{scriptsize}
-<<AAseqLogo,include=FALSE>>=
+it can also be used to draw amino acid sequence logos (Figure \ref{motifStack-AAseqLogo}).
+<<AAseqLogo,fig=TRUE,include=FALSE,width=6,height=3>>=
 library(motifStack)
 protein<-read.table(file.path(find.package("motifStack"),"extdata","cap.txt"))
 protein<-t(protein[,1:20])
@@ -91,139 +80,139 @@ motif<-new("pfm", mat=motif, name="CAP",
             color=colorset(alphabet="AA",colorScheme="chemistry"))
 plot(motif)
 @
-\end{scriptsize}
-\begin{figure}[htb]
-\centering
-<<fig2,fig=TRUE,echo=FALSE>>=
-plot(motif)
-@
-\caption{Amino acid sequence logo}
-\label{fig:protein}
-\end{figure}
+\incfig{motifStack-AAseqLogo}{0.8\textwidth}{Amino acid sequence logo.}
+{Plot an sequence logo with any symbols as you want such as amino acid sequence logo}
 
 \subsection{plot sequence logo stack}
 motifStack is designed to show multiple motifs in same canvas. To show the sequence logo stack,
 the distance of motifs need to be calculated first for example by using MotIV\cite{Eloi2010}::motifDistances, 
 which implemented STAMP\cite{Mahony2007}. After alignment, users can use plotMotifLogoStack
-function to draw sequence logos stack (Figure \ref{fig:logostack}) or use plotMotifLogoStackWithTree function 
-to show the distance tree with the sequence logos stack (Figure \ref{fig:treestack}) or 
+function to draw sequence logos stack (Figure \ref{motifStack-logostack}) or use plotMotifLogoStackWithTree function 
+to show the distance tree with the sequence logos stack (Figure \ref{motifStack-treestack}) or 
 use plotMotifStackWithRadialPhylog function to plot sequence logo stack in radial style 
-(Figure \ref{fig:radialstack}) 
+(Figure \ref{motifStack-radialstack}) 
 in the same canvas. There is a shortcut function named as motifStack. Use stack layout to call
 plotMotifLogoStack, treeview layout to call plotMotifLogoStackWithTree and radialPhylog to call
 plotMotifStackWithRadialPhylog.
 
-\begin{scriptsize}
-<<seqLogoStack,include=FALSE>>=
+<<logostack,fig=TRUE,include=FALSE,width=4,height=6>>=
 library(motifStack)
 #####Input#####
 pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-pcms<-lapply(pcms,function(.ele){.ele<-.ele[,3:ncol(.ele)];rownames(.ele)<-c("A","C","G","T");.ele})
+pcms<-lapply(pcms,
+             function(.ele){
+                 .ele<-.ele[,3:ncol(.ele)]
+                 rownames(.ele)<-c("A","C","G","T")
+                 .ele})
 motifs<-lapply(pcms,pcm2pfm)
-motifs<-lapply(names(motifs), function(.ele, motifs){new("pfm",mat=motifs[[.ele]], name=.ele)},motifs)
+motifs<-lapply(names(motifs), 
+               function(.ele, motifs){
+                   new("pfm",mat=motifs[[.ele]], name=.ele)
+               }
+               ,motifs)
 
-##plot stacks
+## plot stacks
 motifStack(motifs, layout="stack", ncex=1.0)
-motifStack(motifs, layout="tree")
+@
+\incfig{motifStack-logostack}{0.6\textwidth}{Sequence logo stack.}
+{Plot motifs with sequence logo stack style.}
 
-###When the number of motifs is too much to be shown in a vertical stack, 
-###motifStack can draw them in a radial style.
+<<treestack,fig=TRUE,include=FALSE,width=5,height=6>>=
+## plot stacks with hierarchical tree
+motifStack(motifs, layout="tree")
+@
+\incfig{motifStack-treestack}{0.8\textwidth}{Treeview layout logo stack.}
+{Sequence logo stack with hierarchical cluster tree.}
+
+<<radialstack,fig=TRUE,include=FALSE,width=6,height=6>>==
+## When the number of motifs is too much to be shown in a vertical stack, 
+## motifStack can draw them in a radial style.
+## random sample from MotifDb
 library("MotifDb")
 matrix.fly <- query(MotifDb, "Dmelanogaster")
 motifs2 <- as.list(matrix.fly)
-motifs2 <- motifs2[grepl("Dmelanogaster\\-FlyFactorSurvey\\-", names(motifs2))]
-names(motifs2) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
-                      gsub("_FBgn\\d+$", "", 
-                            gsub("[^a-zA-Z0-9]","_", 
+## use data from FlyFactorSurvey
+motifs2 <- motifs2[grepl("Dmelanogaster\\-FlyFactorSurvey\\-",
+                         names(motifs2))]
+## format the names
+names(motifs2) <- gsub("Dmelanogaster_FlyFactorSurvey_", "",
+                       gsub("_FBgn\\d+$", "",
+                            gsub("[^a-zA-Z0-9]","_",
                                  gsub("(_\\d+)+$", "", names(motifs2)))))
 motifs2 <- motifs2[unique(names(motifs2))]
 pfms <- sample(motifs2, 50)
-motifs2 <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
+## creat a list of object of pfm 
+motifs2 <- lapply(names(pfms), 
+                  function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)}
+                  ,pfms)
+## trim the motifs
 motifs2 <- lapply(motifs2, trimMotif, t=0.4)
+## setting colors
 library(RColorBrewer)
 color <- brewer.pal(12, "Set3")
+## plot logo stack with radial style
+motifStack(motifs2, layout="radialPhylog", 
+           circle=0.3, cleaves = 0.2, 
+           clabel.leaves = 0.5, 
+           col.bg=rep(color, each=5), col.bg.alpha=0.3, 
+           col.leaves=rep(color, each=5),
+           col.inner.label.circle=rep(color, each=5), 
+           inner.label.circle.width=0.05,
+           col.outer.label.circle=rep(color, each=5), 
+           outer.label.circle.width=0.02, 
+           circle.motif=1.2,
+           angle=350)
 @
-\begin{Schunk}
-\begin{Sinput}
->motifStack(motifs2, layout="radialPhylog", circle=0.3, cleaves = 0.2, clabel.leaves = 0.5, 
-+                    col.bg=rep(color, each=5), col.bg.alpha=0.3, 
-+                    col.leaves=rep(color, each=5),
-+                    col.inner.label.circle=rep(color, each=5), inner.label.circle.width=0.05,
-+                    col.outer.label.circle=rep(color, each=5), outer.label.circle.width=0.1, 
-+                    circle.motif=1.2, angle=350)
-\end{Sinput}
-\end{Schunk}
-\end{scriptsize}
-\begin{figure}[htb]
-\centering
-<<fig3,fig=TRUE,echo=FALSE>>=
-motifStack(motifs, layout="stack", ncex=1.0)
-@
-\caption{sequence logo stack}
-\label{fig:logostack}
-\end{figure}
-\begin{figure}[htb]
-\centering
-<<fig4,fig=TRUE,echo=FALSE>>=
-motifStack(motifs, layout="tree")
-@
-\caption{sequence logo stack with hierarchical cluster tree}
-\label{fig:treestack}
-\end{figure}
-
-\begin{figure}[htb]
-\centering
-<<fig5,fig=TRUE,echo=FALSE>>=
-motifStack(motifs2, layout="radialPhylog", circle=0.3, cleaves = 0.2, clabel.leaves = 0.5, 
-                                 col.bg=rep(color, each=5), col.bg.alpha=0.3, 
-                                 col.leaves=rep(color, each=5),
-                                 col.inner.label.circle=rep(color, each=5), inner.label.circle.width=0.05,
-                                 col.outer.label.circle=rep(color, each=5), outer.label.circle.width=0.02, 
-                                 circle.motif=1.2,
-                                 angle=350)
-@
-\caption{sequence logo stack in radial style}
-\label{fig:radialstack}
-\end{figure}
+\incfig{motifStack-radialstack}{\textwidth}{Sequence logo stack in radial style}
+{Plot motifs in a radial style when the number of motifs is too much to be shown in a vertical stack.}
 
 \subsection{plot a sequence logo cloud}
-We can also plot a sequence logo cloud for DNA sequence logo (Figure \ref{fig:motifCloud}).
-\begin{scriptsize}
-<<motifCloud,include=FALSE>>=
+We can also plot a sequence logo cloud for DNA sequence logo (Figure \ref{motifStack-motifCloud}).
+
+<<motifCloud,fig=TRUE,include=FALSE,width=6,height=6>>=
+## assign groups for motifs
 groups <- rep(paste("group",1:5,sep=""), each=10)
 names(groups) <- names(pfms)
+## assign group colors
 group.col <- brewer.pal(5, "Set3")
 names(group.col)<-paste("group",1:5,sep="")
-jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+## use MotIV to calculate the distances of motifs
+jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                               "extdata", 
+                                               "jaspar2010_PCC_SWU.scores"))
 d <- MotIV::motifDistances(pfms)
 hc <- MotIV::motifHclust(d)
+## convert the hclust to phylog object
 phylog <- hclust2phylog(hc)
+## reorder the pfms by the order of hclust
 leaves <- names(phylog$leaves)
 pfms <- pfms[leaves]
-pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
+## create a list of pfm objects
+pfms <- lapply(names(pfms), function(.ele, pfms){
+                                new("pfm",mat=pfms[[.ele]], name=.ele)}
+               ,pfms)
+## extract the motif signatures
 motifSig <- motifSignature(pfms, phylog, groupDistance=0.01, min.freq=1)
+## draw the motifs with a tag-cloud style.
+motifCloud(motifSig, scale=c(6, .5), 
+           layout="rectangles", 
+           group.col=group.col, 
+           groups=groups, 
+           draw.legend=T)
 @
-\begin{Schunk}
-\begin{Sinput}
-> motifCloud(motifSig, scale=c(6, .5), 
-+			layout="rectangles", group.col=group.col, groups=groups, draw.legend=T)
-\end{Sinput}
-\end{Schunk}
-\end{scriptsize}
-\begin{figure}[htb]
-\centering
-<<fig6,fig=TRUE,echo=FALSE>>=
-motifCloud(motifSig, scale=c(6, .5), layout="rectangles", group.col=group.col, groups=groups, draw.legend=T)
-@
-\caption{a sequence logo cloud with rectangle packing layout}
-\label{fig:motifCloud}
-\end{figure}
+\incfig{motifStack-motifCloud}{0.8\textwidth}{Sequence logo cloud with rectangle packing layout}
+{Like tag-cloud, the sequence logo size is determined by the number of motifs of the signature.
+The group sources of the motifs for each signature are shown as a pie graph in topleft corner.}
 
 \subsection{plot grouped sequence logo}
-To plot grouped sequence logo, except do motifCloud, we can also plot it with radialPhylog style (Figure \ref{fig:motifRadialPhylog}).
-\begin{scriptsize}
-<<groupedMotif,include=FALSE>>=
+To plot grouped sequence logo, except do motifCloud, we can also plot it with radialPhylog style (Figure \ref{motifStack-motifRadialPhylog}).
+
+<<motifRadialPhylog,fig=TRUE,include=FALSE,width=6,height=6>>=
+## get the signatures from object of motifSignature
 sig <- signatures(motifSig)
+## extract the motif names for each signature.
+## the motif names are separated by ";"
+## and then set the inner-circle color for each signature
 pfmNames <- lapply(sig, function(.ele){unlist(strsplit(.ele@name, ";"))})
 pfmNames <- mapply(function(.ele, .name){cbind(.ele, .name)}, 
       pfmNames, paste("gps", 1:length(pfmNames), sep=""))
@@ -231,37 +220,24 @@ pfmNames <- do.call(rbind, pfmNames)
 pfmNames <- pfmNames[match(names(phylog$leaves), pfmNames[,1]),]
 bd.color <- c("gray80","gray30")
 in.color <- rle(pfmNames[,2])
-in.color$values <- bd.color[rep(1:2, length(in.color$lengths))[1:length(in.color$lengths)]]
+in.color$values <- bd.color[rep(1:2, 
+                    length(in.color$lengths))[1:length(in.color$lengths)]]
 pfmNames <- cbind(pfmNames, color=inverse.rle(in.color))
-@
-\begin{Schunk}
-\begin{Sinput}
-> plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, circle=0.4, cleaves = 0.3, 
-+                               clabel.leaves = 0.5, 
-+                               col.bg=rep(color, each=5), col.bg.alpha=0.3, 
-+                               col.leaves=rep(color, each=5),
-+                               col.inner.label.circle=pfmNames[,3], 
-+                               inner.label.circle.width=0.03,
-+                               angle=350, circle.motif=1.2, 
-+                               motifScale="logarithmic")
-\end{Sinput}
-\end{Schunk}
-\end{scriptsize}
-
-\begin{figure}[htb]
-\centering
-<<fig7,fig=TRUE,echo=FALSE>>=
-plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, circle=0.4, cleaves = 0.3, 
+## plot the logo stack with radial style.
+plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, 
+                              circle=0.4, cleaves = 0.3, 
                               clabel.leaves = 0.5, 
                               col.bg=rep(color, each=5), col.bg.alpha=0.3, 
                               col.leaves=rep(color, each=5),
                               col.inner.label.circle=pfmNames[,3], 
                               inner.label.circle.width=0.03,
-                              angle=350, circle.motif=1.2, motifScale="logarithmic")
+                              angle=350, circle.motif=1.2, 
+                              motifScale="logarithmic")
 @
-\caption{grouped sequence logo with radialPhylog style layout}
-\label{fig:motifRadialPhylog}
-\end{figure}
+\incfig{motifStack-motifRadialPhylog}{\textwidth}
+{Grouped sequence logo with radialPhylog style layout.}
+{Like tag-cloud, the sequence logo size is determined by the number of motifs for the signature.
+The gray-black circle indicates the range of each signature.}
 
 \section{References}
 \begin{thebibliography}{99}
@@ -271,7 +247,7 @@ plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, circle=0.4, cleaves = 0.
 \end{thebibliography}
 
 \section{Session Info}
-<<>>=
-sessionInfo()
+<<sessionInfo, results=tex, print=TRUE>>=
+toLatex(sessionInfo())
 @
 \end{document}
