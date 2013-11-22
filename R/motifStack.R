@@ -119,9 +119,9 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
            })
     if(class(hc)!="hclust") stop("hc class must be hclust")
     if(treewidth>0.5) stop("treewidth can not greater than 0.5")
+    opar<-par(mar=c(0,0,0,0), mfrow=par("mfrow"))
     layout(matrix(c(rep(1,n),rep(2:(n+1),ceiling(1/treewidth)-1)),nrow=n,ncol=ceiling(1/treewidth)))
 #plot tree
-    opar<-par(mar=c(0,0,0,0))
     plot.new()
     if(trueDist) h <- hc$height / max(hc$height) / 1.05
     else h<- seq(0.01, 0.95, length.out=length(hc$height))[order(hc$height)]

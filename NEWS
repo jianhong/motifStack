@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.7.2
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o fix the bugs of changing plot layout when using plotMotifLogoStackWithTree
+
+
 CHANGES IN VERSION 1.7.1
 -----------------------
 
