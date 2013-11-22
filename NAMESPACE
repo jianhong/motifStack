@@ -1,6 +1,7 @@
 import(methods)
 import(grid)
 import(ade4)
+import(XML)
 importFrom(grImport, PostScriptTrace, readPicture, picture)
 importFrom(MotIV, readDBScores, motifDistances, motifHclust)
 export(

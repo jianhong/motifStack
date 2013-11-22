@@ -1,7 +1,7 @@
 Package: motifStack
 Type: Package
-Version: 1.7.0
-Date: 2013-06-24
+Version: 1.7.1
+Date: 2013-11-22
 Title: Plot stacked logos for single or multiple DNA, RNA and amino
         acid sequence
 Authors@R: c(person("Jianhong Ou", "Developer", role = c("aut", "cre"),
@@ -14,7 +14,7 @@ Authors@R: c(person("Jianhong Ou", "Developer", role = c("aut", "cre"),
         email = "Julie.Zhu@umassmed.edu"))
 Author: Jianhong Ou, Michael Brodsky, Scot Wolfe and Lihua Julie Zhu
 Maintainer: Jianhong Ou <jianhong.ou@umassmed.edu>
-Imports: grImport, grid, XML, ade4
+Imports: XML
 Depends: R (>= 2.15.1), methods, grImport, grid, MotIV, ade4
 Suggests: RUnit, BiocGenerics, MotifDb, RColorBrewer, BiocStyle
 biocViews: SequenceMatching, GenomicsSequence, Visualization

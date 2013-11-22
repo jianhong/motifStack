@@ -172,3 +172,7 @@ getParentNode <- function(nodelist, nodename){
 	}
 	NULL
 }
+
+makeLeaveNames <- function(ch){
+    gsub(".", "_", make.names(ch), fixed=TRUE)
+}

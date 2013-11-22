@@ -377,7 +377,7 @@ angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarith
 	nodes.car <- gsub("[_]", " ", labels.nodes)
 	opar <- par(mar = par("mar"), srt = par("srt"))
 	on.exit(par(opar))
-	par(mar = c(0.1, 0.1, 0.1, 0.1))
+	par(mar = c(0.1, 0.1, 0.1, 0.1), mfrow=c(1,1))
 	dis <- phylog$droot
 	dis <- dis/max(dis)
 	rayon <- circle
@@ -390,7 +390,7 @@ angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarith
         xaxt = "n", yaxt = "n", xlim = c(-2, 2), ylim = c(-2, 2),
         xaxs = "i", yaxs = "i", frame.plot = FALSE)
 	}else{
-		pin <- par("pin")
+	    pin <- dev.size("in") #pin <- par("pin")
 		if (pin[1L] > pin[2L]) asp <- c(pin[2L]/pin[1L], 1)
 		else asp <- c(1, pin[1L]/pin[2L])
 		plot.default(0, 0, type = "n", asp=1, xlab = "", ylab = "",
@@ -475,8 +475,10 @@ angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarith
 			for(i in 1:length(pfmNames)){
 				pfmname <- unlist(strsplit(pfmNames[[i]], pfmNameSpliter))
                 pfmname <- gsub(paste(rcpostfix,"$",sep=""),"",pfmname)
-				pfmIdx <- which(labels.leaves %in% pfmname)
-                if(length(pfmIdx)==0) pfmIdx <- which(names(phylog$leaves) %in% pfmname)
+				pfmIdx <- which(makeLeaveNames(labels.leaves) %in% makeLeaveNames(pfmname))
+                if(length(pfmIdx)==0) 
+                    pfmIdx <- which(makeLeaveNames(names(phylog$leaves)) 
+                                    %in% makeLeaveNames(pfmname))
 				if(length(pfmIdx)>0){
 					vph <- ifelse(motifScale=="linear",
                                     vpheight*length(pfmname),
