@@ -1,7 +1,7 @@
 readPCM <- function(path=".", pattern=NULL){
     pcms <- dir(path,pattern)
     pcml <- lapply(pcms, function(.ele){
-        data <- read.table(paste(path,basename(.ele),sep="/"))
+        data <- read.table(file.path(path, basename(.ele)))
         classes <- sapply(data, class)
         data <- data[, classes %in% c("integer", "numeric")]
         rownames(data) <- c("A", "C", "G", "T")
