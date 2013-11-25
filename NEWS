@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.7.3
+-----------------------
+
+NEW FEATURES
+
+    o Change the output of readPCM from a matrix to a list of 
+    pcm objects.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.7.2
 -----------------------
 

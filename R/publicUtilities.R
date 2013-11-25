@@ -1,10 +1,17 @@
-readPCM<-function(path=".", pattern=NULL){
-    pcms<-dir(path,pattern)
-    pcml<-lapply(pcms,function(.ele){
-                 data<-read.table(paste(path,basename(.ele),sep="/"))
-                 })
-    names(pcml)<-basename(pcms)
-    pcml
+readPCM <- function(path=".", pattern=NULL){
+    pcms <- dir(path,pattern)
+    pcml <- lapply(pcms, function(.ele){
+        data <- read.table(paste(path,basename(.ele),sep="/"))
+        classes <- sapply(data, class)
+        data <- data[, classes %in% c("integer", "numeric")]
+        rownames(data) <- c("A", "C", "G", "T")
+        data
+    })
+    names(pcml) <- basename(pcms)
+    pcm <- mapply(function(.d, .n){
+        new("pcm", mat=as.matrix(.d), name=.n) 
+    }, pcml, names(pcml))
+    pcm
 }
 
 colorset<-function(alphabet="DNA", colorScheme='auto'){

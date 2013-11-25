@@ -99,17 +99,7 @@ plotMotifStackWithRadialPhylog.
 library(motifStack)
 #####Input#####
 pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-pcms<-lapply(pcms,
-             function(.ele){
-                 .ele<-.ele[,3:ncol(.ele)]
-                 rownames(.ele)<-c("A","C","G","T")
-                 .ele})
 motifs<-lapply(pcms,pcm2pfm)
-motifs<-lapply(names(motifs), 
-               function(.ele, motifs){
-                   new("pfm",mat=motifs[[.ele]], name=.ele)
-               }
-               ,motifs)
 
 ## plot stacks
 motifStack(motifs, layout="stack", ncex=1.0)

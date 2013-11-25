@@ -19,8 +19,6 @@ DNAmotifAlignment(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="(RC)", rev
 }
 \examples{
 pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-pcms<-lapply(pcms,function(.ele){.ele<-.ele[,3:ncol(.ele)];rownames(.ele)<-c("A","C","G","T");.ele})
 motifs<-lapply(pcms,pcm2pfm)
-motifs<-lapply(names(motifs), function(.ele, motifs){new("pfm",mat=motifs[[.ele]], name=.ele)},motifs)
 motifs<-DNAmotifAlignment(motifs)
 }

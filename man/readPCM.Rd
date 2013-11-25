@@ -12,7 +12,7 @@ readPCM(path=".", pattern=NULL)
 \item{pattern}{an optional regular expression}
 }
 \value{
-	A list of position count matrix
+	A list of \code{\link{pcm}} objects
 }
 \examples{
 pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")

@@ -20,17 +20,15 @@ plotMotifLogoStackWithTree(pfms, hc, treewidth=1/8, trueDist=FALSE, ...)
 \examples{
 	#####Input#####
 	pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-	pcms<-lapply(pcms,function(.ele){.ele<-.ele[,3:ncol(.ele)];rownames(.ele)<-c("A","C","G","T");.ele})
 	motifs<-lapply(pcms,pcm2pfm)
 
 	#####Clustering#####
 	jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-	d <- MotIV::motifDistances(motifs)
+	d <- MotIV::motifDistances(sapply(motifs, function(.ele) .ele@mat))
 	hc <- MotIV::motifHclust(d)
 
 	##reorder the motifs for plotMotifLogoStack
 	motifs<-motifs[hc$order]
-	motifs<-lapply(names(motifs), function(.ele, motifs){new("pfm",mat=motifs[[.ele]], name=.ele)},motifs)
 	##do alignment
 	motifs<-DNAmotifAlignment(motifs)
 	##plot stacks
