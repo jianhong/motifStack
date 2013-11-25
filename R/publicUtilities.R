@@ -9,8 +9,9 @@ readPCM <- function(path=".", pattern=NULL){
     })
     names(pcml) <- basename(pcms)
     pcm <- mapply(function(.d, .n){
-        new("pcm", mat=as.matrix(.d), name=.n) 
+        new("pcm", mat=as.matrix(.d), name=gsub("\\.", "_", make.names(.n))) 
     }, pcml, names(pcml))
+    names(pcm) <- gsub("\\.", "_", make.names(names(pcm)))
     pcm
 }
 
