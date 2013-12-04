@@ -24,12 +24,16 @@ BiocStyle::latex()
 \tableofcontents
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Introduction}
-A sequence logo has been widely used as a graphical representation of an alignment of multiple amino acid or nucleic acid sequences.
-There is a package seqlogo\cite{Oliver} implemented in R to draw DNA sequence logos. However, it does not support amino acid sequence logos.
-
-We have developed motifStack package for drawing sequence logos for protein, DNA and RNA sequences. 
-motifStack provides the flexibility for users to select the font type and symbol colors. 
-Comparing to seqlogo, motifStack has the capability for graphical representation of multiple motifs.
+A sequence logo, based on information theory, has been widely used as a graphical 
+representation of sequence conservation (aka motif) in multiple amino acid or 
+nucleic acid sequences. Sequence motif represents conserved characteristics 
+such as DNA binding sites, where transcription factors bind, and catalytic sites 
+in enzymes. Although many tools, such as seqlogo\cite{Oliver}, have been 
+developed to create sequence motif and to represent it as individual sequence 
+logo, software tools for depicting the relationship among multiple sequence 
+motifs are still lacking. We developed a flexible and powerful open-source 
+R/Bioconductor package, motifStack, for visualization of the alignment of 
+multiple sequence motifs.
 
 \section{Prepare environment}
 You will need ghostscript: the full path to the executable can be set by the environment variable R\_GSCMD. 
