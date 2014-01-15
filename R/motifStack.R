@@ -550,58 +550,63 @@ angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarith
 
 ###############################################################################
 ####### motifstack
-motifStack <-function(pfms, layout=c("stack", "treeview", "phylog", "radialPhylog"), ...){
-	layout <- match.arg(layout, c("stack", "treeview", "phylog", "radialPhylog"), several.ok=TRUE)
-	layout <- layout[1]
-	if (any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm"))))) 
-    stop("pfms must be a list of pfm objects")
-	if (length(pfms)<2)
-    stop("length of pfms less than 2")
-	pfmList2matrixList <- function(pfms){
-		m <- lapply(pfms, function(.ele) as(.ele, "matrix"))
-		names(m) <- unlist(lapply(pfms, function(.ele) .ele@name))
-		m
-	}
-	switch(layout,
-		   stack = {
-           plotMotifLogoStack(pfms, ...)
-		   },
-		   treeview = {
-		   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-           d <- MotIV::motifDistances(pfmList2matrixList(pfms))
-           hc <- MotIV::motifHclust(d)
-           pfms <- pfms[hc$order]
-           pfms <- DNAmotifAlignment(pfms)
-           plotMotifLogoStackWithTree(pfms, hc=hc, ...)
-		   },
-		   phylog = {
-		   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-           d <- MotIV::motifDistances(pfmList2matrixList(pfms))
-           hc <- MotIV::motifHclust(d)
-           pfms <- pfms[hc$order]
-           pfms <- DNAmotifAlignment(pfms)
-           phylog <- hclust2phylog(hc)
-           plotMotifStackWithPhylog(phylog=phylog, pfms=pfms, ...)
-		   },
-		   radialPhylog = {
-		   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-           d <- MotIV::motifDistances(pfmList2matrixList(pfms))
-           hc <- MotIV::motifHclust(d)
-           pfms <- pfms[hc$order]
-           pfms <- DNAmotifAlignment(pfms)
-           phylog <- hclust2phylog(hc)
-           args <- list(phylog=phylog, pfms=pfms, ...)
-           for(i in names(args)){
-               if(i %in% c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
-                   args[[i]] <- args[[i]][hc$order]
+motifStack <-function(pfms, 
+                      layout=c("stack", "treeview", "phylog", "radialPhylog"), 
+                      ...){
+    if(!is.list(pfms)){
+        plot(pfms)
+        return(invisible())
+    }
+    layout <- match.arg(layout)
+    if(all(sapply(pfms, class)=="pcm")) pfms <- lapply(pfms, pcm2pfm)
+    if (any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm"))))) 
+        stop("pfms must be a list of pfm objects")
+    if (length(pfms)<2)
+        stop("length of pfms less than 2")
+    pfmList2matrixList <- function(pfms){
+        m <- lapply(pfms, function(.ele) as(.ele, "matrix"))
+        names(m) <- unlist(lapply(pfms, function(.ele) .ele@name))
+        m
+    }
+    
+    ##calculate the distances
+    dots <- list(...)
+    if(!"phylog" %in% names(dots)){
+        jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+        d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+        hc <- MotIV::motifHclust(d)
+        pfms <- pfms[hc$order]
+        pfms <- DNAmotifAlignment(pfms)
+        phylog <- hclust2phylog(hc)
+    }
+    if(layout=="treeview" && !exists("hc")){
+        jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+        d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+        hc <- MotIV::motifHclust(d)
+    }
+    switch(layout,
+           stack = {
+               plotMotifLogoStack(pfms, ...)
+           },
+           treeview = {
+               plotMotifLogoStackWithTree(pfms, hc=hc, ...)
+           },
+           phylog = {
+               plotMotifStackWithPhylog(phylog=phylog, pfms=pfms, ...)
+           },
+           radialPhylog = {
+               args <- list(phylog=phylog, pfms=pfms, ...)
+               for(i in names(args)){
+                   if(i %in% c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
+                       args[[i]] <- args[[i]][hc$order]
+                   }
                }
-           }
-           do.call(plotMotifStackWithRadialPhylog, args)
-		   },
-		   {
-		   plotMotifLogoStack(pfms, ...)
-		   }
-		   )
+               do.call(plotMotifStackWithRadialPhylog, args)
+           },
+    plotMotifLogoStack(pfms, ...)
+    )
+    
+    return(invisible(list(phylog=phylog, pfms=pfms)))
 }
 
 ###############################################################################

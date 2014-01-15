@@ -13,7 +13,7 @@ motifStack(pfms, layout=c("stack", "treeview", "phylog", "radialPhylog"), ...)
 \item{\dots}{any parameters could to pass to \link{plotMotifLogoStack}, \link{plotMotifLogoStackWithTree}, \link{plotMotifStackWithPhylog} or \link{plotMotifStackWithRadialPhylog}}
 }
 \value{
- none
+ return a list contains pfms and phylog
 }
 \examples{
 	if(interactive()){

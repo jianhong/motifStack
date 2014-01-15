@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.7.5
+-----------------------
+
+NEW FEATURES
+
+    o Change the output of motifStack for further steps.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.7.3
 -----------------------
 
