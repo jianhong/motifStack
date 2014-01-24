@@ -23,5 +23,6 @@ exportMethods(
 		signatures,
 		frequence,
 		nodelist,
+        sigColor,
 		trimMotif
 )

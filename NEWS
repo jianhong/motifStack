@@ -1,3 +1,14 @@
+CHANGES IN VERSION 1.7.6
+-----------------------
+
+NEW FEATURES
+
+    o Change the class of signature to include the color sets.
+
+BUG FIXES
+
+    o Allow motifSignature to accept Non-Binary Trees.
+
 CHANGES IN VERSION 1.7.5
 -----------------------
 

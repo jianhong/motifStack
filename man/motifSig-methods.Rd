@@ -7,6 +7,8 @@
 \alias{frequence,motifSig-method}
 \alias{nodelist}
 \alias{nodelist,motifSig-method}
+\alias{sigColor}
+\alias{sigColor,motifSig-method}
 
 \title{"motifSig" methods}
 \description{
@@ -17,6 +19,7 @@
 	\S4method{signatures}{motifSig}(object)
 	\S4method{frequence}{motifSig}(object)
 	\S4method{nodelist}{motifSig}(object)
+    \S4method{sigColor}{motifSig}(object)
 }
 
 \arguments{
@@ -29,6 +32,8 @@
     \item{frequence}{\code{signature(object = "motifSig")} return the frequency of motifSig}
   	
 	\item{nodelist}{\code{signature(object = "motifSig")} return the nodelist of motifSig}
+    
+    \item{sigColor}{\code{signature(object = "motifSig")} return the group color sets of motifSig}
  } 
 }
 \keyword{classes}

@@ -7,7 +7,7 @@ readPCM <- function(path=".", pattern=NULL){
         rownames(data) <- c("A", "C", "G", "T")
         data
     })
-    names(pcml) <- basename(pcms)
+    names(pcml) <- gsub("\\.(pcm|txt)$", "", basename(pcms), ignore.case=TRUE)
     pcm <- mapply(function(.d, .n){
         new("pcm", mat=as.matrix(.d), name=gsub("\\.", "_", make.names(.n))) 
     }, pcml, names(pcml))

@@ -204,26 +204,15 @@ To plot grouped sequence logo, except do motifCloud, we can also plot it with ra
 <<motifRadialPhylog,fig=TRUE,include=FALSE,width=6,height=6>>=
 ## get the signatures from object of motifSignature
 sig <- signatures(motifSig)
-## extract the motif names for each signature.
-## the motif names are separated by ";"
-## and then set the inner-circle color for each signature
-pfmNames <- lapply(sig, function(.ele){unlist(strsplit(.ele@name, ";"))})
-pfmNames <- mapply(function(.ele, .name){cbind(.ele, .name)}, 
-      pfmNames, paste("gps", 1:length(pfmNames), sep=""))
-pfmNames <- do.call(rbind, pfmNames)
-pfmNames <- pfmNames[match(names(phylog$leaves), pfmNames[,1]),]
-bd.color <- c("gray80","gray30")
-in.color <- rle(pfmNames[,2])
-in.color$values <- bd.color[rep(1:2, 
-                    length(in.color$lengths))[1:length(in.color$lengths)]]
-pfmNames <- cbind(pfmNames, color=inverse.rle(in.color))
+## set the inner-circle color for each signature
+gpCol <- sigColor(motifSig)
 ## plot the logo stack with radial style.
 plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, 
                               circle=0.4, cleaves = 0.3, 
                               clabel.leaves = 0.5, 
                               col.bg=rep(color, each=5), col.bg.alpha=0.3, 
-                              col.leaves=rep(color, each=5),
-                              col.inner.label.circle=pfmNames[,3], 
+                              col.leaves=rep(rev(color), each=5),
+                              col.inner.label.circle=gpCol, 
                               inner.label.circle.width=0.03,
                               angle=350, circle.motif=1.2, 
                               motifScale="logarithmic")

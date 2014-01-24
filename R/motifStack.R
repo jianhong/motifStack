@@ -456,7 +456,7 @@ angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarith
 		if(!is.null(col.inner.label.circle)) #plot inner.label.circle
 		plotBgArc(circle.motif, col.inner.label.circle, circle.motif - inner.label.circle.width)
 		if(!is.null(col.bg)) ##plot center bg
-		plotBgArc(mean(dist.leaves), col.bg, 0)
+		    plotBgArc(ifelse(mean(dist.leaves)/max(dis) > .9, mean(dist.leaves), max(dis)-d.rayon), col.bg, 0)##plotBgArc(mean(dist.leaves), col.bg, 0)
 		for(i in 1:leaves.number) {
 			par(srt = alpha[i] * 180/pi)
 			text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") *
@@ -637,9 +637,9 @@ min.freq=2, trim=0.2, families=list()){
 	tree <- gsub(";$","",tree)
 	str <- unlist(strsplit(gsub("^\\((.*?)\\)([^\\)\\(;,]+)$","\\1///\\2",tree),"///",fixed=T))[1]
 	nodelist <- list()
-	getNodelist <- function(str, nodelist=list()){
+	getNodelist <- function(str, nodelist=list(), pid=0){
 		ge <- gregexpr("\\(([^\\(\\),]+),([^\\(\\),]+)\\)([^\\(\\),]+)", str)
-		if(ge[[1]][1]!=-1){
+		if(ge[[1]][1]!=-1){## (A,B)C
 			start <- ge[[1]]
 			stop <- attr(ge[[1]],"match.length")
 			trec<-c()
@@ -653,12 +653,56 @@ min.freq=2, trim=0.2, families=list()){
 			for(i in 1:length(trec)){
 				str<-gsub(trec[i],gsub(".*?\\)(.*?)$","\\1",trec[i]),str,fixed=T)
 			}
-			Recall(str=str, nodelist=nodelist)
+			Recall(str=str, nodelist=nodelist, pid=pid)
 		}else{
-			nodes <- unlist(strsplit(str, ","))
-			Root <- new("ouNode", left=nodes[1], right=nodes[2], parent="Root", sizel=0, sizer=0)
-			nodelist <- c(Root=Root, nodelist)
-			return(nodelist)
+            ge <- gregexpr("\\((([^\\(\\),]+,){2,})([^\\(\\),]+)\\)([^\\(\\),]+)", str)
+            if(ge[[1]][1]!=-1){ ##(A,B,C,...)N
+                start <- ge[[1]]
+                stop <- attr(ge[[1]],"match.length")
+                trec<-c()
+                for(i in 1:length(start)){
+                    trec<- c(trec,substr(str, start[i],start[i]+stop[i]-1))
+                }
+                for(i in 1:length(trec)){
+                    nodes <- strsplit(trec[i], "\\)|\\(|,")[[1]][-1]
+                    pnodes <- nodes[length(nodes)]
+                    nodes <- nodes[-length(nodes)]
+                    curNode <- nodes[length(nodes)]
+                    for(j in (length(nodes)-1):2){
+                        parNode <- paste("MSP", pid, sep="")
+                        newnodes <- new("ouNode", left=nodes[i], right=curNode, parent=parNode, distl=0, distr=0, sizel=0, sizer=0)
+                        curNode <- parNode
+                        pid <- pid + 1
+                        nodelist <- c(newnodes, nodelist)
+                        names(nodelist)[1] <- parNode
+                    }
+                    newnodes <- new("ouNode", left=nodes[1], right=curNode, parent=pnodes, sizel=0, sizer=0)
+                    nodelist <- c(newnodes, nodelist)
+                    names(nodelist)[1] <- pnodes
+                    str<-gsub(trec[i],gsub(".*?\\)(.*?)$","\\1",trec[i]),str,fixed=T)
+                }
+                Recall(str=str, nodelist=nodelist, pid=pid)
+            }else{ ##to Root one
+                nodes <- unlist(strsplit(str, ","))
+                if(length(nodes)>2){
+                    curNode <- nodes[length(nodes)]
+                    for(i in (length(nodes)-1):2){
+                        parNode <- paste("MSP", pid, sep="")
+                        newnodes <- new("ouNode", left=nodes[i], right=curNode, parent=parNode, distl=0, distr=0, sizel=0, sizer=0)
+                        curNode <- parNode
+                        pid <- pid + 1
+                        nodelist <- c(newnodes, nodelist)
+                        names(nodelist)[1] <- parNode
+                    }
+                    Root <- new("ouNode", left=nodes[1], right=curNode, parent="Root", sizel=0, sizer=0)
+                    nodelist <- c(Root=Root, nodelist)
+                    return(nodelist)
+                }else{
+                    Root <- new("ouNode", left=nodes[1], right=nodes[2], parent="Root", sizel=0, sizer=0)
+                    nodelist <- c(Root=Root, nodelist)
+                    return(nodelist)
+                }
+            }
 		}
 	}
 	nodelist <- getNodelist(str)
@@ -789,7 +833,21 @@ min.freq=2, trim=0.2, families=list()){
 		if(interactive()) warning("All frequency are smaller than min.freq.")
 		return(FALSE)
 	}
-	return(new("motifSig", signatures=signatures, freq=freq, nodelist=nodelist))
+    
+    getGpCol <- function(sig, phylog){
+        pfmNames <- lapply(sig, function(.ele){unlist(strsplit(.ele@name, ";"))})
+        pfmNames <- mapply(function(.ele, .name){cbind(.ele, .name)},
+                           pfmNames, paste("gps", 1:length(pfmNames), sep=""))
+        pfmNames <- do.call(rbind, pfmNames)
+        pfmNames <- pfmNames[match(names(phylog$leaves), pfmNames[,1]),]
+        bd.color <- c("gray80","gray30")
+        in.color <- rle(pfmNames[,2])
+        in.color$values <- bd.color[rep(1:2, length(in.color$lengths))[1:length(in.color$lengths)]]
+        return(inverse.rle(in.color))
+    }
+    gpcol <- getGpCol(signatures, phylog)
+    
+	return(new("motifSig", signatures=signatures, freq=freq, nodelist=nodelist, gpcol=gpcol))
 }
 
 motifCloud <- function(motifSig, rcpostfix="(RC)", 
