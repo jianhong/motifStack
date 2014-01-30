@@ -50,7 +50,7 @@ Example on Windows: assume that the gswin32c.exe is installed at C:\textbackslas
 \section{Examples of using motifStack}
 \subsection{plot a DNA sequence logo with different fonts and colors}
 Users can select different fonts and colors to draw the sequence logo (Figure \ref{motifStack-DNAseqLogo}).
-<<DNAseqLogo,fig=TRUE,include=FALSE,width=6,height=6>>=
+<<DNAseqLogo,fig=TRUE,include=FALSE,width=8,height=6>>=
 library(motifStack)
 pcm <- read.table(file.path(find.package("motifStack"), 
                             "extdata", "bin_SOLEXA.pcm"))
@@ -60,8 +60,10 @@ motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 ##pfm object
 #motif <- pcm2pfm(pcm)
 #motif <- new("pfm", mat=motif, name="bin_SOLEXA")
-opar<-par(mfrow=c(3,1))
+opar<-par(mfrow=c(4,1))
 plot(motif)
+#plot the logo with same height
+plot(motif, ic.scale=FALSE, ylab="probability")
 #try a different font
 plot(motif, font="mono,Courier")
 #try a different font and a different color group

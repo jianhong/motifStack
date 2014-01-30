@@ -1,10 +1,18 @@
 plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", 
 colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
 xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
-xlcex=1.2, ylcex=1.2, ncex=1.2){
+xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE){
     if (class(pfm) == "data.frame"){
         pfm <- as.matrix(pfm)
-    }else if (class(pfm) != "matrix"){
+    }else{
+        if(class(pfm) == "pcm"){
+            pfm <- pcm2pfm
+        }
+        if(class(pfm) == "pfm"){
+            pfm <- pfm@mat
+        }
+    } 
+    if (class(pfm) != "matrix"){
         stop("pfm must be of class matrix or data.frame")
     }
     if (any(abs(1 - apply(pfm,2,sum)) > 0.01))
@@ -51,19 +59,23 @@ xlcex=1.2, ylcex=1.2, ncex=1.2){
         x.pos<-0
         for(j in 1:npos){
             column<-pfm[,j]
-            heights<-column*ic[j]/ie
+            if(ic.scale){
+                heights<-column*ic[j]/ie
+            }else{
+                heights <- column
+            }
             id<-order(heights)
             
             y.pos<-0
             for(i in 1:ncha){
                 h<-heights[id[i]]
-                if(h>0) grImport::picture(symbols[[id[i]]],x.pos,y.pos,x.pos+dw,y.pos+h)
+                if(h>0 && ic[j]>0) grImport::picture(symbols[[id[i]]],x.pos,y.pos,x.pos+dw,y.pos+h)
                 y.pos<-y.pos+h
             }
             x.pos<-x.pos+dw
         }
 		if(xaxis) plotXaxis(pfm, p)
-        if(yaxis) plotYaxis(pfm)
+        if(yaxis) plotYaxis(pfm, ic.scale)
         if(!is.na(xlab)) mtext(xlab,1,line=2,cex=xlcex)
         if(!is.na(ylab)) mtext(ylab,2,line=2,cex=ylcex)
         if(!missing(motifName)) mtext(motifName,3,line=0,cex=ncex)
@@ -87,8 +99,12 @@ plotXaxis<-function(pfm, p=rep(0.25, 4)){
     axis(1,at=at,labels=label)
 }
 
-plotYaxis<-function(pfm){
-    ie<-getIE(pfm)
+plotYaxis<-function(pfm, ic.scale=TRUE){
+    if(ic.scale){
+        ie<-getIE(pfm)
+    }else{
+        ie <- 1
+    }
     majorat<-seq(0,floor(ie)/ceiling(ie),by=1/ceiling(ie))
     majorlab<-0:floor(ie)
     axis(2,at=majorat,labels=majorlab)
@@ -191,7 +207,7 @@ DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="
 ######## plot motif logo without plot.new
 ######## to be used to create a better view of stack, eg. radial sty,
 ###############################################################################
-plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
+plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
 	if (class(pfm) != "pfm"){
 		stop("pfms must be a list of class pfm")
 	}
@@ -218,13 +234,17 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
 	x.pos<-0
 	for(j in 1:npos){
 		column<-pfm@mat[,j]
-		heights<-column*ic[j]/ie
+		if(ic.scale){
+		    heights<-column*ic[j]/ie
+		}else{
+		    heights <- column
+		}
 		id<-order(heights)
 		
 		y.pos<-0
 		for(i in 1:ncha){
 			h<-heights[id[i]]
-			if(h>0) grid.draw(grImport::pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
+			if(h>0 && ic[j]>0) grid.draw(grImport::pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
 			y.pos<-y.pos+h
 		}
 		x.pos<-x.pos+dw
@@ -239,7 +259,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold"){
 plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
 f.phylog = 0.3, f.logo = NULL, cleaves =1, cnodes =0,
 labels.leaves = names(phylog$leaves), clabel.leaves=1,
-labels.nodes = names(phylog$nodes), clabel.nodes = 0
+labels.nodes = names(phylog$nodes), clabel.nodes = 0, ic.scale=TRUE
 ){
 	if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
 	n<-length(pfms)
@@ -292,7 +312,7 @@ labels.nodes = names(phylog$nodes), clabel.nodes = 0
 			vpheight <- strheight(leaves.names[i], units="figure")
 			vpwidth <- vpheight * ncol(pfms[[i]]@mat) / 2
 			pushViewport(viewport(x=f.logo, y=y[i], width=vpwidth, height=vpheight, just=c(0, .5)))
-			if(!is.null(pfms[[i]])) plotMotifLogoA(pfms[[i]])
+			if(!is.null(pfms[[i]])) plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
 			popViewport()
 		}
 	}
@@ -347,7 +367,8 @@ col.bg=NULL, col.bg.alpha=1,
 col.inner.label.circle=NULL, inner.label.circle.width="default",
 col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
-angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarithmic"))
+angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
+motifScale=c("linear","logarithmic"), ic.scale=TRUE)
 {
 	if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
@@ -489,7 +510,7 @@ angle=360, pfmNameSpliter=";", rcpostfix="(RC)", motifScale=c("linear","logarith
 					vpy <- median(ym[pfmIdx]) + vpd * sin(median(alpha[pfmIdx])) * asp[2L]
 					angle <- median(beta[pfmIdx])
 					pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
-					plotMotifLogoA(pfms[[i]])
+					plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
 					popViewport()
 				}else{
                     warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
@@ -855,7 +876,8 @@ layout=c("rectangles", "cloud", "tree"),
 scale=c(6, .5), rot.per=.1,
 draw.box=TRUE, draw.freq=TRUE, 
 box.col="gray", freq.col="gray",
-group.col=NULL, groups=NULL, draw.legend=FALSE)
+group.col=NULL, groups=NULL, draw.legend=FALSE,
+ic.scale=TRUE)
 {
 	if (!inherits(motifSig, "motifSig")) 
     stop("motifSig be object of motifSig. You could try\n?motifSignature\nto get a motifSig.")
@@ -899,7 +921,7 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 	plotSignature <- function(x, y, wid, ht, just, angle, sig, freq, normedFreq){
 		pushViewport(viewport(x=x, y=y, width=wid, height=ht, just=just, angle=angle))
 		if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed", fill="transparent"))
-		plotMotifLogoA(sig)
+		plotMotifLogoA(sig, ic.scale=ic.scale)
 		if(draw.freq) grid.text(label=freq,x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq), just=c("right","top"))
 		if((!is.null(group.col)) & (!is.null(groups))) {
 			sigNames <- unlist(strsplit(sig@name,";"))

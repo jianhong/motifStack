@@ -5,11 +5,12 @@
 plot amino acid or DNA sequence logo in a given canvas
 }
 \usage{
-plotMotifLogoA(pfm, font="Helvetica-Bold")
+plotMotifLogoA(pfm, font="Helvetica-Bold", ic.scale=TRUE)
 }
 \arguments{
 \item{pfm}{an object of pfm}
 \item{font}{font of logo}
+\item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
 }
 \value{
  none

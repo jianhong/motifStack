@@ -10,7 +10,8 @@ layout=c("rectangles", "cloud", "tree"),
 scale=c(6, .5), rot.per=.1,
 draw.box=TRUE, draw.freq=TRUE, 
 box.col="gray", freq.col="gray",
-group.col=NULL, groups=NULL, draw.legend=FALSE)
+group.col=NULL, groups=NULL, draw.legend=FALSE, 
+ic.scale=TRUE)
 }
 \arguments{
 \item{motifSig}{an object of class \linkS4class{motifSig}}
@@ -25,6 +26,7 @@ group.col=NULL, groups=NULL, draw.legend=FALSE)
 \item{group.col}{color setting for groups}
 \item{groups}{a named vectors of motif groups}
 \item{draw.legend}{draw group color legend or not}
+\item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
 }
 \value{
  none
