@@ -110,7 +110,7 @@ plotYaxis<-function(pfm, ic.scale=TRUE){
     axis(2,at=majorat,labels=majorlab)
     minorat<-seq(0,ie,by=1/(ceiling(ie)*5))
     minorat<-minorat[!(minorat %in% majorat)]
-    axis(2,at=minorat,tcl=par("tcl")*0.5,labels=FALSE)
+    axis(2,at=minorat,tcl=par("tcl")*0.5,labels=FALSE,lwd=0,lwd.ticks=1)
 }
 
 plotMotifLogoStack<-function(pfms, ...){
@@ -652,6 +652,41 @@ min.freq=2, trim=0.2, families=list()){
 	}
 	if (missing(groupDistance))
 		groupDistance <- max(phylog$droot)/10
+    
+	getSignature <- function(pfms, pfmnames, rcpostfix, pfms.class){
+	    .pfmnames <- unlist(strsplit(pfmnames, ";"))
+	    .pfms <- lapply(.pfmnames, function(.name, pfms) pfms[[getPFMid(pfms, .name, rcpostfix=rcpostfix)]], pfms)
+	    if(length(.pfms)>1){
+	        .pfms <- DNAmotifAlignment(.pfms, rcpostfix="")
+	        .rown <- rownames(.pfms[[1]]@mat)
+	        .mats <- lapply(.rown, function(i, .pfms){
+	            do.call(rbind,lapply(.pfms, function(.ele, i) .ele@mat[i, , drop=F], i))
+	        }, .pfms)
+	        if(pfms.class=="pfms"){
+	            .mats <- do.call(rbind, lapply(.mats, colMeans))
+	        }
+	        else{
+	            .mats <- do.call(rbind, lapply(.mats, colSums))
+	            .mats <- pcm2pfm(.mats)
+	        }
+	        rownames(.mats) <- .rown
+	        colnames(.mats) <- 1:ncol(.mats)
+	    }else{
+	        if(pfms.class=="pfms") .mats <- .pfms[[1]]@mat
+	        else .mats <- pcm2pfm(.pfms[[1]]@mat)
+	    }
+	    new("pfm", mat=.mats, name=pfmnames, alphabet=.pfms[[1]]@alphabet, color=.pfms[[1]]@color, background=.pfms[[1]]@background)
+	}
+    
+    if(groupDistance > max(phylog$droot)){
+        signatures <- list(getSignature(pfms, names(phylog$leaves), rcpostfix, pfms.class=pfms.class))
+        signatures <- lapply(signatures, trimMotif, trim)
+        nodelist <- list(Root=new("ouNode", left=paste(names(phylog$leaves),sep=";"), parent="Root", distl=max(phylog$droot), sizel=length(pfms), sizer=0))
+        return(new("motifSig", signatures=signatures, 
+                   freq=length(pfms), 
+                   nodelist=nodelist, 
+                   gpcol=rep("gray30", length(pfms))))
+    }
 #generate the new phylog from newick tree
 	tree <- phylog$tre
 	droot <- phylog$droot
@@ -776,31 +811,6 @@ min.freq=2, trim=0.2, families=list()){
 		if(length(nodelist)<l) mergeNodes(nodelist, leaves, groupDistance)
 	}
 	
-	getSignature <- function(pfms, pfmnames, rcpostfix, pfms.class){
-		.pfmnames <- unlist(strsplit(pfmnames, ";"))
-		.pfms <- lapply(.pfmnames, function(.name, pfms) pfms[[getPFMid(pfms, .name, rcpostfix=rcpostfix)]], pfms)
-		if(length(.pfms)>1){
-			.pfms <- DNAmotifAlignment(.pfms, rcpostfix="")
-			.rown <- rownames(.pfms[[1]]@mat)
-			.mats <- lapply(.rown, function(i, .pfms){
-								do.call(rbind,lapply(.pfms, function(.ele, i) .ele@mat[i, , drop=F], i))
-							}, .pfms)
-			if(pfms.class=="pfms"){
-				.mats <- do.call(rbind, lapply(.mats, colMeans))
-			}
-			else{
-				.mats <- do.call(rbind, lapply(.mats, colSums))
-				.mats <- pcm2pfm(.mats)
-			}
-			rownames(.mats) <- .rown
-			colnames(.mats) <- 1:ncol(.mats)
-		}else{
-			if(pfms.class=="pfms") .mats <- .pfms[[1]]@mat
-			else .mats <- pcm2pfm(.pfms[[1]]@mat)
-		}
-		new("pfm", mat=.mats, name=pfmnames, alphabet=.pfms[[1]]@alphabet, color=.pfms[[1]]@color, background=.pfms[[1]]@background)
-	}
-	
 	mergeNodes(nodelist, leaves, groupDistance)
 #get signatures and frequences (count of frequences should greater than min.freq)
 	filterFamilies <- function(pfmnames, size, families){
@@ -858,7 +868,8 @@ min.freq=2, trim=0.2, families=list()){
     getGpCol <- function(sig, phylog){
         pfmNames <- lapply(sig, function(.ele){unlist(strsplit(.ele@name, ";"))})
         pfmNames <- mapply(function(.ele, .name){cbind(.ele, .name)},
-                           pfmNames, paste("gps", 1:length(pfmNames), sep=""))
+                           pfmNames, paste("gps", 1:length(pfmNames), sep=""),
+                           SIMPLIFY=FALSE)
         pfmNames <- do.call(rbind, pfmNames)
         pfmNames <- pfmNames[match(names(phylog$leaves), pfmNames[,1]),]
         bd.color <- c("gray80","gray30")

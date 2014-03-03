@@ -3,6 +3,19 @@ CHANGES IN VERSION 1.7.7
 
 NEW FEATURES
 
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o Fix bugs for motifSignature when the distance is larger than
+    maximal distance.
+
+CHANGES IN VERSION 1.7.7
+-----------------------
+
+NEW FEATURES
+
     o add ic.scale parameter to plotMotifLogo.
 
 BUG FIXES

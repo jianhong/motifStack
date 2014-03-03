@@ -15,6 +15,31 @@ readPCM <- function(path=".", pattern=NULL){
     pcm
 }
 
+readPWM <- function(path=".", pattern=NULL, to=c("pfm", "pcm")){
+    to <- match.arg(to)
+    pwms <- dir(path,pattern)
+    pwml <- lapply(pwms, function(.ele){
+        data <- readLines(file.path(path, basename(.ele)))
+        data <- data[grepl("^[ACGT]:",data)]
+        data <- do.call(rbind, strsplit(data, "\\t"))
+        rownames(data) <- gsub(":", "", data[,1])
+        data <- data[c("A","C","G","T"), -1]
+        data <- as.data.frame(data)
+        for(i in 1:ncol(data)) data[,i] <- as.numeric(as.character(data[,i]))
+        as.matrix(data)
+    })
+    names(pwml) <- gsub("[\\._](pwm|txt|pwm\\.txt)$", "", basename(pwms), ignore.case=TRUE)
+    pwm <- mapply(function(.d, .n){
+        if(to=="pfm") new("pfm", mat=as.matrix(.d), name=gsub("\\.", "_", make.names(.n)))
+        else{
+            .d <- round(.d * 1000)
+            new("pcm", mat=as.matrix(.d), name=gsub("\\.", "_", make.names(.n)))
+        }
+    }, pwml, names(pwml))
+    names(pwm) <- gsub("\\.", "_", make.names(names(pwm)))
+    pwm
+}
+
 colorset<-function(alphabet="DNA", colorScheme='auto'){
     if(!alphabet %in% c("DNA","RNA","AA")) stop("alphabet must be one of 'DNA', 'RNA' or 'AA'")
     if(alphabet=='PROTEIN' & !(colorScheme %in% c('auto', 'charge', 'chemistry', 'classic', 'hydrophobicity')))
