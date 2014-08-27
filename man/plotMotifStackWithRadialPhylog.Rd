@@ -17,7 +17,8 @@ col.inner.label.circle=NULL, inner.label.circle.width="default",
 col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
-motifScale=c("linear","logarithmic"), ic.scale=TRUE)
+motifScale=c("linear","logarithmic"), ic.scale=TRUE,
+plotIndex=TRUE, IndexCol="gray")
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -46,7 +47,9 @@ motifScale=c("linear","logarithmic"), ic.scale=TRUE)
 \item{pfmNameSpliter}{spliter when name of pfms contain multiple node of labels.leaves}
 \item{rcpostfix}{the postfix for reverse complements}
 \item{motifScale}{the scale of logo size}
-\item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
+\item{ic.scale}{logical. If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
+\item{plotIndex}{logical. If TRUE, will plot index number in the motifLogo which can help user to describe the motifLogo}
+\item{IndexCol}{The color of the index number when plotIndex is TRUE.}
 }
 \value{
  none

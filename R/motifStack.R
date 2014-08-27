@@ -368,7 +368,8 @@ col.inner.label.circle=NULL, inner.label.circle.width="default",
 col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
-motifScale=c("linear","logarithmic"), ic.scale=TRUE)
+motifScale=c("linear","logarithmic"), ic.scale=TRUE,
+plotIndex=TRUE, IndexCol="gray")
 {
 	if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
@@ -510,6 +511,13 @@ motifScale=c("linear","logarithmic"), ic.scale=TRUE)
 					vpy <- median(ym[pfmIdx]) + vpd * sin(median(alpha[pfmIdx])) * asp[2L]
 					angle <- median(beta[pfmIdx])
 					pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
+					if(plotIndex) {
+					    grid.text(label=i, x=.95, y=.95, 
+					              gp=gpar(col=IndexCol, cex=ifelse(motifScale=="linear",
+					                                             log2(length(pfmname))+0.5,
+					                                             log2(log2(length(pfmname))+0.5)+0.7)), 
+					              just=c("right", "top"))
+					}
 					plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
 					popViewport()
 				}else{
