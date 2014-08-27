@@ -369,7 +369,7 @@ col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=TRUE, IndexCol="gray")
+plotIndex=TRUE, IndexCol="black", IndexCex=.8)
 {
 	if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
@@ -507,19 +507,28 @@ plotIndex=TRUE, IndexCol="gray")
                                     vpheight*(1+log2(length(pfmname))))
 					vpw <- vph * ncol(pfms[[i]]@mat) / 2
 					vpd <- sqrt(vph*vph+vpw*vpw) / 2
-					vpx <- median(xm[pfmIdx]) + vpd * cos(median(alpha[pfmIdx])) * asp[1L]
-					vpy <- median(ym[pfmIdx]) + vpd * sin(median(alpha[pfmIdx])) * asp[2L]
 					angle <- median(beta[pfmIdx])
+                    if(length(pfmIdx)%%2==1){
+                        this.pfmIdx <- which(beta[pfmIdx] == angle)[1]
+                        vpx <- xm[pfmIdx[this.pfmIdx]] + vpd * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L]
+                        vpy <- ym[pfmIdx[this.pfmIdx]] + vpd * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L]
+                        vpx1 <- xm[pfmIdx[this.pfmIdx]] - inner.label.circle.width * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L]
+                        vpy1 <- ym[pfmIdx[this.pfmIdx]] - inner.label.circle.width * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L]
+                    }else{
+                        this.pfmIdx <- order(abs(beta[pfmIdx] - angle))[1:2]
+                        vpx <- median(xm[pfmIdx[this.pfmIdx]]) + vpd * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L]
+                        vpy <- median(ym[pfmIdx[this.pfmIdx]]) + vpd * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L]
+                        vpx1 <- median(xm[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L]
+                        vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L]
+                    }
 					pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
-					if(plotIndex) {
-					    grid.text(label=i, x=.95, y=.95, 
-					              gp=gpar(col=IndexCol, cex=ifelse(motifScale=="linear",
-					                                             log2(length(pfmname))+0.5,
-					                                             log2(log2(length(pfmname))+0.5)+0.7)), 
-					              just=c("right", "top"))
-					}
 					plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
 					popViewport()
+					if(plotIndex) {
+					    grid.text(label=i, x=vpx1, 
+                                  y=vpy1, 
+					              gp=gpar(col=IndexCol, cex=IndexCex), rot=angle, just="left")
+					}
 				}else{
                     warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
                 }

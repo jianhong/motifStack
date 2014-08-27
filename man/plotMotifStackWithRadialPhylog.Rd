@@ -18,7 +18,7 @@ col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=TRUE, IndexCol="gray")
+plotIndex=TRUE, IndexCol="black", IndexCex=.8)
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -50,6 +50,7 @@ plotIndex=TRUE, IndexCol="gray")
 \item{ic.scale}{logical. If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
 \item{plotIndex}{logical. If TRUE, will plot index number in the motifLogo which can help user to describe the motifLogo}
 \item{IndexCol}{The color of the index number when plotIndex is TRUE.}
+\item{IndexCex}{The cex of the index number when plotIndex is TRUE.}
 }
 \value{
  none

@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.9.4
+-----------------------
+
+NEW FEATURES
+
+    o Restyle index number when plotMotifStackWithRadialPhylog.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.9.3
 -----------------------
 
