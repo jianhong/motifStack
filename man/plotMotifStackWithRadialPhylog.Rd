@@ -18,7 +18,7 @@ col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=TRUE, IndexCol="black", IndexCex=.8)
+plotIndex=FALSE, IndexCol="black", IndexCex=.8)
 }
 \arguments{
 \item{phylog}{an object of class phylog}

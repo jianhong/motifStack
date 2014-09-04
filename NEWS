@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.9.5
+-----------------------
+
+NEW FEATURES
+
+    o Change default of plotIndex to FALSE when plotMotifStackWithRadialPhylog.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.9.4
 -----------------------
 
