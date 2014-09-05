@@ -6,7 +6,7 @@ plot sequence logo stacks with a radial phylogenic tree
 }
 \usage{
 plotMotifStackWithRadialPhylog(phylog, pfms=NULL,
-circle=1, circle.motif=NA, cleaves=1, cnodes=0,
+circle=0.75, circle.motif=NA, cleaves=1, cnodes=0,
 labels.leaves=names(phylog$leaves), clabel.leaves=1,
 labels.nodes=names(phylog$nodes), clabel.nodes=0,
 draw.box=FALSE,
@@ -18,7 +18,8 @@ col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=FALSE, IndexCol="black", IndexCex=.8)
+plotIndex=FALSE, IndexCol="black", IndexCex=.8,
+groupDistance=NA, groupDistanceLineCol="red")
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -51,6 +52,8 @@ plotIndex=FALSE, IndexCol="black", IndexCex=.8)
 \item{plotIndex}{logical. If TRUE, will plot index number in the motifLogo which can help user to describe the motifLogo}
 \item{IndexCol}{The color of the index number when plotIndex is TRUE.}
 \item{IndexCex}{The cex of the index number when plotIndex is TRUE.}
+\item{groupDistance}{show groupDistance on the draw}
+\item{groupDistanceLineCol}{groupDistance line color, default: red}
 }
 \value{
  none

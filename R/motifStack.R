@@ -357,7 +357,7 @@ labels.nodes = names(phylog$nodes), clabel.nodes = 0, ic.scale=TRUE
 ######## 
 ###############################################################################
 plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
-circle=1, circle.motif=NA, cleaves=1, cnodes=0,
+circle=.75, circle.motif=NA, cleaves=1, cnodes=0,
 labels.leaves=names(phylog$leaves), clabel.leaves=1,
 labels.nodes=names(phylog$nodes), clabel.nodes=0,
 draw.box=FALSE,
@@ -369,7 +369,8 @@ col.outer.label.circle=NULL, outer.label.circle.width="default",
 clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=FALSE, IndexCol="black", IndexCex=.8)
+plotIndex=FALSE, IndexCol="black", IndexCex=.8,
+groupDistance=NA, groupDistanceLineCol="red")
 {
 	if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
@@ -401,6 +402,9 @@ plotIndex=FALSE, IndexCol="black", IndexCex=.8)
 	on.exit(par(opar))
 	par(mar = c(0.1, 0.1, 0.1, 0.1), mfrow=c(1,1))
 	dis <- phylog$droot
+	if(!is.na(groupDistance)){
+	    groupDistance <- (max(dis) - groupDistance) * circle / max(dis)
+	}
 	dis <- dis/max(dis)
 	rayon <- circle
 	dis <- dis * rayon
@@ -436,7 +440,11 @@ plotIndex=FALSE, IndexCol="black", IndexCex=.8)
     maxvpwidth <- 0
 	if(!is.null(pfms)){
 		beta <- alpha * 180 / pi
-		vpheight <- strheight("ACGT", units="figure")
+ #       if(leaves.number<100){
+            vpheight <- 2 * pi * angle * circle.motif / 360 / leaves.number / 5
+ #       }else{
+ #           vpheight <- strheight("ACGT", units="figure") 
+ #       }
 		vpheight <- vpheight * asp[2L]
 		xm <- circle.motif * cos(alpha) * asp[1L] / 5 + 0.5
 		ym <- circle.motif * sin(alpha) * asp[2L] / 5 + 0.5
@@ -444,12 +452,29 @@ plotIndex=FALSE, IndexCol="black", IndexCex=.8)
 	}
 	if(inner.label.circle.width=="default") inner.label.circle.width <- rayonWidth/10
 	if(outer.label.circle.width=="default") outer.label.circle.width <- rayonWidth/10
+ 
+    ratio <- 2.5/(circle.motif+maxvpwidth+outer.label.circle.width)
+    if(ratio < 1){
+        x <- x * ratio
+        y <- y * ratio
+        xcar <- xcar * ratio
+        ycar <- ycar * ratio
+        dis <- dis * ratio
+        groupDistance <- groupDistance * ratio
+        xm <- (xm-.5) * ratio + .5
+        ym <- (ym-.5) * ratio + .5
+        vpheight <- vpheight * ratio
+    }
     ##for plot background
 	if(!is.null(col.bg)) col.bg <- motifStack:::highlightCol(col.bg, col.bg.alpha)
 	if(!is.null(col.leaves.bg)) col.leaves.bg <- motifStack:::highlightCol(col.leaves.bg, col.leaves.bg.alpha)
 	gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
 	n <- max(2, floor(200*360/leaves.number))
 	plotBgArc <- function(r,bgcol,inr){
+        if(ratio < 1){
+            r <- r*ratio
+            inr <- inr*ratio
+        }
 		t2xy <- function(rx,t) list(x=rx*cos(t), y=rx*sin(t))
 		oldcol <- bgcol[1]
 		start <- 1
@@ -555,6 +580,9 @@ plotIndex=FALSE, IndexCol="black", IndexCex=.8)
 		x2 <- dis[but] * cos(ang[w])
 		y2 <- dis[but] * sin(ang[w])
 		segments(x1, y1, x2, y2, col="#222222")
+	} 
+    if(!is.na(groupDistance)){
+        symbols(x=0, y=0, circles=groupDistance, fg=groupDistanceLineCol, lty=2, inches=FALSE, add=TRUE)
 	}
 	if (cnodes > 0) {
 		for (i in 1:length(phylog$parts)) {

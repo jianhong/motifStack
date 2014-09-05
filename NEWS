@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.9.6
+-----------------------
+
+NEW FEATURES
+
+    o Increase the size of motifs when plotMotifStackWithRadialPhylog.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.9.5
 -----------------------
 
