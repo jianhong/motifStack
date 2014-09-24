@@ -498,10 +498,10 @@ groupDistance=NA, groupDistanceLineCol="red")
 	if (clabel.leaves > 0) {
 		if(!is.null(col.outer.label.circle)) ##plot outer.label.circle
 		plotBgArc(circle.motif+maxvpwidth+outer.label.circle.width, col.outer.label.circle, circle.motif+maxvpwidth)
-		if(!is.null(col.leaves.bg)) ##plot leaves bg
-		plotBgArc(circle.motif, col.leaves.bg, rayon+d.rayon)
 		if(!is.null(col.inner.label.circle)) #plot inner.label.circle
 		plotBgArc(circle.motif, col.inner.label.circle, circle.motif - inner.label.circle.width)
+		if(!is.null(col.leaves.bg)) ##plot leaves bg
+		    plotBgArc(circle.motif - inner.label.circle.width, col.leaves.bg, rayon+d.rayon)
 		if(!is.null(col.bg)) ##plot center bg
 		    plotBgArc(ifelse(mean(dist.leaves)/max(dis) > .9, mean(dist.leaves), max(dis)-d.rayon), col.bg, 0)##plotBgArc(mean(dist.leaves), col.bg, 0)
 		for(i in 1:leaves.number) {
@@ -537,14 +537,14 @@ groupDistance=NA, groupDistanceLineCol="red")
                         this.pfmIdx <- which(beta[pfmIdx] == angle)[1]
                         vpx <- xm[pfmIdx[this.pfmIdx]] + vpd * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L]
                         vpy <- ym[pfmIdx[this.pfmIdx]] + vpd * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L]
-                        vpx1 <- xm[pfmIdx[this.pfmIdx]] - inner.label.circle.width * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L]
-                        vpy1 <- ym[pfmIdx[this.pfmIdx]] - inner.label.circle.width * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L]
+                        vpx1 <- xm[pfmIdx[this.pfmIdx]] - inner.label.circle.width * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L] *1.1/5
+                        vpy1 <- ym[pfmIdx[this.pfmIdx]] - inner.label.circle.width * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L] *1.1/5
                     }else{
                         this.pfmIdx <- order(abs(beta[pfmIdx] - angle))[1:2]
                         vpx <- median(xm[pfmIdx[this.pfmIdx]]) + vpd * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L]
                         vpy <- median(ym[pfmIdx[this.pfmIdx]]) + vpd * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L]
-                        vpx1 <- median(xm[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L]
-                        vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L]
+                        vpx1 <- median(xm[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L] *1.1/5
+                        vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L] *1.1/5
                     }
 					pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
 					plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
@@ -552,7 +552,7 @@ groupDistance=NA, groupDistanceLineCol="red")
 					if(plotIndex) {
 					    grid.text(label=i, x=vpx1, 
                                   y=vpy1, 
-					              gp=gpar(col=IndexCol, cex=IndexCex), rot=angle, just="left")
+					              gp=gpar(col=IndexCol, cex=IndexCex), rot=angle, just="right")
 					}
 				}else{
                     warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
@@ -582,7 +582,12 @@ groupDistance=NA, groupDistanceLineCol="red")
 		segments(x1, y1, x2, y2, col="#222222")
 	} 
     if(!is.na(groupDistance)){
-        symbols(x=0, y=0, circles=groupDistance, fg=groupDistanceLineCol, lty=2, inches=FALSE, add=TRUE)
+        if(length(groupDistanceLineCol)!=length(groupDistance)){
+            groupDistanceLineCol <- rep(groupDistanceLineCol, ceiling(length(groupDistance)/length(groupDistanceLineCol)))[1:length(groupDistance)]
+        }
+        for(i in 1:length(groupDistance)){
+            symbols(x=0, y=0, circles=groupDistance[i], fg=groupDistanceLineCol[i], lty=2, inches=FALSE, add=TRUE)
+        }
 	}
 	if (cnodes > 0) {
 		for (i in 1:length(phylog$parts)) {

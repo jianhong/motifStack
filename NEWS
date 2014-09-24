@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.9.7
+-----------------------
+
+NEW FEATURES
+
+    o Change the position of motifs index when plotMotifStackWithRadialPhylog.
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
+
 CHANGES IN VERSION 1.9.6
 -----------------------
 
