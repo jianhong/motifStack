@@ -297,6 +297,11 @@ labels.nodes = names(phylog$nodes), clabel.nodes = 0, ic.scale=TRUE
 	assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
 	if(is.null(f.logo)){
 		f.logo <- max(unlist(lapply(leaves.names, strwidth, units="figure", cex=clabel.leaves)))
+        if(!is.null(pfms)){
+            pfms.width <- max(sapply(pfms, function(x) ncol(x@mat)))
+            pfms.width <- strwidth(paste(rep("M", pfms.width), collapse=""), units="figure")
+            f.logo <- max(f.logo, pfms.width)
+        }
 		if(clabel.leaves>0) f.logo <- f.phylog+f.logo+.01
 		else f.logo <- f.phylog+.05
 	}else{
@@ -448,7 +453,12 @@ groupDistance=NA, groupDistanceLineCol="red")
 		vpheight <- vpheight * asp[2L]
 		xm <- circle.motif * cos(alpha) * asp[1L] / 5 + 0.5
 		ym <- circle.motif * sin(alpha) * asp[2L] / 5 + 0.5
-		maxvpwidth <- max(unlist(lapply(pfms, function(.ele) ncol(.ele@mat)))) * vpheight * 2.5
+        pfmNamesLen <- sapply(pfms, function(.ele) 
+            length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
+        if(motifScale=="linear")
+            vph <- 2.5*vpheight*pfmNamesLen
+        else vph <- 2.5*vpheight*(1+log2(pfmNamesLen+0.0001))
+		maxvpwidth <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
 	}
 	if(inner.label.circle.width=="default") inner.label.circle.width <- rayonWidth/10
 	if(outer.label.circle.width=="default") outer.label.circle.width <- rayonWidth/10

@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.9.8
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o fix the bug draw motif outside of canvas when plotMotifStackWithRadiaPhylog
+
 CHANGES IN VERSION 1.9.7
 -----------------------
 
