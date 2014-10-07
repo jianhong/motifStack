@@ -19,7 +19,8 @@ clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
 plotIndex=FALSE, IndexCol="black", IndexCex=.8,
-groupDistance=NA, groupDistanceLineCol="red")
+groupDistance=NA, groupDistanceLineCol="red",
+plotAxis=FALSE)
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -54,6 +55,7 @@ groupDistance=NA, groupDistanceLineCol="red")
 \item{IndexCex}{The cex of the index number when plotIndex is TRUE.}
 \item{groupDistance}{show groupDistance on the draw}
 \item{groupDistanceLineCol}{groupDistance line color, default: red}
+\item{plotAxis}{logical. If TRUE, will plot distance axis.}
 }
 \value{
  none

@@ -375,7 +375,8 @@ clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
 angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
 motifScale=c("linear","logarithmic"), ic.scale=TRUE,
 plotIndex=FALSE, IndexCol="black", IndexCex=.8,
-groupDistance=NA, groupDistanceLineCol="red")
+groupDistance=NA, groupDistanceLineCol="red", 
+plotAxis=FALSE)
 {
 	if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
@@ -407,10 +408,12 @@ groupDistance=NA, groupDistanceLineCol="red")
 	on.exit(par(opar))
 	par(mar = c(0.1, 0.1, 0.1, 0.1), mfrow=c(1,1))
 	dis <- phylog$droot
+    max_Dis <- max(dis)
+    axis_pos <- circle
 	if(!is.na(groupDistance)){
-	    groupDistance <- (max(dis) - groupDistance) * circle / max(dis)
+	    groupDistance <- (max_Dis - groupDistance) * circle / max_Dis
 	}
-	dis <- dis/max(dis)
+	dis <- dis/max_Dis
 	rayon <- circle
 	dis <- dis * rayon
 	dist.leaves <- dis[leaves.names]
@@ -429,9 +432,7 @@ groupDistance=NA, groupDistanceLineCol="red")
         xaxs = "i", yaxs = "i", frame.plot = FALSE)
 	}
 	d.rayon <- rayon/(nodes.number - 1)
-	twopi <- if (clockwise)
-    -2 * pi
-	else 2 * pi
+	twopi <- if (clockwise) -2 * pi else 2 * pi
 	alpha <- twopi * angle * (1:leaves.number)/leaves.number/360 + init.angle * pi/180
 	names(alpha) <- leaves.names
 	x <- dist.leaves * cos(alpha)
@@ -445,11 +446,7 @@ groupDistance=NA, groupDistanceLineCol="red")
     maxvpwidth <- 0
 	if(!is.null(pfms)){
 		beta <- alpha * 180 / pi
- #       if(leaves.number<100){
-            vpheight <- 2 * pi * angle * circle.motif / 360 / leaves.number / 5
- #       }else{
- #           vpheight <- strheight("ACGT", units="figure") 
- #       }
+        vpheight <- 2 * pi * angle * circle.motif / 360 / leaves.number / 5
 		vpheight <- vpheight * asp[2L]
 		xm <- circle.motif * cos(alpha) * asp[1L] / 5 + 0.5
 		ym <- circle.motif * sin(alpha) * asp[2L] / 5 + 0.5
@@ -463,7 +460,7 @@ groupDistance=NA, groupDistanceLineCol="red")
 	if(inner.label.circle.width=="default") inner.label.circle.width <- rayonWidth/10
 	if(outer.label.circle.width=="default") outer.label.circle.width <- rayonWidth/10
  
-    ratio <- 2.5/(circle.motif+maxvpwidth+outer.label.circle.width)
+    ratio <- if(!is.null(pfms)) 2.5/(circle.motif+maxvpwidth+outer.label.circle.width) else 1
     if(ratio < 1){
         x <- x * ratio
         y <- y * ratio
@@ -474,6 +471,7 @@ groupDistance=NA, groupDistanceLineCol="red")
         xm <- (xm-.5) * ratio + .5
         ym <- (ym-.5) * ratio + .5
         vpheight <- vpheight * ratio
+        axis_pos <- axis_pos * ratio
     }
     ##for plot background
 	if(!is.null(col.bg)) col.bg <- motifStack:::highlightCol(col.bg, col.bg.alpha)
@@ -608,7 +606,28 @@ groupDistance=NA, groupDistanceLineCol="red")
             pch = 21, bg = "white", cex = par("cex") * cnodes)
 		}
 	}
-	points(0, 0, pch = 21, cex = par("cex") * 2, bg = "red")
+	
+	## draw distance indix  
+	if(plotAxis){
+	    wd <- if(!is.null(pfms)) 5 else 4
+	    if(clockwise){
+	        vp <- viewport(x=0.5, y=0.5, width=axis_pos/wd, height=.1, 
+	                       xscale=c(0, max_Dis), angle=init.angle, just=c(0, 0))
+	        pushViewport(vp)
+	        grid.xaxis(gp=gpar(cex = par("cex") * clabel.leaves, col="lightgray"),
+	                   main=TRUE)
+	        popViewport()
+	    }else{
+	        vp <- viewport(x=0.5, y=0.5, width=axis_pos/wd, height=.1, 
+	                       xscale=c(0, max_Dis), angle=init.angle, just=c(0, 1))
+	        pushViewport(vp)
+	        grid.xaxis(gp=gpar(cex = par("cex") * clabel.leaves, col="lightgray"),
+	                   main=FALSE)
+	        popViewport()
+	    }
+	}
+	
+    points(0, 0, pch = 21, cex = par("cex") * 2, bg = "red")
 	if (clabel.nodes > 0) {
 		delta <- strwidth(as.character(length(dist.nodes)), cex = par("cex") *
         clabel.nodes)
@@ -623,6 +642,7 @@ groupDistance=NA, groupDistanceLineCol="red")
             clabel.nodes)
 		}
 	}
+ 
 	if (draw.box)
     box()
 	return(invisible())

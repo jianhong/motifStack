@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.9.9
+-----------------------
+
+NEW FEATURES
+
+    o Add distance axis for plotMotifStackWithRadiaPhylog
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.9.8
 -----------------------
 
