@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.11.1
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o Change the format of help file to avoid lines wider than 90 characters NOTE
+
 CHANGES IN VERSION 1.9.9
 -----------------------
 

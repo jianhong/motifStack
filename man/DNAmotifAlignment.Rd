@@ -5,7 +5,8 @@
 align DNA motifs for plotting motifs stack
 }
 \usage{
-DNAmotifAlignment(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="(RC)", revcomp=rep(TRUE, length(pfms)))
+DNAmotifAlignment(pfms, threshold=0.4, minimalConsensus=0, 
+                  rcpostfix="(RC)", revcomp=rep(TRUE, length(pfms)))
 }
 \arguments{
 \item{pfms}{a list of position frequency matrices, pfms must be a list of class pfm}

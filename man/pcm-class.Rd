@@ -39,7 +39,7 @@
     \item{matrixReverseComplement}{\code{signature(x = "pcm")} get the 
   	reverse complement of position frequency matrix.}
   	
-  	\item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
+  	\item{trimMotif}{\code{signature(x = "pcm", t= "numeric")} trim motif by information content. }
   	
 	\item{plot}{\code{signature(x = "pcm")} Plots the
     sequence logo of the position count matrix. }

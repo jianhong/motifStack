@@ -64,28 +64,31 @@ plotAxis=FALSE)
 \link[ade4:plot.phylog]{plot.phylog}
 }
 \examples{
-	if(interactive()){
-		library("MotifDb")
-		matrix.fly <- query(MotifDb, "Dmelanogaster")
-		motifs <- as.list(matrix.fly)
-		motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
-		names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
-							  gsub("_FBgn[0-9]+$", "", 
-									gsub("[^a-zA-Z0-9]","_", 
-										 gsub("(_[0-9]+)+$", "", names(motifs)))))
-		motifs <- motifs[unique(names(motifs))]
-		pfms <- sample(motifs, 50)
-		jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-		d <- MotIV::motifDistances(pfms)
-		hc <- MotIV::motifHclust(d)
-		phylog <- hclust2phylog(hc)
-		leaves <- names(phylog$leaves)
-		pfms <- pfms[leaves]
-		pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
-		pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
-		library(RColorBrewer)
-		color <- brewer.pal(12, "Set3")
-		plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.9, cleaves = 0.5, clabel.leaves = 0.7, 
-										 col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
-	}
+  if(interactive()){
+    library("MotifDb")
+    matrix.fly <- query(MotifDb, "Dmelanogaster")
+    motifs <- as.list(matrix.fly)
+    motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
+    names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+                gsub("_FBgn[0-9]+$", "", 
+                  gsub("[^a-zA-Z0-9]","_", 
+                     gsub("(_[0-9]+)+$", "", names(motifs)))))
+    motifs <- motifs[unique(names(motifs))]
+    pfms <- sample(motifs, 50)
+    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                   "extdata", "jaspar2010_PCC_SWU.scores"))
+    d <- MotIV::motifDistances(pfms)
+    hc <- MotIV::motifHclust(d)
+    phylog <- hclust2phylog(hc)
+    leaves <- names(phylog$leaves)
+    pfms <- pfms[leaves]
+    pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], 
+                                                     name=.ele)},pfms)
+    pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
+    library(RColorBrewer)
+    color <- brewer.pal(12, "Set3")
+    plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.9, 
+                     cleaves = 0.5, clabel.leaves = 0.7, 
+                     col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
+  }
 }

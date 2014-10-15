@@ -2,36 +2,37 @@
 \alias{plotMotifLogoStackWithTree}
 \title{plot sequence logos stack with hierarchical cluster tree}
 \description{
-	plot sequence logos stack with hierarchical cluster tree
+  plot sequence logos stack with hierarchical cluster tree
 }
 \usage{
 plotMotifLogoStackWithTree(pfms, hc, treewidth=1/8, trueDist=FALSE, ...)
 }
 \arguments{
-	\item{pfms}{a list of position frequency matrices, pfms must be a list of class pfm}
-	\item{hc}{an object of the type produced by stats::hclust}
-	\item{treewidth}{the width to show tree}
-	\item{trueDist}{logical flags to use hclust height or not.}
-	\item{...}{other parameters can be passed to plotMotifLogo function}
+  \item{pfms}{a list of position frequency matrices, pfms must be a list of class pfm}
+  \item{hc}{an object of the type produced by stats::hclust}
+  \item{treewidth}{the width to show tree}
+  \item{trueDist}{logical flags to use hclust height or not.}
+  \item{...}{other parameters can be passed to plotMotifLogo function}
 }
 \value{
-	none
+  none
 }
 \examples{
-	#####Input#####
-	pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-	motifs<-lapply(pcms,pcm2pfm)
+  #####Input#####
+  pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
+  motifs<-lapply(pcms,pcm2pfm)
 
-	#####Clustering#####
-	jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-	d <- MotIV::motifDistances(sapply(motifs, function(.ele) .ele@mat))
-	hc <- MotIV::motifHclust(d)
+  #####Clustering#####
+  jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                 "extdata", "jaspar2010_PCC_SWU.scores"))
+  d <- MotIV::motifDistances(sapply(motifs, function(.ele) .ele@mat))
+  hc <- MotIV::motifHclust(d)
 
-	##reorder the motifs for plotMotifLogoStack
-	motifs<-motifs[hc$order]
-	##do alignment
-	motifs<-DNAmotifAlignment(motifs)
-	##plot stacks
-	plotMotifLogoStack(motifs, ncex=1.0)
-	plotMotifLogoStackWithTree(motifs, hc=hc)
+  ##reorder the motifs for plotMotifLogoStack
+  motifs<-motifs[hc$order]
+  ##do alignment
+  motifs<-DNAmotifAlignment(motifs)
+  ##plot stacks
+  plotMotifLogoStack(motifs, ncex=1.0)
+  plotMotifLogoStackWithTree(motifs, hc=hc)
 }

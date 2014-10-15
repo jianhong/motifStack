@@ -2,7 +2,7 @@
 \alias{motifCloud}
 \title{plot a DNA sequence logo cloud}
 \description{
-	Plot a DNA sequence logo cloud
+  Plot a DNA sequence logo cloud
 }
 \usage{
 motifCloud(motifSig, rcpostfix="(RC)", 
@@ -32,25 +32,27 @@ ic.scale=TRUE)
  none
 }
 \examples{
-	if(interactive()){
-		library("MotifDb")
-		matrix.fly <- query(MotifDb, "Dmelanogaster")
-		motifs <- as.list(matrix.fly)
-		motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
-		names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
-							  gsub("_FBgn[0-9]+$", "", 
-									gsub("[^a-zA-Z0-9]","_", 
-										 gsub("(_[0-9]+)+$", "", names(motifs)))))
-		motifs <- motifs[unique(names(motifs))]
-		pfms <- sample(motifs, 50)
-		jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-		d <- MotIV::motifDistances(pfms)
-		hc <- MotIV::motifHclust(d)
-		phylog <- hclust2phylog(hc)
-		leaves <- names(phylog$leaves)
-		pfms <- pfms[leaves]
-		pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
-		motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
-		motifCloud(motifSig)
-	}
+  if(interactive()){
+    library("MotifDb")
+    matrix.fly <- query(MotifDb, "Dmelanogaster")
+    motifs <- as.list(matrix.fly)
+    motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
+    names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+                gsub("_FBgn[0-9]+$", "", 
+                  gsub("[^a-zA-Z0-9]","_", 
+                     gsub("(_[0-9]+)+$", "", names(motifs)))))
+    motifs <- motifs[unique(names(motifs))]
+    pfms <- sample(motifs, 50)
+    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                    "extdata", "jaspar2010_PCC_SWU.scores"))
+    d <- MotIV::motifDistances(pfms)
+    hc <- MotIV::motifHclust(d)
+    phylog <- hclust2phylog(hc)
+    leaves <- names(phylog$leaves)
+    pfms <- pfms[leaves]
+    pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], 
+                                                     name=.ele)},pfms)
+    motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
+    motifCloud(motifSig)
+  }
 }

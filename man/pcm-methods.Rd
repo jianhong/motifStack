@@ -33,7 +33,7 @@
 }
 
 \arguments{
-	\item{x}{An object of class \code{pfm}. For \code{getIC}, 
+	\item{x}{An object of class \code{pcm}. For \code{getIC}, 
 	if parameter p is followed, x should be an object of matrix.
 	For \code{pcm2pfm}, x also could be an object of matrix.
 	}
@@ -64,7 +64,7 @@
 	\item{plot}{\code{signature(x = "pcm")} Plots the
     sequence logo of the position count matrix. }
     
-    \item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
+    \item{trimMotif}{\code{signature(x = "pcm", t= "numeric")} trim motif by information content. }
  } 
 }
 \examples{
