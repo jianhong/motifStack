@@ -1,52 +1,65 @@
-\name{plotMotifStackWithRadialPhylog}
-\alias{plotMotifStackWithRadialPhylog}
-\title{plot sequence logo stacks with a radial phylogenic tree}
+\name{motifCircos}
+\alias{motifCircos}
+\title{
+plot sequence logo stacks with a radial phylogenic tree and multiple color rings
+}
 \description{
-plot sequence logo stacks with a radial phylogenic tree
+plot sequence logo stacks with a radial phylogenic tree and multiple color rings.
+The difference from plotMotifStackWithRadialPhylog is that it has more color setting
+and one more group of pfms.
 }
 \usage{
-plotMotifStackWithRadialPhylog(phylog, pfms=NULL,
-circle=0.75, circle.motif=NA, cleaves=1, cnodes=0,
-labels.leaves=names(phylog$leaves), clabel.leaves=1,
-labels.nodes=names(phylog$nodes), clabel.nodes=0,
-draw.box=FALSE,
-col.leaves=rep("black", length(labels.leaves)),
-col.leaves.bg=NULL, col.leaves.bg.alpha=1,
-col.bg=NULL, col.bg.alpha=1,
-col.inner.label.circle=NULL, inner.label.circle.width="default",
-col.outer.label.circle=NULL, outer.label.circle.width="default",
-clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
-angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
-motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=FALSE, IndexCol="black", IndexCex=.8,
-groupDistance=NA, groupDistanceLineCol="red",
-plotAxis=FALSE)
+motifCircos(phylog, pfms=NULL, pfms2=NULL, R=2.5,
+            r.tree=1, col.tree.bg=NULL, col.tree.bg.alpha=1,
+            cnodes=0, labels.nodes=names(phylog$nodes), clabel.nodes=0,
+            r.leaves=NA,
+            cleaves=1, labels.leaves=names(phylog$leaves), clabel.leaves=1,
+            col.leaves=rep("black", length(labels.leaves)),
+            col.leaves.bg=NULL, col.leaves.bg.alpha=1,
+            r.pfms=NA, r.pfms2=NA,
+            r.rings=0, col.rings=list(),
+            col.inner.label.circle=NULL, inner.label.circle.width=0.02,
+            col.outer.label.circle=NULL, outer.label.circle.width=0.02,
+            draw.box=FALSE,
+            clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
+            angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
+            motifScale=c("linear","logarithmic"), ic.scale=TRUE,
+            plotIndex=FALSE, IndexCol="black", IndexCex=.8,
+            groupDistance=NA, groupDistanceLineCol="red", 
+            plotAxis=FALSE)
 }
+%- maybe also 'usage' for other objects documented here.
 \arguments{
 \item{phylog}{an object of class phylog}
 \item{pfms}{a list of objects of class pfm}
-\item{circle}{a size coefficient for the outer circle}
-\item{circle.motif}{a size coefficient for the motif circle}
-\item{cleaves}{a character size for plotting the points that represent the leaves, used with par("cex")*cleaves. If zero, no points are drawn}
+\item{pfms2}{a list of objects of class pfm}
+\item{R}{radius of canvas}
+\item{r.tree}{half width of the tree}
+\item{col.tree.bg}{a vector of colors for tree background}
+\item{col.tree.bg.alpha}{a alpha value [0, 1] of colors for tree background}
 \item{cnodes}{a character size for plotting the points that represent the nodes, used with par("cex")*cnodes. If zero, no points are drawn}
-\item{labels.leaves}{a vector of strings of characters for the leaves labels}
-\item{clabel.leaves}{a character size for the leaves labels, used with}
 \item{labels.nodes}{a vector of strings of characters for the nodes labels}
 \item{clabel.nodes}{a character size for the nodes labels, used with par("cex")*clabel.nodes. If zero, no nodes labels are drawn}
-\item{draw.box}{if TRUE draws a box around the current plot with the function box()}
+\item{r.leaves}{width of the leaves}
+\item{cleaves}{a character size for plotting the points that represent the leaves, used with par("cex")*cleaves. If zero, no points are drawn}
+\item{labels.leaves}{a vector of strings of characters for the leaves labels}
+\item{clabel.leaves}{a character size for the leaves labels, used with}
 \item{col.leaves}{a vector of colors for leaves labels}
 \item{col.leaves.bg}{a vector of colors for background of leaves labels}
 \item{col.leaves.bg.alpha}{alpha value [0, 1] for the colors of backgroud of leaves labels}
-\item{col.bg}{a vector of colors for tree background}
-\item{col.bg.alpha}{a alpha value [0, 1] of colors for tree background}
+\item{r.pfms}{width of the pfms}
+\item{r.pfms2}{width of the pfms2}
+\item{r.rings}{a vector of width of color rings}
+\item{col.rings}{a list of color rings}
 \item{col.inner.label.circle}{a vector of colors for inner cirlce of pfms}
 \item{inner.label.circle.width}{width for inner circle of pfms}
 \item{col.outer.label.circle}{a vector of colors for outer circle of pfms}
 \item{outer.label.circle.width}{width for outer circle of pfms}
+\item{draw.box}{if TRUE draws a box around the current plot with the function box()}
 \item{clockwise}{a logical value indicating if slices are drawn clockwise or counter clockwise}
 \item{init.angle}{number specifying the starting angle (in degrees) for the slices. Defaults to 0 (i.e., `3 o'clock`) unless clockwise is true where init.angle defaults to 90 (degrees), (i.e., `12 o'clock`)}
 \item{angle}{number specifying the angle (in degrees) for phylogenic tree. Defaults 360}
-\item{pfmNameSpliter}{spliter when name of pfms contain multiple node of labels.leaves}
+\item{pfmNameSpliter}{spliter when name of pfms/pfms2 contain multiple node of labels.leaves}
 \item{rcpostfix}{the postfix for reverse complements}
 \item{motifScale}{the scale of logo size}
 \item{ic.scale}{logical. If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
@@ -58,13 +71,16 @@ plotAxis=FALSE)
 \item{plotAxis}{logical. If TRUE, will plot distance axis.}
 }
 \value{
- none
+none
+}
+\author{
+Jianhong Ou
 }
 \seealso{
-\link[ade4:plot.phylog]{plot.phylog}
+\code{\link{plotMotifStackWithRadialPhylog}}
 }
 \examples{
-  if(interactive()){
+if(interactive()){
     library("MotifDb")
     matrix.fly <- query(MotifDb, "Dmelanogaster")
     motifs <- as.list(matrix.fly)
@@ -87,8 +103,12 @@ plotAxis=FALSE)
     pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
     library(RColorBrewer)
     color <- brewer.pal(12, "Set3")
-    plotMotifStackWithRadialPhylog(phylog, pfms, circle=0.9, 
-                     cleaves = 0.5, clabel.leaves = 0.7, 
-                     col.bg=rep(color, each=5), col.leaves=rep(color, each=5))
+    motifCircos(phylog, pfms, cleaves = 0.5, clabel.leaves = 0.7, 
+                     col.tree.bg=rep(color, each=5), col.leaves=rep(color, each=5),
+                      r.rings=c(0.02, 0.03, 0.04), 
+                      col.rings=list(sample(colors(), 50), 
+                                     sample(colors(), 50), 
+                                     sample(colors(), 50)))
   }
 }
+\keyword{ misc }

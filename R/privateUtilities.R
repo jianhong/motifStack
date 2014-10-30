@@ -9,21 +9,12 @@ hex2psrgb<-function(col){
     col
 }
 
-highlightCol <- function (col, alpha=0.5){
-	n <- names(col)
-	col <- grDevices::col2rgb(col,alpha=T)
-	col <- apply(col, 2, function(.ele, alpha){rgb(.ele[1], .ele[2], .ele[3], alpha=ceiling(alpha*.ele[4]), maxColorValue=255)}, alpha)
-	col <- unlist(col)
-	names(col) <- n
-	col
-}
-
 motifStack_private_fontsize <- 72
 coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private_fontsize){
 	symbols<-list()
 	for(i in 1:ncha){
 		ps<-paste("%!PS\n/",font," findfont\n",fontsize," scalefont\n",
-				  motifStack:::hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
+				  hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
 				  rname[i],") show",sep="")
 		psfilename<-tempfile()
 		psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)

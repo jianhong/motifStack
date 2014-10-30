@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.11.2
+-----------------------
+
+NEW FEATURES
+
+    o export function highlightCol
+    o add function motifCircos
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.11.1
 -----------------------
 

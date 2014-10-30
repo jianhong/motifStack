@@ -7,10 +7,10 @@ importFrom(MotIV, readDBScores, motifDistances, motifHclust)
 export(
 	plotMotifLogo, plotMotifLogoA,
 	plotXaxis, plotYaxis, 
-	colorset,
+	colorset,highlightCol,
 	motifStack,
 	plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
-	motifSignature, motifCloud,
+	motifSignature, motifCloud, motifCircos,
 	readPCM
 )
 exportClasses("pfm", "pcm", "ouNode", "motifSig")

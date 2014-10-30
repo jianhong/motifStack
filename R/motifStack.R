@@ -46,7 +46,7 @@ xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE){
 		symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
 		if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
 		else {
-			symbols<-motifStack:::coloredSymbols(ncha, font, colset, rname)
+			symbols<-coloredSymbols(ncha, font, colset, rname)
 			symbolsCache[[key]]<-symbols
 			assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
 		}
@@ -222,14 +222,14 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
 	symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
 	if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
 	else {
-		symbols<-motifStack:::coloredSymbols(ncha, font, pfm@color, rname)
+		symbols<-coloredSymbols(ncha, font, pfm@color, rname)
 		symbolsCache[[key]]<-symbols
 		assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
 	}
 	
 #calculate postion of each symbol and plot   
-	ic<-motifStack:::getIC(pfm)
-	ie<-motifStack:::getIE(pfm@mat)
+	ic<-getIC(pfm)
+	ie<-getIE(pfm@mat)
 	dw<-1/npos
 	x.pos<-0
 	for(j in 1:npos){
@@ -474,8 +474,8 @@ plotAxis=FALSE)
         axis_pos <- axis_pos * ratio
     }
     ##for plot background
-	if(!is.null(col.bg)) col.bg <- motifStack:::highlightCol(col.bg, col.bg.alpha)
-	if(!is.null(col.leaves.bg)) col.leaves.bg <- motifStack:::highlightCol(col.leaves.bg, col.leaves.bg.alpha)
+	if(!is.null(col.bg)) col.bg <- highlightCol(col.bg, col.bg.alpha)
+	if(!is.null(col.leaves.bg)) col.leaves.bg <- highlightCol(col.leaves.bg, col.leaves.bg.alpha)
 	gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
 	n <- max(2, floor(200*360/leaves.number))
 	plotBgArc <- function(r,bgcol,inr){
