@@ -10,7 +10,7 @@ export(
 	colorset,highlightCol,
 	motifStack,
 	plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
-	motifSignature, motifCloud, motifCircos,
+	motifSignature, motifCloud, motifCircos, motifPiles,
 	readPCM
 )
 exportClasses("pfm", "pcm", "ouNode", "motifSig")
