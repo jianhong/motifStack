@@ -4,14 +4,18 @@ import(ade4)
 import(XML)
 importFrom(grImport, PostScriptTrace, readPicture, picture)
 importFrom(MotIV, readDBScores, motifDistances, motifHclust)
+importFrom(Biostrings, PWM)
 export(
 	plotMotifLogo, plotMotifLogoA,
 	plotXaxis, plotYaxis, 
 	colorset,highlightCol,
 	motifStack,
-	plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
+	plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, 
+    plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
+    pfm2pwm,
 	motifSignature, motifCloud, motifCircos, motifPiles,
-	readPCM
+	readPCM,
+    getRankedUniqueMotifs
 )
 exportClasses("pfm", "pcm", "ouNode", "motifSig")
 exportMethods(

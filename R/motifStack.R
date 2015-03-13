@@ -665,7 +665,7 @@ motifStack <-function(pfms,
     if (length(pfms)<2)
         stop("length of pfms less than 2")
     pfmList2matrixList <- function(pfms){
-        m <- lapply(pfms, function(.ele) as(.ele, "matrix"))
+        m <- lapply(pfms, pfm2pwm)
         names(m) <- unlist(lapply(pfms, function(.ele) .ele@name))
         m
     }
@@ -674,7 +674,7 @@ motifStack <-function(pfms,
     dots <- list(...)
     if(!"phylog" %in% names(dots)){
         jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+        d <- MotIV::motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
         hc <- MotIV::motifHclust(d)
         pfms <- pfms[hc$order]
         pfms <- DNAmotifAlignment(pfms)
@@ -682,7 +682,7 @@ motifStack <-function(pfms,
     }
     if(layout=="treeview" && !exists("hc")){
         jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- MotIV::motifDistances(pfmList2matrixList(pfms))
+        d <- MotIV::motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
         hc <- MotIV::motifHclust(d)
     }
     switch(layout,

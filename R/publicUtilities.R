@@ -157,3 +157,84 @@ highlightCol <- function (col, alpha=0.5){
     names(col) <- n
     col
 }
+
+pfm2pwm <- function(x){
+    if(!inherits(x, c("pfm", "pcm", "matrix")))
+        stop("x must be an object of matrix or pcm or pfm")
+    if(class(x)=="pcm"){
+        x <- pcm2pfm(x)
+    }
+    if(class(x)=="pfm"){
+        x <- x@mat*10000
+    }else{
+        x <- x*10000
+    }
+    x <- round(x)
+    x[nrow(x),] <- 10000 - colSums(x[-nrow(x),])
+    id <- which(x[nrow(x),] < 0)
+    if(length(id)>0){
+        max.id <- apply(x, 2, function(.e) which(.e==max(.e))[1])
+        for(i in 1:length(id)){
+            x[max.id[id[i]], id[i]] <- x[max.id[id[i]], id[i]] + x[nrow(x), id[i]]
+        }
+        x[nrow(x), id] <- 0
+    }
+    mode(x) <- "integer"
+    PWM(x)
+}
+
+isHomoDimer <- function(x, t=0.001){
+    if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
+    if(class(x)=="pcm") x <- pcm2pfm(x)
+    ic <- getIC(x)
+    if(length(ic)<11) return(FALSE)
+    x.loess <- loess(y ~ x, span=.75, data.frame(x=1:length(ic), y=ic))
+    x.predict <- predict(x.loess, data.frame(x=1:length(ic)))
+    names(x.predict) <- NULL
+    x.sign <- rle(sign(diff(x.predict)))
+    x.values <- x.sign$values[x.sign$lengths>1]
+    if(length(x.values)<3 && !identical(x.values, c(-1,1))) return(FALSE)
+    y <- matrixReverseComplement(x)
+    x <- pfm2pwm(x)
+    y <- pfm2pwm(y)
+    pfms <- list(x=x, y=y)
+    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+    d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
+    ifelse(d[1]<t, TRUE, FALSE)
+}
+
+getHomoDimerCenter <- function(x){
+    if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
+    if(class(x)=="pcm") x <- pcm2pfm(x)
+    len <- ncol(x@mat)
+    if(len < 6) return(NA)
+    ra <- 3:(len-3) ## minimal monomer 3mer
+    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+    dist <- sapply(ra, function(pos){
+        a <- b <- c <- x
+        a@mat <- a@mat[, 1:pos]
+        b@mat <- b@mat[, (pos+1):len]
+        c@mat <- c@mat[, (pos+2):len]
+        b <- matrixReverseComplement(b)
+        c <- matrixReverseComplement(c)
+        a <- pfm2pwm(a)
+        b <- pfm2pwm(b)
+        c <- pfm2pwm(c)
+        pfms <- list(a=a, b=b)
+        d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
+        pfms2 <- list(a=a, c=c)
+        d2 <- MotIV::motifDistances(pfms2, DBscores = jaspar.scores)
+        c(d1=d[1], d2=d2[1])
+    })
+    colnames(dist) <- ra
+    n <- which(dist==min(dist))
+    
+    j <- ceiling(n/2)
+    i <- n + 2 - (2*j)
+    pos <- ra[j]
+    pos <- ifelse(i==2, pos+1, pos)
+    ord <- order(abs(len/2 - pos))[1]
+    pos <- pos[ord]
+    type <- ifelse(i[ord]==2, "odd", "even")
+    c(pos=pos, type=type)
+}

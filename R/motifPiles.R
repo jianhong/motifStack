@@ -77,7 +77,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     r.leaves <- max(unlist(leaves.width))
     r.leaves <- r.leaves + xcar
     r.total <- (r.leaves + leftMar)/xlim[2] + col.pfms.width + string.width
-    lenPFM <- 0
+    lenPFM <- c(FALSE, FALSE)
     if(!is.null(pfms)){
         if(is.na(r.pfms)){
             r.pfms <- r.total
@@ -90,7 +90,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         }
         vpwidth <- mapply(function(.ele, vpht) vpht * ncol(.ele@mat) / 2 * asp, pfms, vph)
         r.total <- r.pfms + max(vpwidth) + col.pfms2.width + 2*string.width
-        lenPFM <- lenPFM + 1
+        lenPFM[1] <- TRUE
     }
     if(!is.null(pfms2)){
         if(is.na(r.pfms2)){
@@ -104,14 +104,14 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         }
         vpwidth2 <- mapply(function(.ele, vpht) vpht * ncol(.ele@mat) / 2 * asp, pfms2, vph2)
         r.total <- r.pfms2 + max(vpwidth2) + 2*string.width
-        lenPFM <- lenPFM + 1
+        lenPFM[2] <- TRUE
     }
     
-    if(lenPFM>0){
-        plotIndex <- rep(plotIndex, 2)[1:lenPFM]
-        IndexCol <- rep(IndexCol, 2)[1:lenPFM]
-        IndexCex <- rep(IndexCex, 2)[1:lenPFM]
-        names(plotIndex) <- names(IndexCol) <- names(IndexCex) <- c("pfm", "pfm2")
+    if(sum(lenPFM)>0){
+        plotIndex <- rep(plotIndex, 2)[lenPFM]
+        IndexCol <- rep(IndexCol, 2)[lenPFM]
+        IndexCex <- rep(IndexCex, 2)[lenPFM]
+        names(plotIndex) <- names(IndexCol) <- names(IndexCex) <- c("pfm", "pfm2")[lenPFM]
     }
     
     xx <- c(dist.leaves, dist.nodes)

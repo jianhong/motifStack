@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.11.4
+-----------------------
+
+NEW FEATURES
+
+    o add function getRankedUniqueMotifs and pfm2pwm
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.11.3
 -----------------------
 

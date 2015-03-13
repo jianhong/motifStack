@@ -176,7 +176,7 @@ names(group.col)<-paste("group",1:5,sep="")
 jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
                                                "extdata", 
                                                "jaspar2010_PCC_SWU.scores"))
-d <- MotIV::motifDistances(pfms)
+d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
 hc <- MotIV::motifHclust(d)
 ## convert the hclust to phylog object
 phylog <- hclust2phylog(hc)

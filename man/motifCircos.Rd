@@ -93,7 +93,7 @@ if(interactive()){
     pfms <- sample(motifs, 50)
     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
                                    "extdata", "jaspar2010_PCC_SWU.scores"))
-    d <- MotIV::motifDistances(pfms)
+    d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
     hc <- MotIV::motifHclust(d)
     phylog <- hclust2phylog(hc)
     leaves <- names(phylog$leaves)

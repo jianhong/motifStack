@@ -1,0 +1,42 @@
+\name{getRankedUniqueMotifs}
+\alias{getRankedUniqueMotifs}
+\title{
+ get the unique motif in each category grouped by distance
+}
+\description{
+ to get the unique motif in a given category, eg by species. 
+}
+\usage{
+getRankedUniqueMotifs(phylog, attr)
+}
+\arguments{
+  \item{phylog}{an object of class phylog}
+  \item{attr}{attribute used for category of motifs}
+}
+\value{
+return a list: 
+    \item{uni.rank}{unique motif ranks}
+    \item{uni.length}{length of unique motif grouped by distance}
+    \item{uni.list}{unique motif names grouped by distance}
+}
+\author{
+Jianhong Ou
+}
+\examples{
+    if(interactive()){
+        library("MotifDb")
+        matrix.fly <- query(MotifDb, "Dmelanogaster")
+        matrix.human <- query(MotifDb, "Hsapiens")
+        pfms <- c(as.list(matrix.fly), as.list(matrix.human))
+        pfms <- pfms[sample(1:length(pfms), 100)]
+        jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                   "extdata", "jaspar2010_PCC_SWU.scores"))
+        d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
+        hc <- MotIV::motifHclust(d)
+        phylog <- hclust2phylog(hc)
+        leaves <- names(phylog$leaves)
+        attr <- gsub("^(.*?)_.*$", "\\1", leaves)
+        getRankedUniqueMotifs(phylog, attr)
+    }
+}
+\keyword{ misc }
