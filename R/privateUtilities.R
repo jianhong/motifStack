@@ -11,24 +11,24 @@ hex2psrgb<-function(col){
 
 motifStack_private_fontsize <- 72
 coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private_fontsize){
-	symbols<-list()
-	for(i in 1:ncha){
-		ps<-paste("%!PS\n/",font," findfont\n",fontsize," scalefont\n",
-				  hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
-				  rname[i],") show",sep="")
-		psfilename<-tempfile()
-		psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)
-# step1 create a ps file
-		cat(ps,file=paste(psfilename,".ps",sep=""))
-# step2 convert it by grImport::PostScriptTrace
-		grImport::PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
-# step3 read by grImport::readPicture
-		symbols[[i]]<-grImport::readPicture(paste(psfilename,".xml",sep=""))
-		unlink(c(paste(psfilename,".ps",sep=""), 
-				 paste("capture",basename(psfilename),".ps",sep=""), 
-				 paste(psfilename,".xml",sep="")))
-	}
-	symbols
+    symbols<-list()
+    for(i in 1:ncha){
+        ps<-paste("%!PS\n/",font," findfont\n",fontsize," scalefont\n",
+                  hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
+                  rname[i],") show",sep="")
+        psfilename<-tempfile()
+        psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)
+        # step1 create a ps file
+        cat(ps,file=paste(psfilename,".ps",sep=""))
+        # step2 convert it by grImport::PostScriptTrace
+        grImport::PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
+        # step3 read by grImport::readPicture
+        symbols[[i]]<-grImport::readPicture(paste(psfilename,".xml",sep=""))
+        unlink(c(paste(psfilename,".ps",sep=""), 
+                 paste("capture",basename(psfilename),".ps",sep=""), 
+                 paste(psfilename,".xml",sep="")))
+    }
+    symbols
 }
 
 addPseudolog2<-function(x){
@@ -41,31 +41,31 @@ getIE<-function(x){
 }
 
 UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0, rcpostfix="(RC)", revcomp=TRUE){
-	if(class(pfms[[i]])!="pfm"){
-	   pcms <- pfms
-	   pfms <- lapply(pfms, pcm2pfm)
-	}else{
-	   pcms <- NULL
-	}
+    if(class(pfms[[i]])!="pfm"){
+        pcms <- pfms
+        pfms <- lapply(pfms, pcm2pfm)
+    }else{
+        pcms <- NULL
+    }
     res<-getAlignedICWithoutGap(pfms[[i-1]], pfms[[i]], threshold, revcomp)
-	if(!is.null(pcms)) pfms <- pcms
-	if(res$max>=minimalConsensus){
-		if(res$rev){
-			pfms[[i]]<-matrixReverseComplement(pfms[[i]])
-			pfms[[i]]@name<-paste(pfms[[i]]@name, rcpostfix, sep="")
-		}
-		if(res$offset>0){
-			pfms[[i]]<-addBlank(pfms[[i]], res$offset, FALSE)
-		}else{
-			if(res[1]<0){
-				pfms[1:(i-1)]<-lapply(pfms[1:(i-1)],function(.ele) addBlank(.ele, -1*res$offset, FALSE))
-			}
-		}
-	}
+    if(!is.null(pcms)) pfms <- pcms
+    if(res$max>=minimalConsensus){
+        if(res$rev){
+            pfms[[i]]<-matrixReverseComplement(pfms[[i]])
+            pfms[[i]]@name<-paste(pfms[[i]]@name, rcpostfix, sep="")
+        }
+        if(res$offset>0){
+            pfms[[i]]<-addBlank(pfms[[i]], res$offset, FALSE)
+        }else{
+            if(res[1]<0){
+                pfms[1:(i-1)]<-lapply(pfms[1:(i-1)],function(.ele) addBlank(.ele, -1*res$offset, FALSE))
+            }
+        }
+    }
     pfms
 }
 getAlignedICWithoutGap<-function(pfm1, pfm2, threshold, revcomp=TRUE){
-	if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
+    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
     offset1<-getoffsetPosByIC(pfm1, pfm2, threshold)
     if(revcomp){
         pfm3<-matrixReverseComplement(pfm2)
@@ -77,10 +77,10 @@ getAlignedICWithoutGap<-function(pfm1, pfm2, threshold, revcomp=TRUE){
     rev<-FALSE
     if(offset1$max < offset2$max){
         rev<-TRUE
-		max<-offset2$max
+        max<-offset2$max
         offset<-offset2$k
     }else{
-		max<-offset1$max
+        max<-offset1$max
         offset<-offset1$k
     }
     list(offset=offset,rev=rev,max=max)    
@@ -93,10 +93,10 @@ getICbyBase<-function(p, pfmj){
 }
 getALLRbyBase <- function(b, pfmi, pfmj){##return 2x ALLR
     sum(pfmj * (addPseudolog2(pfmi) - addPseudolog2(b))) 
-            + sum(pfmi * (addPseudolog2(pfmj) - addPseudolog2(b)))
+    + sum(pfmi * (addPseudolog2(pfmj) - addPseudolog2(b)))
 }
 getoffsetPosByIC<-function(pfm1, pfm2, threshold){
-	if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
+    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
     score1<-rep(0, ncol(pfm1@mat))
     score2<-rep(0, ncol(pfm2@mat))
     for(i in 1:ncol(pfm1@mat)){
@@ -106,9 +106,9 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
             ic2<-getICbyBase(pfm2@background, pfm2@mat[,j])
             ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,i+j-1], pfm2@mat[,j])
             if(ic1[5]>threshold & ic2[5]>threshold){
- #               a<-ic1[1:4]>mean(ic1[1:4])
- #               b<-ic2[1:4]>mean(ic2[1:4])
- #               if(any((a&b))) score1[i]<-score1[i]+1
+                #               a<-ic1[1:4]>mean(ic1[1:4])
+                #               b<-ic2[1:4]>mean(ic2[1:4])
+                #               if(any((a&b))) score1[i]<-score1[i]+1
                 if(ic3>0) score1[i]<-score1[i]+1
             }
         }
@@ -120,9 +120,9 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
             ic1<-getICbyBase(pfm1@background, pfm1@mat[,j])
             ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,j], pfm2@mat[,i+j-1])
             if(ic1[5]>threshold & ic2[5]>threshold){
- #               a<-ic1[1:4]>mean(ic1[1:4])
- #               b<-ic2[1:4]>mean(ic2[1:4])
- #               if(any((a&b))) score2[i]<-score2[i]+1
+                #               a<-ic1[1:4]>mean(ic1[1:4])
+                #               b<-ic2[1:4]>mean(ic2[1:4])
+                #               if(any((a&b))) score2[i]<-score2[i]+1
                 if(ic3>0) score2[i]<-score2[i]+1
             }
         }
@@ -135,33 +135,33 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
 }
 
 setClass("Rect", 
-		representation(x="numeric", y="numeric", width="numeric", height="numeric"), 
-		prototype=prototype(x=0, y=0, width=0, height=0)
+         representation(x="numeric", y="numeric", width="numeric", height="numeric"), 
+         prototype=prototype(x=0, y=0, width=0, height=0)
 )
 
 setGeneric("isContainedIn", function(a, b) standardGeneric("isContainedIn"))
 
 setMethod("isContainedIn", signature(a="Rect", b="Rect"), function(a, b){
-	a@x >= b@x && a@y >= b@y && a@x+a@width <= b@x+b@width && a@y+a@height <= b@y+b@height
+    a@x >= b@x && a@y >= b@y && a@x+a@width <= b@x+b@width && a@y+a@height <= b@y+b@height
 })
 
 setClass("pos",
-	representation(box="Rect", beta="numeric", sig="pfm", freq="numeric", norm="numeric")
+         representation(box="Rect", beta="numeric", sig="pfm", freq="numeric", norm="numeric")
 )
 
 getPFMid <- function(pfms, nodename, rcpostfix="(RC)"){
-	pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
-	pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=T)
-	which(pfmNames==nodename)
+    pfmNames <- as.character(unlist(lapply(pfms, function(.ele) .ele@name)))
+    pfmNames <- gsub(rcpostfix,"",pfmNames, fixed=TRUE)
+    which(pfmNames==nodename)
 }
 
 getParentNode <- function(nodelist, nodename){
-	for(i in 1:length(nodelist)){
-		currNode <- nodelist[[i]]
-		if(currNode@left==nodename) return(c(currNode@parent, "left"))
-		if(currNode@right==nodename) return(c(currNode@parent, "right"))
-	}
-	NULL
+    for(i in 1:length(nodelist)){
+        currNode <- nodelist[[i]]
+        if(currNode@left==nodename) return(c(currNode@parent, "left"))
+        if(currNode@right==nodename) return(c(currNode@parent, "right"))
+    }
+    NULL
 }
 
 makeLeaveNames <- function(ch){

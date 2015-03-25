@@ -151,7 +151,7 @@ colorset<-function(alphabet="DNA", colorScheme='auto'){
 
 highlightCol <- function (col, alpha=0.5){
     n <- names(col)
-    col <- grDevices::col2rgb(col,alpha=T)
+    col <- grDevices::col2rgb(col,alpha=TRUE)
     col <- apply(col, 2, function(.ele, alpha){rgb(.ele[1], .ele[2], .ele[3], alpha=ceiling(alpha*.ele[4]), maxColorValue=255)}, alpha)
     col <- unlist(col)
     names(col) <- n

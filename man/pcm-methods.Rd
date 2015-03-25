@@ -13,6 +13,8 @@
 \alias{trimMotif}
 \alias{trimMotif,pcm,numeric-method}
 \alias{plot,pcm,ANY-method}
+\alias{$,pcm-method}
+\alias{$<-,pcm-method}
 
 \title{"pcm" methods}
 \description{
@@ -65,6 +67,8 @@
     sequence logo of the position count matrix. }
     
     \item{trimMotif}{\code{signature(x = "pcm", t= "numeric")} trim motif by information content. }
+    
+    \item{$, $<-}{Get or set the slot of \code{\link{pcm}}}
  } 
 }
 \examples{

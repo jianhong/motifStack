@@ -194,7 +194,7 @@ motifCloud(motifSig, scale=c(6, .5),
            layout="rectangles", 
            group.col=group.col, 
            groups=groups, 
-           draw.legend=T)
+           draw.legend=TRUE)
 @
 \incfig{motifStack-motifCloud}{0.8\textwidth}{Sequence logo cloud with rectangle packing layout}
 {Like tag-cloud, the sequence logo size is determined by the number of motifs of the signature.

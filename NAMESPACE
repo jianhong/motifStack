@@ -6,27 +6,28 @@ importFrom(grImport, PostScriptTrace, readPicture, picture)
 importFrom(MotIV, readDBScores, motifDistances, motifHclust)
 importFrom(Biostrings, PWM)
 export(
-	plotMotifLogo, plotMotifLogoA,
-	plotXaxis, plotYaxis, 
-	colorset,highlightCol,
-	motifStack,
-	plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, 
+    plotMotifLogo, plotMotifLogoA,
+    plotXaxis, plotYaxis, 
+    colorset,highlightCol,
+    motifStack,
+    plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, 
     plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
     pfm2pwm,
-	motifSignature, motifCloud, motifCircos, motifPiles,
-	readPCM,
+    motifSignature, motifCloud, motifCircos, motifPiles,
+    readPCM,
     getRankedUniqueMotifs
 )
 exportClasses("pfm", "pcm", "ouNode", "motifSig")
 exportMethods(
-		plot,
-		getIC,
-		matrixReverseComplement,
-		addBlank,
-		pcm2pfm,
-		signatures,
-		frequence,
-		nodelist,
+        plot,
+        getIC,
+        matrixReverseComplement,
+        addBlank,
+        pcm2pfm,
+        signatures,
+        frequence,
+        nodelist,
         sigColor,
-		trimMotif
+        trimMotif,
+        "$", "$<-"
 )

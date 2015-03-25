@@ -9,6 +9,8 @@
 \alias{nodelist,motifSig-method}
 \alias{sigColor}
 \alias{sigColor,motifSig-method}
+\alias{$,motifSig-method}
+\alias{$<-,motifSig-method}
 
 \title{"motifSig" methods}
 \description{
@@ -34,6 +36,8 @@
 	\item{nodelist}{\code{signature(object = "motifSig")} return the nodelist of motifSig}
     
     \item{sigColor}{\code{signature(object = "motifSig")} return the group color sets of motifSig}
+    
+    \item{$, $<-}{Get or set the slot of \code{\link{motifSig}}}
  } 
 }
 \keyword{classes}

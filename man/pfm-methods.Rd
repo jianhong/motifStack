@@ -10,6 +10,8 @@
 \alias{matrixReverseComplement,pfm-method}
 \alias{trimMotif,pfm,numeric-method}
 \alias{plot,pfm,ANY-method}
+\alias{$,pfm-method}
+\alias{$<-,pfm-method}
 
 \title{"pfm" methods}
 \description{
@@ -56,6 +58,8 @@
     sequence logo of the position frequency matrix. }
     
   \item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
+  
+  \item{$, $<-}{Get or set the slot of \code{\link{pfm}}}
  } 
 }
 \examples{
