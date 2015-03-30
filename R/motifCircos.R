@@ -93,38 +93,41 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
     ##for logos position
     w.pfms <- r.tree + r.rayon + r.leaves + r.rings.tot + inner.label.circle.width
     twoR <- 2*R
-    if(!is.null(pfms) && !class(r.pfms) %in% c("numeric", "integer")){
-        r.pfms <- 0
-        beta <- alpha * 180 / pi
+    beta <- alpha * 180 / pi
+    if(!is.null(pfms)){
         vpheight <- 2 * pi * angle * w.pfms / 360 / leaves.number / twoR
         vpheight <- vpheight * asp[2L]
         xm <- w.pfms * cos(alpha) * asp[1L] / twoR + 0.5
         ym <- w.pfms * sin(alpha) * asp[2L] / twoR + 0.5
-        pfmNamesLen <- sapply(pfms, function(.ele) 
-            length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
-        if(motifScale=="linear"){
-            vph <- R*vpheight*pfmNamesLen
-        }else {
-            vph <- R*vpheight*(1+log2(pfmNamesLen+0.0001))
+        if(!class(r.pfms) %in% c("numeric", "integer")){
+            r.pfms <- 0
+            pfmNamesLen <- sapply(pfms, function(.ele) 
+                length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
+            if(motifScale=="linear"){
+                vph <- R*vpheight*pfmNamesLen
+            }else {
+                vph <- R*vpheight*(1+log2(pfmNamesLen+0.0001))
+            }
+            r.pfms <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
         }
-        r.pfms <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
     }
     if(!class(r.pfms) %in% c("numeric", "integer")) r.pfms <- 0
     
     w.pfms2 <- w.pfms + r.pfms + outer.label.circle.width
-    if(!is.null(pfms2) && !class(r.pfms2) %in% c("numeric", "integer")){
-        r.pfms2 <- 0
-        beta <- alpha * 180 / pi
+    if(!is.null(pfms2)){
         vpheight2 <- 2 * pi * angle * w.pfms2 / 360 / leaves.number / twoR
         vpheight2 <- vpheight2 * asp[2L]
         xm2 <- w.pfms2 * cos(alpha) * asp[1L] / twoR + 0.5
         ym2 <- w.pfms2 * sin(alpha) * asp[2L] / twoR + 0.5
-        pfmNamesLen <- sapply(pfms2, function(.ele) 
-            length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
-        if(motifScale=="linear")
-            vph <- R*vpheight2*pfmNamesLen
-        else vph <- R*vpheight2*(1+log2(pfmNamesLen+0.0001))
-        r.pfms2 <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms2, vph))
+        if(!class(r.pfms2) %in% c("numeric", "integer")){
+            r.pfms2 <- 0
+            pfmNamesLen <- sapply(pfms2, function(.ele) 
+                length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
+            if(motifScale=="linear")
+                vph <- R*vpheight2*pfmNamesLen
+            else vph <- R*vpheight2*(1+log2(pfmNamesLen+0.0001))
+            r.pfms2 <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms2, vph))
+        }
     }
     if(!class(r.pfms2) %in% c("numeric", "integer")) r.pfms2 <- 0
     
@@ -218,7 +221,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         {
             rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),rcpostfix,fixed=TRUE)
         }
-        drawPFMcir <- function(pfms, xm, ym, vpheight){
+        drawPFMcir <- function(pfms, xm, ym, vpheight, .plotIndex){
             ##extract names
             pfmNames <- lapply(pfms, function(.ele) .ele@name)
             for(i in 1:length(pfmNames)){
@@ -251,7 +254,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                     pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
                     plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
                     popViewport()
-                    if(plotIndex) {
+                    if(.plotIndex) {
                         grid.text(label=i, x=vpx1, 
                                   y=vpy1, 
                                   gp=gpar(col=IndexCol, cex=IndexCex), rot=angle, just="right")
@@ -262,10 +265,11 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             }
         }
         if(!is.null(pfms)){
-            drawPFMcir(pfms, xm, ym, vpheight)
+            drawPFMcir(pfms, xm, ym, vpheight, plotIndex[1])
         }
         if(!is.null(pfms2)){
-            drawPFMcir(pfms2, xm2, ym2, vpheight2)
+            if(length(plotIndex)<2) plotIndex[2] <- plotIndex[1]
+            drawPFMcir(pfms2, xm2, ym2, vpheight2, plotIndex[2])
         }
         
         rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")

@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.11.6
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o Fix the bugs in motifCircos when input r.pfm and r.pfm2
+
 CHANGES IN VERSION 1.11.5
 -----------------------
 
