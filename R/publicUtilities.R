@@ -30,6 +30,7 @@ readPWM <- function(path=".", pattern=NULL, to=c("pfm", "pcm")){
     })
     names(pwml) <- gsub("[\\._](pwm|txt|pwm\\.txt)$", "", basename(pwms), ignore.case=TRUE)
     pwm <- mapply(function(.d, .n){
+        if(!all(colSums(.d)==1)) .d <- .25*exp(.d)
         if(to=="pfm") new("pfm", mat=as.matrix(.d), name=gsub("\\.", "_", make.names(.n)))
         else{
             .d <- round(.d * 1000)

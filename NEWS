@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.11.7
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o Fix the bugs in readPWM
+
 CHANGES IN VERSION 1.11.6
 -----------------------
 
