@@ -28,8 +28,8 @@ setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, backg
     if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
     if(is.null(rownames(mat))) stop("rownames of pcm is empty")
     rownames(mat)<-toupper(rownames(mat))
+    rname<-rownames(mat)
     if(missing(alphabet)){
-        rname<-rownames(mat)
         rname<-rname[order(rname)]
         if(all(rname %in% c("A","C","G","T"))) alphabet<-"DNA"
         else{

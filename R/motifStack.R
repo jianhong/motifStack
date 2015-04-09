@@ -15,6 +15,10 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
     if (class(pfm) != "matrix"){
         stop("pfm must be of class matrix or data.frame")
     }
+    if(length(p)<nrow(pfm)){
+        warning("background length is shorter than number of rows. Will use default background")
+        p <- rep(1/nrow(pfm), nrow(pfm))
+    }
     if (any(abs(1 - apply(pfm,2,sum)) > 0.01))
         stop("Columns of pfm must add up to 1.0")
     if(class(colset)!="character")
@@ -107,10 +111,12 @@ plotYaxis<-function(pfm, ic.scale=TRUE){
     }
     majorat<-seq(0,floor(ie)/ceiling(ie),by=1/ceiling(ie))
     majorlab<-0:floor(ie)
-    axis(2,at=majorat,labels=majorlab)
+    axis(2,at=majorat,labels=majorlab, lwd=0, lwd.ticks=1)
     minorat<-seq(0,ie,by=1/(ceiling(ie)*5))
     minorat<-minorat[!(minorat %in% majorat)]
     axis(2,at=minorat,tcl=par("tcl")*0.5,labels=FALSE,lwd=0,lwd.ticks=1)
+    at <- c(min(c(minorat, majorat)), max(c(minorat, majorat)))
+    axis(2, at=at, lwd=1, lwd.ticks=0, labels=FALSE)
 }
 
 plotMotifLogoStack<-function(pfms, ...){

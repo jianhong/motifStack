@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.11.8
+-----------------------
+
+NEW FEATURES
+
+    o No changes classified as 'new features' (package under active
+    development)
+
+BUG FIXES
+
+    o Fix the bugs if background values don't have a name.
+
 CHANGES IN VERSION 1.11.7
 -----------------------
 
