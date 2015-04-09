@@ -46,6 +46,10 @@ setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, backg
         background<-rep(1/nrow(mat), nrow(mat))
         names(background)<-rname
     }
+    if(length(background)<nrow(mat)){
+        background <- rep(background, nrow(mat))[1:nrow(mat)]
+        names(background) <- rname
+    }
     .Object@mat            =    mat;
     .Object@name        =    name;
     .Object@alphabet    =    alphabet;
