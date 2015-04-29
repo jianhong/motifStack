@@ -6,6 +6,7 @@
 \alias{getIC}
 \alias{getIC,pfm,ANY-method}
 \alias{getIC,matrix,numeric-method}
+\alias{getIC,matrix,matrix-method}
 \alias{matrixReverseComplement}
 \alias{matrixReverseComplement,pfm-method}
 \alias{trimMotif,pfm,numeric-method}

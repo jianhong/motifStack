@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.13.1
+-----------------------
+
+NEW FEATURES
+
+    o add plotMotifOverMotif function
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.11.8
 -----------------------
 

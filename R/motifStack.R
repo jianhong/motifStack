@@ -58,7 +58,12 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
         plot.new()
         
         ic<-getIC(pfm, p)
-        ie<-getIE(pfm)
+        if(ic.scale){
+            ie<-getIE(pfm)
+            ie <- max(c(ie, ic))
+        }else{
+            ie <- 1
+        }
         dw<-1/npos
         x.pos<-0
         for(j in 1:npos){
@@ -79,7 +84,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
             x.pos<-x.pos+dw
         }
         if(xaxis) plotXaxis(pfm, p)
-        if(yaxis) plotYaxis(pfm, ic.scale)
+        if(yaxis) plotYaxis(ie)
         if(!is.na(xlab)) mtext(xlab,1,line=2,cex=xlcex)
         if(!is.na(ylab)) mtext(ylab,2,line=2,cex=ylcex)
         if(!missing(motifName)) mtext(motifName,3,line=0,cex=ncex)
@@ -103,12 +108,8 @@ plotXaxis<-function(pfm, p=rep(0.25, 4)){
     axis(1,at=at,labels=label)
 }
 
-plotYaxis<-function(pfm, ic.scale=TRUE){
-    if(ic.scale){
-        ie<-getIE(pfm)
-    }else{
-        ie <- 1
-    }
+plotYaxis<-function(ymax){
+    ie <- ymax
     majorat<-seq(0,floor(ie)/ceiling(ie),by=1/ceiling(ie))
     majorlab<-0:floor(ie)
     axis(2,at=majorat,labels=majorlab, lwd=0, lwd.ticks=1)
@@ -236,6 +237,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
     #calculate postion of each symbol and plot   
     ic<-getIC(pfm)
     ie<-getIE(pfm@mat)
+    ie <- max(c(ie, ic))
     dw<-1/npos
     x.pos<-0
     for(j in 1:npos){

@@ -32,7 +32,7 @@ coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private
 }
 
 addPseudolog2<-function(x){
-    ifelse(x==0, -10, log2(x))
+    ifelse(x==0, .Machine$double.min.exp, log2(x))
 }
 
 ## get Information Entropy from matrix

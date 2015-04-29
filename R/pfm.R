@@ -81,6 +81,10 @@ setMethod("getIC", signature(x="matrix", p="numeric"), function(x, p){
     if (any(abs(1 - apply(x, 2, sum)) > 0.01)) re<-"Columns of PFM must add up to 1.0"
     colSums(x * (addPseudolog2(x) - addPseudolog2(p)))
 })
+setMethod("getIC", signature(x="matrix", p="matrix"), function(x, p){
+    if (any(abs(1 - apply(x, 2, sum)) > 0.01)) re<-"Columns of PFM must add up to 1.0"
+    colSums(x * (addPseudolog2(x) - addPseudolog2(p)))
+})
 
 setMethod("trimMotif", signature(x="pfm", t="numeric"), function(x, t){
     .sw <- c(0, 0)

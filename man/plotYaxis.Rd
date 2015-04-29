@@ -7,11 +7,10 @@
   plot y-axis for the sequence logo
 }
 \usage{
-plotYaxis(pfm, ic.scale=TRUE)
+plotYaxis(ymax)
 }
 \arguments{
-	\item{pfm}{position frequency matrices}
-    \item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
+	\item{ymax}{max value of y axix}
 }
 \value{
 	none

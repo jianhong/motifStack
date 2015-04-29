@@ -83,7 +83,7 @@ test_hex2psrgb<-function(){
 }
 
 test_addPseudolog2<-function(){
-	checkEquals(-10, motifStack:::addPseudolog2(0))
+	checkEquals(.Machine$double.min.exp, motifStack:::addPseudolog2(0))
 	checkEquals(0, motifStack:::addPseudolog2(1))
 	checkEquals(1, motifStack:::addPseudolog2(2))
 }
