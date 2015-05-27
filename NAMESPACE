@@ -2,13 +2,15 @@ import(methods)
 import(grid)
 import(ade4)
 import(XML)
-importFrom(grImport, PostScriptTrace, readPicture, picture)
+importFrom(scales, rescale)
+importFrom(grImport, PostScriptTrace, readPicture, picture, pictureGrob)
 importFrom(MotIV, readDBScores, motifDistances, motifHclust)
 importFrom(Biostrings, PWM)
 export(
     plotMotifLogo, plotMotifLogoA, 
     plotXaxis, plotYaxis, 
     colorset,highlightCol,
+    mergeMotifs,
     motifStack,
     plotMotifOverMotif,
     plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, 

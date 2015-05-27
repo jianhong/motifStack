@@ -47,9 +47,9 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
             list()
         }
     if(!is.null(symbolsCache[[key]])){
-        symbols<-symbolsCache[[key]]
+        symbols <- symbolsCache[[key]]
     } else {
-        symbols<-motifStack:::coloredSymbols(ncha, font, colset[rname], rname)
+        symbols <- coloredSymbols(ncha, font, colset[rname], rname)
         symbolsCache[[key]]<-symbols
         assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
     }
@@ -112,7 +112,7 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
                     flag <- flag+1
                 }
                 if(h>0) {
-                    grid.draw(grImport::pictureGrob(symbols[[id[i]]],
+                    grid.draw(pictureGrob(symbols[[id[i]]],
                                                     x.pos,y.pos,dw,h,
                                                     just=c(0,0),distort=TRUE))
                     y.pos<-y.pos+h

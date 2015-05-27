@@ -9,7 +9,7 @@ plotMotifOverMotif(motif, backgroundMotif, bgNoise=NA,
                 font="Helvetica-Bold", textgp=gpar())
 }
 \arguments{
-\item{pfm}{an object of \code{\link{pcm}} or \code{\link{pfm}}}
+\item{motif}{an object of \code{\link{pcm}} or \code{\link{pfm}}}
 \item{backgroundMotif}{an object of \code{\link{pcm}} or \code{\link{pfm}}}
 \item{bgNoise}{if it is not NA, test will using a background by Dirichlet(1)-distributed random frequencies with weight bg.noise. 
   The value of bgNoise should be a number in the range of 0 to 1, eg. 0.05}

@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.13.2
+-----------------------
+
+NEW FEATURES
+
+    o add mergeMotifs function
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
+
 CHANGES IN VERSION 1.13.1
 -----------------------
 

@@ -3,7 +3,7 @@ checkInteger <- function(N){
 }
 
 hex2psrgb<-function(col){
-    col<-grDevices::col2rgb(col)
+    col<-col2rgb(col)
     col<-col/255
     col<-paste(col,collapse=" ")
     col
@@ -21,9 +21,9 @@ coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private
         # step1 create a ps file
         cat(ps,file=paste(psfilename,".ps",sep=""))
         # step2 convert it by grImport::PostScriptTrace
-        grImport::PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
+        PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
         # step3 read by grImport::readPicture
-        symbols[[i]]<-grImport::readPicture(paste(psfilename,".xml",sep=""))
+        symbols[[i]]<-readPicture(paste(psfilename,".xml",sep=""))
         unlink(c(paste(psfilename,".ps",sep=""), 
                  paste("capture",basename(psfilename),".ps",sep=""), 
                  paste(psfilename,".xml",sep="")))

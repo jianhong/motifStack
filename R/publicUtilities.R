@@ -152,7 +152,7 @@ colorset<-function(alphabet="DNA", colorScheme='auto'){
 
 highlightCol <- function (col, alpha=0.5){
     n <- names(col)
-    col <- grDevices::col2rgb(col,alpha=TRUE)
+    col <- col2rgb(col,alpha=TRUE)
     col <- apply(col, 2, function(.ele, alpha){rgb(.ele[1], .ele[2], .ele[3], alpha=ceiling(alpha*.ele[4]), maxColorValue=255)}, alpha)
     col <- unlist(col)
     names(col) <- n
@@ -199,8 +199,8 @@ isHomoDimer <- function(x, t=0.001){
     x <- pfm2pwm(x)
     y <- pfm2pwm(y)
     pfms <- list(x=x, y=y)
-    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-    d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
+    jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+    d <- motifDistances(pfms, DBscores = jaspar.scores)
     ifelse(d[1]<t, TRUE, FALSE)
 }
 
@@ -210,7 +210,7 @@ getHomoDimerCenter <- function(x){
     len <- ncol(x@mat)
     if(len < 6) return(NA)
     ra <- 3:(len-3) ## minimal monomer 3mer
-    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+    jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
     dist <- sapply(ra, function(pos){
         a <- b <- c <- x
         a@mat <- a@mat[, 1:pos]
@@ -222,9 +222,9 @@ getHomoDimerCenter <- function(x){
         b <- pfm2pwm(b)
         c <- pfm2pwm(c)
         pfms <- list(a=a, b=b)
-        d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
+        d <- motifDistances(pfms, DBscores = jaspar.scores)
         pfms2 <- list(a=a, c=c)
-        d2 <- MotIV::motifDistances(pfms2, DBscores = jaspar.scores)
+        d2 <- motifDistances(pfms2, DBscores = jaspar.scores)
         c(d1=d[1], d2=d2[1])
     })
     colnames(dist) <- ra

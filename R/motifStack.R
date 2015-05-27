@@ -78,7 +78,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
             y.pos<-0
             for(i in 1:ncha){
                 h<-heights[id[i]]
-                if(h>0 && ic[j]>0) grImport::picture(symbols[[id[i]]],x.pos,y.pos,x.pos+dw,y.pos+h)
+                if(h>0 && ic[j]>0) picture(symbols[[id[i]]],x.pos,y.pos,x.pos+dw,y.pos+h)
                 y.pos<-y.pos+h
             }
             x.pos<-x.pos+dw
@@ -252,7 +252,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
         y.pos<-0
         for(i in 1:ncha){
             h<-heights[id[i]]
-            if(h>0 && ic[j]>0) grid.draw(grImport::pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
+            if(h>0 && ic[j]>0) grid.draw(pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
             y.pos<-y.pos+h
         }
         x.pos<-x.pos+dw
@@ -681,17 +681,17 @@ motifStack <-function(pfms,
     ##calculate the distances
     dots <- list(...)
     if(!"phylog" %in% names(dots)){
-        jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- MotIV::motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
-        hc <- MotIV::motifHclust(d)
+        jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+        d <- motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
+        hc <- motifHclust(d)
         pfms <- pfms[hc$order]
         pfms <- DNAmotifAlignment(pfms)
         phylog <- hclust2phylog(hc)
     }
     if(layout=="treeview" && !exists("hc")){
-        jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- MotIV::motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
-        hc <- MotIV::motifHclust(d)
+        jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+        d <- motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
+        hc <- motifHclust(d)
     }
     switch(layout,
            stack = {
