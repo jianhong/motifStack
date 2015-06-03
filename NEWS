@@ -1,3 +1,16 @@
+CHANGES IN VERSION 1.13.3
+-----------------------
+
+NEW FEATURES
+
+    o add reorderUPGMAtree function
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
+
 CHANGES IN VERSION 1.13.2
 -----------------------
 

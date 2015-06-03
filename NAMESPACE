@@ -18,6 +18,7 @@ export(
     pfm2pwm,
     motifSignature, motifCloud, motifCircos, motifPiles,
     readPCM,
+    reorderUPGMAtree,
     getRankedUniqueMotifs
 )
 exportClasses("pfm", "pcm", "ouNode", "motifSig")

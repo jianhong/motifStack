@@ -683,7 +683,7 @@ motifStack <-function(pfms,
     if(!"phylog" %in% names(dots)){
         jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
         d <- motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
-        hc <- motifHclust(d)
+        hc <- motifHclust(d, method="average")
         pfms <- pfms[hc$order]
         pfms <- DNAmotifAlignment(pfms)
         phylog <- hclust2phylog(hc)
@@ -691,7 +691,7 @@ motifStack <-function(pfms,
     if(layout=="treeview" && !exists("hc")){
         jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
         d <- motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
-        hc <- motifHclust(d)
+        hc <- motifHclust(d, mothod="average")
     }
     switch(layout,
            stack = {

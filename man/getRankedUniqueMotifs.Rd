@@ -32,7 +32,7 @@ Jianhong Ou
         jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
                                    "extdata", "jaspar2010_PCC_SWU.scores"))
         d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
-        hc <- MotIV::motifHclust(d)
+        hc <- MotIV::motifHclust(d, method="average")
         phylog <- hclust2phylog(hc)
         leaves <- names(phylog$leaves)
         attr <- gsub("^(.*?)_.*$", "\\1", leaves)

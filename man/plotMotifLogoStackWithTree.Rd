@@ -26,7 +26,7 @@ plotMotifLogoStackWithTree(pfms, hc, treewidth=1/8, trueDist=FALSE, ...)
   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
                                  "extdata", "jaspar2010_PCC_SWU.scores"))
   d <- MotIV::motifDistances(lapply(motifs, pfm2pwm))
-  hc <- MotIV::motifHclust(d)
+  hc <- MotIV::motifHclust(d, method="average")
 
   ##reorder the motifs for plotMotifLogoStack
   motifs<-motifs[hc$order]
