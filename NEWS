@@ -1,3 +1,15 @@
+CHANGES IN VERSION 1.13.4
+-----------------------
+
+NEW FEATURES
+
+    o improve the algorithm of DNAmotifAlignment
+
+BUG FIXES
+
+    o No changes classified as 'bug fixes' (package under active
+    development)
+
 CHANGES IN VERSION 1.13.3
 -----------------------
 
