@@ -31,19 +31,9 @@ coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private
     symbols
 }
 
-addPseudolog2<-function(x, bgNoise=0.000001){
-    #ifelse(x==0, -10, log2(x)) ## !important -10.
-    rdirichlet <- function (n, alpha){
-        x <- rgamma(n, alpha)
-        sm <- x %*% rep(1, n)
-        x/as.vector(sm)
-    }
-    if(any(x==0)){
-        x <- (1-bgNoise)*x + 
-            bgNoise*rdirichlet(length(x), 1)
-    }
-    
-    log2(x)
+addPseudolog2<-function(x){
+    x <- round(x, digits=6)
+    ifelse(x < .000001, -20, log2(x)) ## !important -10.
 }
 
 ## get Information Entropy from matrix
@@ -86,7 +76,7 @@ getAlignedICWithoutGap<-function(pfm1, pfm2, threshold, revcomp=TRUE){
     }
     offset<-0
     rev<-FALSE
-    if(offset1$max < offset2$max){
+    if((offset1$max < offset2$max)){
         rev<-TRUE
         max<-offset2$max
         offset<-offset2$k
@@ -212,7 +202,7 @@ SWU <- function(pattern, subject, b,
     }
     list(k=k, max=max_score)
 }
-ungappedScore <- function(query, subject, b){
+ungappedScore <- function(query, subject, b, threshold){
     if(class(query)!="matrix" || class(subject)!="matrix"){
         stop("query and subject must be numeric matrix")
     }
@@ -221,8 +211,13 @@ ungappedScore <- function(query, subject, b){
     score <- matrix(0, nrow=m+1, ncol=n+1)
     for(i in 1:m){
         for(j in 1:n){
-            value <- getALLRbyBase(b, query[, i], subject[, j])
-            value <- as.numeric(value > 0)
+            ic1 <- getICbyBase(b, query[, i])[5]
+            ic2 <- getICbyBase(b, subject[, j])[5]
+            if(ic1>=threshold && ic2>=threshold){
+                value <- getICbyBase(b, c(query[, i]+subject[, j])/2)[5]
+            }else{
+                value <- 0
+            }
             score[i+1, j+1] <- score[i, j] + value
         }
     }
@@ -235,45 +230,46 @@ ungappedScore <- function(query, subject, b){
     
     if(nrow(idx)>1){
         idxn <- apply(idx, 1, min)
-        idx <- idx[which(idxn==min(idxn)), , drop=FALSE]
+        idx <- idx[which(idxn==min(idxn))[1], , drop=FALSE]
     }
     max_r <- idx[, "row"]
     max_c <- idx[, "col"]
     k <- max_r - max_c
-    list(k=as.numeric(min(k)), max=max_score)
-}
-getoffsetPosByIC_dev<-function(pfm1, pfm2, threshold){
-    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
-    colnames(pfm1$mat) <- paste("V", 1:ncol(pfm1$mat), sep="_")
-    colnames(pfm2$mat) <- paste("V", 1:ncol(pfm2$mat), sep="_")
-    pfm1.cp <- trimMotif(pfm1, threshold)
-    pfm2.cp <- trimMotif(pfm2, threshold)
-    if(class(pfm1.cp)!="pfm" | class(pfm2.cp)!="pfm"){
-        return(list(k=0, max=0))
-    }
-    pfm1.left <- which(colnames(pfm1$mat) %in% colnames(pfm1.cp$mat))[1]-1
-    pfm2.left <- which(colnames(pfm2$mat) %in% colnames(pfm2.cp$mat))[1]-1
-    res <- ungappedScore(pfm1.cp$mat, pfm2.cp$mat, b=pfm1$background)
-    if(res$max>0){
-        res$k <- res$k - pfm2.left + pfm1.left
-    }
-    res
+    list(k=as.numeric(k), max=max_score)
 }
 getoffsetPosByIC<-function(pfm1, pfm2, threshold){
     if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
+    res <- ungappedScore(pfm1$mat, pfm2$mat, b=pfm1$background, threshold)
+    res
+}
+getoffsetPosByIC_old<-function(pfm1, pfm2, threshold){
+    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
     score1<-rep(0, ncol(pfm1@mat))
     score2<-rep(0, ncol(pfm2@mat))
+    value1<-rep(0, ncol(pfm1@mat))
+    value2<-rep(0, ncol(pfm2@mat))
     for(i in 1:ncol(pfm1@mat)){
         J<-ifelse(ncol(pfm1@mat)+1-i>ncol(pfm2@mat),ncol(pfm2@mat),ncol(pfm1@mat)+1-i)
         for(j in 1:J){
             ic1<-getICbyBase(pfm1@background, pfm1@mat[,i+j-1])
             ic2<-getICbyBase(pfm2@background, pfm2@mat[,j])
-            ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,i+j-1], pfm2@mat[,j])
+            #ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,i+j-1], pfm2@mat[,j])
+            ic3 <- getICbyBase(pfm1@background, (pfm1@mat[,i+j-1]+pfm2@mat[,j])/2)
+            if(sd(pfm1@mat[,i+j-1])==0 || sd(pfm2@mat[,j])==0){
+                corr <- 0
+            }else{
+                corr <- cor(pfm1@mat[,i+j-1], pfm2@mat[,j], method="spearman")
+            }
             if(ic1[5]>threshold & ic2[5]>threshold){
-                a<-ic1[1:4]>mean(ic1[1:4])
-                b<-ic2[1:4]>mean(ic2[1:4])
-                if(any((a&b)) && ic3>0.25) score1[i]<-score1[i]+1
+                #a<-ic1[1:4]>mean(ic1[1:4])
+                #b<-ic2[1:4]>mean(ic2[1:4])
                 #if(ic3>0) score1[i]<-score1[i]+1
+                #if(ic3>0.25) {
+                #if(any(a&b)){
+                if(corr>0){
+                    score1[i]<-score1[i]+1
+                    value1[i] <- value1[i]+ic3[5]
+                }
             }
         }
     }
@@ -282,20 +278,34 @@ getoffsetPosByIC<-function(pfm1, pfm2, threshold){
         for(j in 1:J){
             ic2<-getICbyBase(pfm2@background, pfm2@mat[,i+j-1])
             ic1<-getICbyBase(pfm1@background, pfm1@mat[,j])
-            ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,j], pfm2@mat[,i+j-1])
+            #ic3<-getALLRbyBase(pfm1@background, pfm1@mat[,j], pfm2@mat[,i+j-1])
+            ic3 <- getICbyBase(pfm1@background, (pfm2@mat[,i+j-1]+pfm1@mat[,j])/2)
+            if(sd(pfm1@mat[,j])==0 || sd(pfm2@mat[,i+j-1])==0){
+                corr <- 0
+            }else{
+                corr <- cor(pfm1@mat[,j], pfm2@mat[,i+j-1], method="spearman")
+            }
             if(ic1[5]>threshold & ic2[5]>threshold){
-                a<-ic1[1:4]>mean(ic1[1:4])
-                b<-ic2[1:4]>mean(ic2[1:4])
-                if(any((a&b)) && ic3>0.25) score2[i]<-score2[i]+1
+                #a<-ic1[1:4]>mean(ic1[1:4])
+                #b<-ic2[1:4]>mean(ic2[1:4])
                 #if(ic3>0) score2[i]<-score2[i]+1
+                #if(ic3>0.25) {
+                #if(any(a&b)){
+                if(corr>0){
+                    score2[i]<-score2[i]+1
+                    value2[i] <- value2[i]+ic3[5]
+                }
             }
         }
     }
     k1<-match(max(score1),score1)
     k2<-match(max(score2),score2)
-    k=ifelse(score1[k1]<score2[k2], -1*(k2-1), (k1-1))
-    max=ifelse(score1[k1]<score2[k2], score2[k2], score1[k1])
-    list(k=k,max=max)
+    sc <- (score1[k1] < score2[k2]) || ((score1[k1] == score2[k2]) && 
+                                            (value1[k1] < value2[k2]))
+    k <- ifelse(sc, -1*(k2-1), (k1-1))
+    max <- ifelse(sc, score2[k2], score1[k1])
+    val <- ifelse(sc, value2[k2], value1[k1])
+    list(k=k,max=max,val=val)
 }
 
 setClass("Rect", 

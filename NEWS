@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.13.5
+-----------------------
+
+NEW FEATURES
+
+    o improve the algorithm of DNAmotifAlignment. Replaced the ALLR by average 
+      information content.
+
 CHANGES IN VERSION 1.13.4
 -----------------------
 
