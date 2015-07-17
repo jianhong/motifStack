@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.13.6
+-----------------------
+BUG FIXES
+
+    o fix bug when plot 2 motifs with motifStack function.
+
+
 CHANGES IN VERSION 1.13.5
 -----------------------
 

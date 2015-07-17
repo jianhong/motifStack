@@ -672,6 +672,11 @@ motifStack <-function(pfms,
         stop("pfms must be a list of pfm objects")
     if (length(pfms)<2)
         stop("length of pfms less than 2")
+    if (length(pfms)==2){
+        pfms <- DNAmotifAlignment(pfms)
+        plotMotifLogoStack(pfms)
+        return(invisible(list(phylog=NULL, pfms=pfms)))
+    }
     pfmList2matrixList <- function(pfms){
         m <- lapply(pfms, pfm2pwm)
         names(m) <- unlist(lapply(pfms, function(.ele) .ele@name))
