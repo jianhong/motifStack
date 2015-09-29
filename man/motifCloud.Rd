@@ -6,12 +6,12 @@
 }
 \usage{
 motifCloud(motifSig, rcpostfix="(RC)", 
-layout=c("rectangles", "cloud", "tree"), 
-scale=c(6, .5), rot.per=.1,
-draw.box=TRUE, draw.freq=TRUE, 
-box.col="gray", freq.col="gray",
-group.col=NULL, groups=NULL, draw.legend=FALSE, 
-ic.scale=TRUE)
+           layout=c("rectangles", "cloud", "tree"), 
+           scale=c(6, .5), rot.per=.1,
+           draw.box=TRUE, draw.freq=TRUE, 
+           box.col="gray", freq.col="gray",
+           group.col=NULL, groups=NULL, draw.legend=FALSE, 
+           font="Helvetica-Bold", ic.scale=TRUE, fontsize=12)
 }
 \arguments{
 \item{motifSig}{an object of class \linkS4class{motifSig}}
@@ -26,7 +26,9 @@ ic.scale=TRUE)
 \item{group.col}{color setting for groups}
 \item{groups}{a named vectors of motif groups}
 \item{draw.legend}{draw group color legend or not}
+\item{font}{font of logo}
 \item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
+\item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
 }
 \value{
  none

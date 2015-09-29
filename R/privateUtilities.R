@@ -9,7 +9,7 @@ hex2psrgb<-function(col){
     col
 }
 
-motifStack_private_fontsize <- 72
+motifStack_private_fontsize <- 18
 coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private_fontsize){
     symbols<-list()
     for(i in 1:ncha){

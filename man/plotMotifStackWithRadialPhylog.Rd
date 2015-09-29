@@ -6,21 +6,21 @@ plot sequence logo stacks with a radial phylogenic tree
 }
 \usage{
 plotMotifStackWithRadialPhylog(phylog, pfms=NULL,
-circle=0.75, circle.motif=NA, cleaves=1, cnodes=0,
-labels.leaves=names(phylog$leaves), clabel.leaves=1,
-labels.nodes=names(phylog$nodes), clabel.nodes=0,
-draw.box=FALSE,
-col.leaves=rep("black", length(labels.leaves)),
-col.leaves.bg=NULL, col.leaves.bg.alpha=1,
-col.bg=NULL, col.bg.alpha=1,
-col.inner.label.circle=NULL, inner.label.circle.width="default",
-col.outer.label.circle=NULL, outer.label.circle.width="default",
-clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
-angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
-motifScale=c("linear","logarithmic"), ic.scale=TRUE,
-plotIndex=FALSE, IndexCol="black", IndexCex=.8,
-groupDistance=NA, groupDistanceLineCol="red",
-plotAxis=FALSE)
+       circle=0.75, circle.motif=NA, cleaves=1, cnodes=0,
+       labels.leaves=names(phylog$leaves), clabel.leaves=1,
+       labels.nodes=names(phylog$nodes), clabel.nodes=0,
+       draw.box=FALSE,
+       col.leaves=rep("black", length(labels.leaves)),
+       col.leaves.bg=NULL, col.leaves.bg.alpha=1,
+       col.bg=NULL, col.bg.alpha=1,
+       col.inner.label.circle=NULL, inner.label.circle.width="default",
+       col.outer.label.circle=NULL, outer.label.circle.width="default",
+       clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
+       angle=360, pfmNameSpliter=";", rcpostfix = "(RC)", 
+       motifScale=c("linear","logarithmic"), ic.scale=TRUE,
+       plotIndex=FALSE, IndexCol="black", IndexCex=.8,
+       groupDistance=NA, groupDistanceLineCol="red",
+       plotAxis=FALSE, font="Helvetica-Bold", fontsize=12)
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -56,6 +56,8 @@ plotAxis=FALSE)
 \item{groupDistance}{show groupDistance on the draw}
 \item{groupDistanceLineCol}{groupDistance line color, default: red}
 \item{plotAxis}{logical. If TRUE, will plot distance axis.}
+\item{font}{font of logo}
+\item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
 }
 \value{
  none

@@ -1,28 +1,24 @@
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{motifStack Vignette}
-%\VignetteDepends{motifStack}
-%\VignetteKeywords{sequence logo}
-%\VignettePackage{motifStack}
-\documentclass[12pt]{article}
+---
+title: "motifStack Vignette"
+author: "Jianhong Ou, Lihua Julie Zhu"
+date: "`r doc_date()`"
+package: "`r pkg_ver('motifStack')`"
+bibliography: ref.bib
+abstract: >
+  The motifStack package is designed for graphic representation of multiple 
+  motifs with different similarity scores. It works with both DNA/RNA 
+  sequence motif and amino acid sequence motif. In addition, it provides 
+  the flexibility for users to customize the graphic parameters such as 
+  the font type and symbol colors.
+vignette: >
+  %\VignetteIndexEntry{motifStack Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document
+---
 
-<<style-knitr, eval=TRUE, echo=FALSE, results="asis">>=
-BiocStyle::latex()
-@
-
-\usepackage{hyperref}
-\usepackage{url}
-\usepackage{graphicx}
-
-\author{Jianhong Ou, Lihua Julie Zhu}
-\begin{document}
-
-\title{motifStack guide}
-
-\maketitle
-
-\tableofcontents
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction}
+# Introduction
 A sequence logo, based on information theory, has been widely used as a graphical 
 representation of sequence conservation (aka motif) in multiple amino acid or 
 nucleic acid sequences. Sequence motif represents conserved characteristics 
@@ -34,21 +30,21 @@ motifs are still lacking. We developed a flexible and powerful open-source
 R/Bioconductor package, motifStack, for visualization of the alignment of 
 multiple sequence motifs.
 
-\section{Prepare environment}
+# Prepare environment
 You will need ghostscript: the full path to the executable can be set by the environment variable R\_GSCMD. 
 If this is unset, a GhostScript executable will be searched by name on your path. For example, on a Unix, linux or Mac "gs" is used for searching, 
 and on Windows the setting of the environment variable GSC is used, otherwise commands "gswi64c.exe" then "gswin32c.exe" are tried.
 
-Example on Windows: assume that the gswin32c.exe is installed at C:\textbackslash Program Files\textbackslash gs\textbackslash gs9.06\textbackslash bin, then open R and try:
-<<setup, eval=FALSE, echo=TRUE>>=
+Example on Windows: assume that the gswin32c.exe is installed at C:\\ Program Files\\ gs\\ gs9.06\\ bin, then open R and try:
+```{r setup, eval=FALSE, echo=TRUE}
 Sys.setenv(R_GSCMD=file.path("C:", "Program Files", "gs", 
                              "gs9.06", "bin", "gswin32c.exe"))
-@
+```
 
-\section{Examples of using motifStack}
-\subsection{plot a DNA sequence logo with different fonts and colors}
-Users can select different fonts and colors to draw the sequence logo (Figure \ref{figure/DNAseqLogo-1}).
-<<DNAseqLogo,fig.show='hide',fig.width=8,fig.height=6>>=
+# Examples of using motifStack
+## plot a DNA sequence logo with different fonts and colors
+Users can select different fonts and colors to draw the sequence logo.
+```{r DNAseqLogo,fig.cap="Plot a DNA sequence logo with different fonts and colors",fig.width=8,fig.height=6}
 suppressPackageStartupMessages(library(motifStack))
 pcm <- read.table(file.path(find.package("motifStack"), 
                             "extdata", "bin_SOLEXA.pcm"))
@@ -68,28 +64,24 @@ plot(motif, font="mono,Courier")
 motif@color <- colorset(colorScheme='basepairing')
 plot(motif,font="Times")
 par(opar)
-@
-\incfig{figure/DNAseqLogo-1}{0.6\textwidth}{DNA sequence logo.}
-{Plot a DNA sequence logo with different fonts and colors.}
+```
 
-\subsection{plot a RNA sequence logo}
-From DNA sequence logo to RNA sequence logo (Figure \ref{figure/RNAseqLogo-1}), 
+## plot a RNA sequence logo
+From DNA sequence logo to RNA sequence logo, 
 you just need to change the rowname
 of the matrix from "T" to "U".
 
-<<RNAseqLogo,fig.show='hide',fig.width=6,fig.height=3>>=
+```{r RNAseqLogo,fig.cap="Plot an RNA sequence logo",fig.width=6,fig.height=3}
 rna <- pcm
 rownames(rna)[4] <- "U"
 motif <- new("pcm", mat=as.matrix(rna), name="RNA_motif")
 plot(motif)
-@
-\incfig{figure/RNAseqLogo-1}{0.6\textwidth}{RNA sequence logo.}
-{Plot an RNA sequence logo}
+```
 
-\subsection{plot an amino acid sequence logo}
+## plot an amino acid sequence logo
 Given that motifStack allows to use any letters as symbols, 
-it can also be used to draw amino acid sequence logos (Figure \ref{figure/AAseqLogo-1}).
-<<AAseqLogo,fig.show='hide',fig.width=6,fig.height=3>>=
+it can also be used to draw amino acid sequence logos.
+```{r AAseqLogo,fig.cap="Plot an sequence logo with any symbols as you want such as amino acid sequence logo",fig.width=6,fig.height=3}
 library(motifStack)
 protein<-read.table(file.path(find.package("motifStack"),"extdata","cap.txt"))
 protein<-t(protein[,1:20])
@@ -97,42 +89,35 @@ motif<-pcm2pfm(protein)
 motif<-new("pfm", mat=motif, name="CAP", 
             color=colorset(alphabet="AA",colorScheme="chemistry"))
 plot(motif)
-@
-\incfig{figure/AAseqLogo-1}{0.8\textwidth}{Amino acid sequence logo.}
-{Plot an sequence logo with any symbols as you want such as amino acid sequence logo}
+```
 
-\subsection{plot sequence logo stack}
+## plot sequence logo stack
 motifStack is designed to show multiple motifs in same canvas. To show the sequence logo stack,
 the distance of motifs need to be calculated first for example by using MotIV\cite{Eloi2010}::motifDistances, 
 which implemented STAMP\cite{Mahony2007}. After alignment, users can use plotMotifLogoStack
-function to draw sequence logos stack (Figure \ref{figure/logostack-1}) or use plotMotifLogoStackWithTree function 
-to show the distance tree with the sequence logos stack (Figure \ref{figure/treestack-1}) or 
+function to draw sequence logos stack or use plotMotifLogoStackWithTree function 
+to show the distance tree with the sequence logos stack or 
 use plotMotifStackWithRadialPhylog function to plot sequence logo stack in radial style 
-(Figure \ref{figure/radialstack-1}) 
 in the same canvas. There is a shortcut function named as motifStack. Use stack layout to call
 plotMotifLogoStack, treeview layout to call plotMotifLogoStackWithTree and radialPhylog to call
 plotMotifStackWithRadialPhylog.
 
-<<logostack,fig.show='hide',fig.width=4,fig.height=6>>=
-library(motifStack)
+```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
+suppressPackageStartupMessages(library(motifStack))
 #####Input#####
 pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
 motifs<-lapply(pcms,pcm2pfm)
 
 ## plot stacks
-motifStack(motifs, layout="stack", ncex=1.0)
-@
-\incfig{figure/logostack-1}{0.6\textwidth}{Sequence logo stack.}
-{Plot motifs with sequence logo stack style.}
+#motifStack(motifs, layout="stack", ncex=1.0)
+```
 
-<<treestack,fig.show='hide',fig.width=5,fig.height=6>>=
+```{r treestack,fig.cap="Sequence logo stack with hierarchical cluster tree",fig.width=5,fig.height=6}
 ## plot stacks with hierarchical tree
-motifStack(motifs, layout="tree")
-@
-\incfig{figure/treestack-1}{0.8\textwidth}{Treeview layout logo stack.}
-{Sequence logo stack with hierarchical cluster tree.}
+#motifStack(motifs, layout="tree")
+```
 
-<<radialstack,fig.show='hide',fig.width=6,fig.height=6>>==
+```{r radialstack,fig.cap="Plot motifs in a radial style when the number of motifs is too much to be shown in a vertical stack",fig.width=6,fig.height=6}
 ## When the number of motifs is too much to be shown in a vertical stack, 
 ## motifStack can draw them in a radial style.
 ## random sample from MotifDb
@@ -170,14 +155,12 @@ motifStack(motifs2, layout="radialPhylog",
            outer.label.circle.width=0.02, 
            circle.motif=1.2,
            angle=350)
-@
-\incfig{figure/radialstack-1}{\textwidth}{Sequence logo stack in radial style}
-{Plot motifs in a radial style when the number of motifs is too much to be shown in a vertical stack.}
+```
 
-\subsection{plot a sequence logo cloud}
-We can also plot a sequence logo cloud for DNA sequence logo (Figure \ref{figure/motifCloud-1}).
+## plot a sequence logo cloud
+We can also plot a sequence logo cloud for DNA sequence logo.
 
-<<motifCloud,fig.show='hide',fig.width=6,fig.height=6>>=
+```{r motifCloud,fig.cap="Sequence logo cloud with rectangle packing layout",fig.width=6,fig.height=6}
 ## assign groups for motifs
 groups <- rep(paste("group",1:5,sep=""), each=10)
 names(groups) <- names(pfms)
@@ -207,15 +190,12 @@ motifCloud(motifSig, scale=c(6, .5),
            group.col=group.col, 
            groups=groups, 
            draw.legend=TRUE)
-@
-\incfig{figure/motifCloud-1}{0.8\textwidth}{Sequence logo cloud with rectangle packing layout}
-{Like tag-cloud, the sequence logo size is determined by the number of motifs of the signature.
-The group sources of the motifs for each signature are shown as a pie graph in topleft corner.}
+```
 
-\subsection{plot grouped sequence logo}
-To plot grouped sequence logo, except do motifCloud, we can also plot it with radialPhylog style (Figure \ref{figure/motifRadialPhylog-1}).
+## plot grouped sequence logo
+To plot grouped sequence logo, except do motifCloud, we can also plot it with radialPhylog style.
 
-<<motifRadialPhylog,fig.show='hide',fig.width=6,fig.height=6>>=
+```{r motifRadialPhylog,fig.cap="Grouped sequence logo with radialPhylog style layout",fig.width=6,fig.height=6}
 ## get the signatures from object of motifSignature
 sig <- signatures(motifSig)
 ## set the inner-circle color for each signature
@@ -230,17 +210,13 @@ plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig,
                               inner.label.circle.width=0.03,
                               angle=350, circle.motif=1.2, 
                               motifScale="logarithmic")
-@
-\incfig{figure/motifRadialPhylog-1}{\textwidth}
-{Grouped sequence logo with radialPhylog style layout.}
-{Like tag-cloud, the sequence logo size is determined by the number of motifs for the signature.
-The gray-black circle indicates the range of each signature.}
+```
 
-\subsection{motifCircos}
-We can also plot it with circos style (Figure \ref{figure/motifCircos-1}). In circos style,
+## motifCircos
+We can also plot it with circos style. In circos style,
 we can plot two group of motifs and with multiple color rings.
 
-<<motifCircos,fig.show='hide',fig.width=6,fig.height=6>>=
+```{r motifCircos,fig.cap="Grouped sequence logo with circos style layout",fig.width=6,fig.height=6}
 ## plot the logo stack with radial style.
 motifCircos(phylog=phylog, pfms=pfms, pfms2=sig, 
             col.tree.bg=rep(color, each=5), col.tree.bg.alpha=0.3, 
@@ -254,16 +230,14 @@ motifCircos(phylog=phylog, pfms=pfms, pfms2=sig,
                            sample(colors(), 50), 
                            sample(colors(), 50)),
             angle=350, motifScale="logarithmic")
-@
-\incfig{figure/motifCircos-1}{\textwidth}
-{Grouped sequence logo with circos style layout.}
-{more color sets with more motifs.}
+```
 
-\subsection{motifPiles}
-We can also plot it with pile style (Figure \ref{figure/motifPiles-1}). In pile style,
+
+## motifPiles
+We can also plot it with pile style. In pile style,
 we can plot two group of motifs and with multiple color annoations.
 
-<<motifPiles,fig.show='hide',fig.width=6,fig.height=6>>=
+```{r motifPiles,fig.cap="Grouped sequence logo with piles style layout",fig.width=6,fig.height=6}
 ## plot the logo stack with radial style.
 motifPiles(phylog=phylog, pfms=pfms, pfms2=sig, 
             col.tree=rep(color, each=5),
@@ -276,17 +250,14 @@ motifPiles(phylog=phylog, pfms=pfms, pfms2=sig,
             motifScale="logarithmic",
             plotIndex=TRUE,
             groupDistance=0.01)
-@
-\incfig{figure/motifPiles-1}{\textwidth}
-{Grouped sequence logo with piles style layout.}
-{more color sets with more motifs.}
+```
 
-\section{docker container for motifStack}
+# docker container for motifStack}
 \href{https://docs.docker.com/}{Docker} allows software to be packaged into containers and the containers can be run any platform as well using a virtual machine called boot2docker. motifStack has its docker image stored in \href{https://hub.docker.com/r/jianhong/motifstack_1.13.6/}{Docker Hub}. Users can download the image and run.
 
-\begin{verbatim}
+<pre>
 docker pull jianhong/motifstack_1.13.6
-cd ~ ## in windows, please try cd c:\textbackslash Users\textbackslash username
+cd ~ ## in windows, please try cd c:\\ Users\\ username
 mkdir tmp4motifstack ## this will be the share folder for your host and container.
 docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack_1.13.6 R
 ## in R
@@ -317,16 +288,11 @@ motifPiles(phylog=phylog, DNAmotifAlignment(motifs), sig,
     plotIndex=c(FALSE, TRUE), IndexCex=1, 
     groupDistance=2, clabel.leaves=1)
 dev.off()
-\end{verbatim}
+</pre>
 
 You will see the test.pdf file in the folder of tmp4motifstack. 
 
-\section{References}
-
-\bibliography{ref}
-
-\section{Session Info}
-<<sessionInfo>>=
+# Session Info
+```{r sessionInfo}
 sessionInfo()
-@
-\end{document}
+```

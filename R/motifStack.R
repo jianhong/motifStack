@@ -1,7 +1,8 @@
 plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", 
                         colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
                         xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
-                        xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE){
+                        xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE, 
+                        fontsize=12){
     if (class(pfm) == "data.frame"){
         pfm <- as.matrix(pfm)
     }else{
@@ -50,7 +51,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
         symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
         if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
         else {
-            symbols<-coloredSymbols(ncha, font, colset, rname)
+            symbols<-coloredSymbols(ncha, font, colset, rname, fontsize)
             symbolsCache[[key]]<-symbols
             assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
         }
@@ -214,7 +215,8 @@ DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="
 ######## plot motif logo without plot.new
 ######## to be used to create a better view of stack, eg. radial sty,
 ###############################################################################
-plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
+plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE, 
+                         fontsize=12){
     if (class(pfm) != "pfm"){
         stop("pfms must be a list of class pfm")
     }
@@ -229,7 +231,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
     symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
     if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
     else {
-        symbols<-coloredSymbols(ncha, font, pfm@color, rname)
+        symbols<-coloredSymbols(ncha, font, pfm@color, rname, fontsize)
         symbolsCache[[key]]<-symbols
         assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
     }
@@ -267,7 +269,8 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
 plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
                                      f.phylog = 0.3, f.logo = NULL, cleaves =1, cnodes =0,
                                      labels.leaves = names(phylog$leaves), clabel.leaves=1,
-                                     labels.nodes = names(phylog$nodes), clabel.nodes = 0, ic.scale=TRUE
+                                     labels.nodes = names(phylog$nodes), clabel.nodes = 0, 
+                                     font="Helvetica-Bold", ic.scale=TRUE, fontsize=12
 ){
     if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
     n<-length(pfms)
@@ -325,7 +328,8 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
             vpheight <- strheight(leaves.names[i], units="figure")
             vpwidth <- vpheight * ncol(pfms[[i]]@mat) / 2
             pushViewport(viewport(x=f.logo, y=y[i], width=vpwidth, height=vpheight, just=c(0, .5)))
-            if(!is.null(pfms[[i]])) plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
+            if(!is.null(pfms[[i]])) 
+                plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
             popViewport()
         }
     }
@@ -384,7 +388,7 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
                                             motifScale=c("linear","logarithmic"), ic.scale=TRUE,
                                             plotIndex=FALSE, IndexCol="black", IndexCex=.8,
                                             groupDistance=NA, groupDistanceLineCol="red", 
-                                            plotAxis=FALSE)
+                                            plotAxis=FALSE, font="Helvetica-Bold", fontsize=12)
 {
     if (!inherits(phylog, "phylog"))
         stop("Non convenient data")
@@ -563,7 +567,7 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
                         vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L] *1.1/5
                     }
                     pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
-                    plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
+                    plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
                     popViewport()
                     if(plotIndex) {
                         grid.text(label=i, x=vpx1, 
@@ -981,7 +985,7 @@ motifCloud <- function(motifSig, rcpostfix="(RC)",
                        draw.box=TRUE, draw.freq=TRUE, 
                        box.col="gray", freq.col="gray",
                        group.col=NULL, groups=NULL, draw.legend=FALSE,
-                       ic.scale=TRUE)
+                       font="Helvetica-Bold", ic.scale=TRUE, fontsize=12)
 {
     if (!inherits(motifSig, "motifSig")) 
         stop("motifSig be object of motifSig. You could try\n?motifSignature\nto get a motifSig.")
@@ -1025,7 +1029,7 @@ motifCloud <- function(motifSig, rcpostfix="(RC)",
     plotSignature <- function(x, y, wid, ht, just, angle, sig, freq, normedFreq){
         pushViewport(viewport(x=x, y=y, width=wid, height=ht, just=just, angle=angle))
         if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed", fill="transparent"))
-        plotMotifLogoA(sig, ic.scale=ic.scale)
+        plotMotifLogoA(sig, font=font, ic.scale=ic.scale, fontsize=fontsize)
         if(draw.freq) grid.text(label=freq,x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq), just=c("right","top"))
         if((!is.null(group.col)) & (!is.null(groups))) {
             sigNames <- unlist(strsplit(sig@name,";"))
