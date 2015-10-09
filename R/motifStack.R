@@ -306,6 +306,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
     xx <- c(x.leaves, x.nodes)
     
     assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+    vpheight <- y[length(y)] * .95
     if(is.null(f.logo)){
         f.logo <- max(unlist(lapply(leaves.names, strwidth, units="figure", cex=clabel.leaves)))
         if(!is.null(pfms)){
@@ -325,7 +326,6 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
                      clabel.leaves)
         segments(xcar, y[i], xx[i], y[i], col = grey(0.7))
         if(!is.null(pfms)){
-            vpheight <- strheight(leaves.names[i], units="figure")
             vpwidth <- vpheight * ncol(pfms[[i]]@mat) / 2
             pushViewport(viewport(x=f.logo, y=y[i], width=vpwidth, height=vpheight, just=c(0, .5)))
             if(!is.null(pfms[[i]])) 
