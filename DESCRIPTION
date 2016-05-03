@@ -1,6 +1,6 @@
 Package: motifStack
 Type: Package
-Version: 1.15.0
+Version: 1.16.0
 Date: 2015-10-9
 Title: Plot stacked logos for single or multiple DNA, RNA and amino
         acid sequence
