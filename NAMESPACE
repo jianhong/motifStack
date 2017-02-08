@@ -6,7 +6,10 @@ importFrom(scales, rescale)
 importFrom(grImport, PostScriptTrace, readPicture, picture, pictureGrob)
 importFrom(MotIV, readDBScores, motifDistances, motifHclust)
 importFrom(Biostrings, PWM)
+import(htmlwidgets)
 export(
+    browseMotifs,
+    browseMotifsOutput,
     plotMotifLogo, plotMotifLogoA, 
     plotXaxis, plotYaxis, 
     colorset,highlightCol,
@@ -18,6 +21,7 @@ export(
     pfm2pwm,
     motifSignature, motifCloud, motifCircos, motifPiles,
     readPCM,
+    renderbrowseMotifs,
     reorderUPGMAtree,
     getRankedUniqueMotifs
 )

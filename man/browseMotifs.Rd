@@ -1,0 +1,54 @@
+\name{browseMotifs}
+\alias{browseMotifs}
+\title{browse motifs}
+\usage{
+browseMotifs(pfms, phylog,
+                      layout=c("tree", "cluster"),
+                      nodeRadius=2.5, baseWidth=12, baseHeight=30,
+                      xaxis=TRUE, yaxis=TRUE,
+                      width=NULL, height=NULL,
+                      ...)
+}
+\arguments{
+\item{pfms}{a list of \link{pfm}}
+
+\item{phylog}{layout type. see \link[Rgraphviz]{GraphvizLayouts}}
+
+\item{layout}{layout type. Could be tree or cluster.}
+
+\item{nodeRadius}{node radius, default 2.5px.}
+
+\item{baseWidth,baseHeight}{width and height of each alphabet of the motif logo.}
+
+\item{xaxis,yaxis}{plot x-axis or y-axis or not in the motifs.}
+
+\item{width}{width of the figure}
+
+\item{height}{height of the figure}
+
+\item{...}{parameters not used}
+}
+\value{
+An object of class htmlwidget that will intelligently print itself 
+        into HTML in a variety of contexts including the R console, 
+        within R Markdown documents, and within Shiny output bindings.
+}
+\description{
+browse motifs in a web browser
+}
+\examples{
+library("MotifDb")
+matrix.fly <- query(MotifDb, "Dmelanogaster")
+motifs <- as.list(matrix.fly)
+motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
+names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+                     gsub("_FBgn[0-9]+$", "", 
+                          gsub("[^a-zA-Z0-9]","_", 
+                               gsub("(_[0-9]+)+$", "", names(motifs)))))
+motifs <- motifs[unique(names(motifs))]
+pfms <- sample(motifs, 10)
+pfms <- lapply(names(pfms), function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)},pfms)
+browseMotifs(pfms)
+}
+\keyword{plot}
+

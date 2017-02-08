@@ -1,0 +1,14 @@
+dependencies:
+  - name: d3
+    version: 4.4.0
+    src: "htmlwidgets/lib/d3"
+    script: 'd3.v4.min.js'
+  - name: plotWebLogo
+    version: 0.0.1
+    src: "htmlwidgets/lib/plotWebLogo"
+    script: 'd3-plotWebLogo.js'
+    stylesheet: 'd3-plotWebLogo.css'
+  - name: saveSvgAsPng
+    version: 0.0.1
+    src: "htmlwidgets/lib/saveSvgAsPng"
+    script: 'saveSvgAsPng.js'

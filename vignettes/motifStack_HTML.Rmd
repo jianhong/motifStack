@@ -252,7 +252,14 @@ motifPiles(phylog=phylog, pfms=pfms, pfms2=sig,
             groupDistance=0.01)
 ```
 
-# docker container for motifStack}
+# plot motifs with d3.js
+We can also plot motifs with d3.js.
+
+```{r browseMotifs,fig.width=8,fig.height=8}
+browseMotifs(pfms = pfms, phylog = phylog, layout="tree", yaxis = FALSE, baseWidth=6, baseHeight = 15)
+```
+
+# docker container for motifStack
 \href{https://docs.docker.com/}{Docker} allows software to be packaged into containers and the containers can be run any platform as well using a virtual machine called boot2docker. motifStack has its docker image stored in \href{https://hub.docker.com/r/jianhong/motifstack_1.13.6/}{Docker Hub}. Users can download the image and run.
 
 <pre>
