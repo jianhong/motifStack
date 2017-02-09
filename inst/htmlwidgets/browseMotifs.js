@@ -78,11 +78,15 @@ HTMLWidgets.widget({
         var root = d3.hierarchy(x.elements);
         //console.log(root);
         tree(root);
-        function cartesian2Polar(x, y){
-            distance = Math.sqrt(x*x + y*y);
-            radians = Math.atan2(y,x); //This takes y first
-            polarCoor = { distance:distance, radians:radians };
-            return polarCoor;
+        function cartesian2Polar(x, y, dx, dy){
+          var xy = project(x, y);
+          x = xy[0] - width/2 + dx;
+          y = xy[1] - height/2 + dy;
+          radius = Math.sqrt(x*x + y*y);
+          angle = Math.atan2(y,x); //This takes y first
+          y = radius;
+          x = angle * rw / 2 / Math.PI + rw/4;
+          return [x, y];
         }
         function project(x, y) {
           var angle = (x - (rw/4))/ (rw/2) * Math.PI, radius = y;
@@ -146,7 +150,9 @@ HTMLWidgets.widget({
           }
           function dragged(d) {
             if(x.layout==="radialPhylog"){
-              
+              var dxy = cartesian2Polar(d.x, d.y, d3.event.dx, d3.event.dy);
+              d.x = dxy[0];
+              d.y = dxy[1];
             }else{
               d.x += d3.event.dy;
               d.y += d3.event.dx;
