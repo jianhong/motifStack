@@ -253,7 +253,9 @@ motifPiles(phylog=phylog, pfms=pfms, pfms2=sig,
 ```
 
 # plot motifs with d3.js
-We can also plot motifs with d3.js.
+
+We can also plot motifs with d3.js. With d3.js, all motifs are draggable. 
+And the it could be exported as a SVG file.
 
 ```{r browseMotifs,fig.width=8,fig.height=8}
 browseMotifs(pfms = pfms, phylog = phylog, layout="tree", yaxis = FALSE, baseWidth=6, baseHeight = 15)

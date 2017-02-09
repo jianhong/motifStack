@@ -6,7 +6,7 @@
 #'
 #' @param pfms a list of \link{pfm}
 #' @param phylog an object of \link[ade4]{phylog}
-#' @param layout layout type. Could be tree or cluster.
+#' @param layout layout type. Could be tree, cluster or radialPhylog.
 #' @param nodeRadius node radius, default 2.5px.
 #' @param baseWidth,baseHeight width and height of each alphabet of the motif logo
 #' @param xaxis,yaxis plot x-axis or y-axis or not in the motifs.
@@ -35,7 +35,7 @@
 #' 
 
 browseMotifs <- function(pfms, phylog,
-                      layout=c("tree", "cluster"),
+                      layout=c("tree", "cluster", "radialPhylog"),
                       nodeRadius=2.5, baseWidth=12, baseHeight=30,
                       xaxis=TRUE, yaxis=TRUE,
                       width=NULL, height=NULL,

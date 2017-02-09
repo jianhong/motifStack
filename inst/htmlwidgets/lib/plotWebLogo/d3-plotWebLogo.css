@@ -14,6 +14,11 @@
   text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
 }
 
+.node--leaf {
+  cursor: pointer; 
+  cursor: hand;
+}
+
 .link {
   fill: none;
   stroke: #555;
@@ -22,6 +27,5 @@
 }
 
 .active{
-  stroke: #ff0;
-  stroke-width: 2px;
+  text-shadow: 2px 2px 5px #ff0;
 }

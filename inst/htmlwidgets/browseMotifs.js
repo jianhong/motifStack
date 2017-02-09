@@ -39,43 +39,95 @@ HTMLWidgets.widget({
         svg.attr("width", width)
            .attr("height", height);
         //leave left side 40px space for root name
-        g = svg.append("g").attr("transform", "translate(40,0)");
+        
+        var g = svg.append("g");
+        if(x.layout!="radialPhylog"){
+          g.attr("transform", "translate(40,0)");
+        }
         //zoom
         var zoom = d3.zoom()
-                     .scaleExtent([1, 40])
-                     .translateExtent([[-100, -100], 
-                                      [width + 90, height + 100]])
+                     .scaleExtent([0, 40])
                      .on("zoom", zoomed);
         function zoomed(){
           g.attr("transform", d3.event.transform);
         }
         svg.call(zoom);
-        console.log(x);
+        //console.log(x);
         //leave top and bottom a full motif height
         //leave right+left 40+20+motif width
-        var tree = d3[x.layout]()
+        var tree;
+        var rw = width/2 - x.maxW, rh = height/2 - x.maxW;
+        if(x.layout==="radialPhylog"){
+          if(rw>rh){
+            var tmp = rw;
+            rw = rw/1.6;
+            rh = tmp;
+          }else{
+            rw = rh/1.6;
+          }
+          tree = d3.cluster()
+                   .size([rw, rh])
+                   .separation(function(a, b) { 
+                     return (a.parent == b.parent ? 1 : 2) / a.depth; 
+                   });
+        }else{
+          tree = d3[x.layout]()
                     .size([height-x.maxH, width - 60 - x.maxW]);
+        }
         //console.log(JSON.stringify(x));
         var root = d3.hierarchy(x.elements);
         //console.log(root);
         tree(root);
-        
+        function cartesian2Polar(x, y){
+            distance = Math.sqrt(x*x + y*y);
+            radians = Math.atan2(y,x); //This takes y first
+            polarCoor = { distance:distance, radians:radians };
+            return polarCoor;
+        }
+        function project(x, y) {
+          var angle = (x - (rw/4))/ (rw/2) * Math.PI, radius = y;
+          return [radius * Math.cos(angle)+width / 2, radius * Math.sin(angle)+height / 2];
+        }
+        function diagonal(y0, y1){
+          return y0+Math.abs(y1-y0)/2;
+        }
+        var linkFun = {"cluster":function(d){
+                                  return "M" + d.y + "," + d.x + 
+                                         "C" + diagonal(d.parent.y, d.y) + 
+                                         "," + d.x + " " + 
+                                         diagonal(d.parent.y, d.y) + 
+                                         "," + d.parent.x + 
+                                         " " + d.parent.y + 
+                                         "," + d.parent.x;
+                                }, 
+                       "tree": function(d){
+                                  return "M" + d.y + "," + d.x + 
+                                         "C" + diagonal(d.parent.y, d.y) + 
+                                         "," + d.x + " " + 
+                                         diagonal(d.parent.y, d.y) + 
+                                         "," + d.parent.x + 
+                                         " " + d.parent.y + 
+                                         "," + d.parent.x;
+                                }, 
+                       "radialPhylog":function(d){
+                                      return "M" + project(d.x, d.y) + 
+                                             "C" + project(d.x, (d.y + d.parent.y) / 2) + 
+                                             " " + project(d.parent.x, (d.y + d.parent.y) / 2) + 
+                                             " " + project(d.parent.x, d.parent.y);
+                       }};
         var link = g.selectAll(".link")
                     .data(root.descendants().slice(1))
                     .enter().append("path")
                     .attr("class", "link")
-                    .attr("d", function(d) {
-                      return "M" + d.y + "," + d.x + 
-                             "C" + (d.parent.y + 
-                               Math.abs(d.parent.y-d.y)/2) + 
-                             "," + d.x + " " + 
-                             (d.parent.y + 
-                               Math.abs(d.parent.y-d.y)/2) + 
-                             "," + d.parent.x + 
-                             " " + d.parent.y + 
-                             "," + d.parent.x;
-                    });
-
+                    .attr("d", linkFun[x.layout]);
+        var nodeFun = {
+          "cluster":function(d) {
+                return "translate(" + d.y + "," + d.x + ")"; },
+          "tree":function(d) {
+                return "translate(" + d.y + "," + d.x + ")"; },
+          "radialPhylog":function(d) {
+                return "translate(" + project(d.x, d.y) + ") rotate(" + (d.x < width/2 ? d.x*360/rw - 90 : d.x*360/rw + 90) + ")"; }
+        };
         var node = g.selectAll(".node")
               .data(root.descendants())
               .enter().append("g")
@@ -84,8 +136,7 @@ HTMLWidgets.widget({
                                   " node--internal" : 
                                   " node--leaf"); 
               })
-              .attr("transform", function(d) {
-                return "translate(" + d.y + "," + d.x + ")"; })
+              .attr("transform", nodeFun[x.layout])
               .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
@@ -94,30 +145,22 @@ HTMLWidgets.widget({
             d3.select(this).raise().classed("active", true);
           }
           function dragged(d) {
-            d.x += d3.event.dy;
-            d.y += d3.event.dx;
+            if(x.layout==="radialPhylog"){
+              
+            }else{
+              d.x += d3.event.dy;
+              d.y += d3.event.dx;
+            }
             var node = d3.select(this);
-            node.attr("transform", function(d){
-                return "translate(" + d.y + "," + d.x + ")";
-            });
+            node.attr("transform", nodeFun[x.layout]);
             var links = g.selectAll(".link");
-            links.attr("d", function(d) {
-                      return "M" + d.y + "," + d.x + 
-                             "C" + (d.parent.y + 
-                               Math.abs(d.parent.y-d.y)/2) + 
-                             "," + d.x + " " + 
-                             (d.parent.y + 
-                               Math.abs(d.parent.y-d.y)/2) + 
-                             "," + d.parent.x + 
-                             " " + d.parent.y + 
-                             "," + d.parent.x;
-                    });
+            links.attr("d", linkFun[x.layout]);
           }
           function dragended(d) {
             d3.select(this).classed("active", false);
           }
 
-          console.log(node);
+          //console.log(node);
           node.append("circle").attr("r", x.nodeRadius);
         
           g.selectAll(".node--leaf").append("text")

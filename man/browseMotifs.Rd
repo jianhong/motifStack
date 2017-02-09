@@ -3,7 +3,7 @@
 \title{browse motifs}
 \usage{
 browseMotifs(pfms, phylog,
-                      layout=c("tree", "cluster"),
+                      layout=c("tree", "cluster", "radialPhylog"),
                       nodeRadius=2.5, baseWidth=12, baseHeight=30,
                       xaxis=TRUE, yaxis=TRUE,
                       width=NULL, height=NULL,
@@ -14,7 +14,7 @@ browseMotifs(pfms, phylog,
 
 \item{phylog}{layout type. see \link[Rgraphviz]{GraphvizLayouts}}
 
-\item{layout}{layout type. Could be tree or cluster.}
+\item{layout}{layout type. Could be tree, cluster or radialPhylog.}
 
 \item{nodeRadius}{node radius, default 2.5px.}
 
