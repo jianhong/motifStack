@@ -2,8 +2,8 @@
   line-height: 1;
   font-weight: bold;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
+  background: #ececec;
+  color: #000;
   border-radius: 2px;
   pointer-events: none;
 }
@@ -15,7 +15,7 @@
   font-size: 10px;
   width: 100%;
   line-height: 1;
-  color: rgba(0, 0, 0, 0.8);
+  color: #ececec;
   position: absolute;
   pointer-events: none;
 }
@@ -59,12 +59,14 @@
   border-collapse: collapse;
 }
 .d3-tip th, td {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px dashed #ccc;
   padding: 5px;
   text-align: right;
   font-size: 8px;
-  background-color: rgba(0, 0, 0, 0.1);
+  font-weight: normal;
+  background-color: rgba(.9, .9, .9, 0.9);
 }
-.d3-tip tr {
-  background-color: rgba(0, 0, 0, 0);
+.d3-tip tr, tr:nth-child(even), tr:nth-child(odd) {
+  background-color: rgba(.9, .9, .9, 0.9);
+  font-size: 8px;
 }
