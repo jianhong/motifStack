@@ -27,7 +27,6 @@ export(
 )
 exportClasses("pfm", "pcm", "ouNode", "motifSig")
 exportMethods(
-        plot,
         getIC,
         matrixReverseComplement,
         addBlank,

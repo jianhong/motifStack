@@ -12,3 +12,8 @@ dependencies:
     version: 0.0.1
     src: "htmlwidgets/lib/saveSvgAsPng"
     script: 'saveSvgAsPng.js'
+  - name: d3-tip
+    version: 0.8.0
+    src: "htmlwidgets/lib/d3-tip"
+    script: 'd3-tip.js'
+    stylesheet: 'd3-tip.css'

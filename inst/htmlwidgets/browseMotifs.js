@@ -132,6 +132,34 @@ HTMLWidgets.widget({
           "radialPhylog":function(d) {
                 return "translate(" + project(d.x, d.y) + ") rotate(" + (d.x < width/2 ? d.x*360/rw - 90 : d.x*360/rw + 90) + ")"; }
         };
+        
+        //tooltip
+        function makeTableByArray(arr, letters){
+          var tbl="<table>";
+          for(i=0; i<letters.length; i++){
+            tbl+="<tr><td>"+letters[i]+"</td>";
+            for(j=0; j<arr.length; j++){
+              tbl+="<td>"+parseFloat(Math.round(arr[j][i] * 100) / 100).toFixed(2)+"</td>";
+            }
+            tbl+="</tr>";
+          }
+          tbl+="</table>";
+          return tbl;
+        }
+        var tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .offset([-10, 0])
+                    .html(function(d) { 
+                      //console.log(d);
+                      var tipNote = "<span>"+d.data.name+"</span>";
+                      if(!d.children){
+                        tipNote += makeTableByArray(d.data.motif[0], 
+                                                    d.data.letters);
+                      }
+                      return tipNote;
+                    });
+        svg.call(tip);
+        
         var node = g.selectAll(".node")
               .data(root.descendants())
               .enter().append("g")
@@ -144,7 +172,9 @@ HTMLWidgets.widget({
               .call(d3.drag()
                     .on("start", dragstarted)
                     .on("drag", dragged)
-                    .on("end", dragended));
+                    .on("end", dragended))
+              .on("mouseover", tip.show)
+              .on("mouseout", tip.hide);
           function dragstarted(d) {
             d3.select(this).raise().classed("active", true);
           }
