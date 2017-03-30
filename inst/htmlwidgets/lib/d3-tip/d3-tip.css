@@ -63,8 +63,8 @@
   padding: 5px;
   text-align: right;
   font-size: 8px;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 .d3-tip tr {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0);
 }
