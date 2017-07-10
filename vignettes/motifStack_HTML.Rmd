@@ -1,6 +1,6 @@
 ---
 title: "motifStack Vignette"
-author: "Jianhong Ou, Lihua Julie Zhu"
+author: "Jianhong Ou, Michael Brodsky, Lihua Julie Zhu"
 date: "`r doc_date()`"
 package: "`r pkg_ver('motifStack')`"
 bibliography: ref.bib
@@ -31,11 +31,11 @@ R/Bioconductor package, motifStack, for visualization of the alignment of
 multiple sequence motifs.
 
 # Prepare environment
-You will need ghostscript: the full path to the executable can be set by the environment variable R\_GSCMD. 
-If this is unset, a GhostScript executable will be searched by name on your path. For example, on a Unix, linux or Mac "gs" is used for searching, 
-and on Windows the setting of the environment variable GSC is used, otherwise commands "gswi64c.exe" then "gswin32c.exe" are tried.
 
-Example on Windows: assume that the gswin32c.exe is installed at C:\\ Program Files\\ gs\\ gs9.06\\ bin, then open R and try:
+You will need ghostscript. The full path to the executable can be set using the environment variable R\_GSCMD. If this is unset, environment variable gs (Unix, Linux or Mac) or GSC (Window) will be searched by name on your path. If gs/GSC is unset,  GhostScript executable "gswi64c.exe" and "gswin32c.exe" are tried sequentially.
+
+Here is an example on Windows assuming that the gswin32c.exe is installed at C:\\ Program Files\\ gs\\ gs9.06\\ bin. In a R session, please try:
+
 ```{r setup, eval=FALSE, echo=TRUE}
 Sys.setenv(R_GSCMD=file.path("C:", "Program Files", "gs", 
                              "gs9.06", "bin", "gswin32c.exe"))
@@ -67,9 +67,10 @@ par(opar)
 ```
 
 ## plot a RNA sequence logo
-From DNA sequence logo to RNA sequence logo, 
-you just need to change the rowname
-of the matrix from "T" to "U".
+
+To plot a RNA sequence logo, you only need to change the rowname of the matrix 
+from "T" to "U" as follows.
+
 
 ```{r RNAseqLogo,fig.cap="Plot an RNA sequence logo",fig.width=6,fig.height=3}
 rna <- pcm
@@ -92,15 +93,10 @@ plot(motif)
 ```
 
 ## plot sequence logo stack
-motifStack is designed to show multiple motifs in same canvas. To show the sequence logo stack,
-the distance of motifs need to be calculated first for example by using MotIV\cite{Eloi2010}::motifDistances, 
-which implemented STAMP\cite{Mahony2007}. After alignment, users can use plotMotifLogoStack
-function to draw sequence logos stack or use plotMotifLogoStackWithTree function 
-to show the distance tree with the sequence logos stack or 
-use plotMotifStackWithRadialPhylog function to plot sequence logo stack in radial style 
-in the same canvas. There is a shortcut function named as motifStack. Use stack layout to call
-plotMotifLogoStack, treeview layout to call plotMotifLogoStackWithTree and radialPhylog to call
-plotMotifStackWithRadialPhylog.
+
+To show multiple motifs on the same canvas as a sequence logo stack, the distance of motifs need to be calculated first. By default,  MotIV\cite{@Eloi2010}::`motifDistances` ( R implementation of STAMP\cite{@Mahony2007}) is used to calculate the distance. After alignment, users can use `plotMotifLogoStack`, `plotMotifLogoStackWithTree` or `plotMotifStackWithRadialPhylog` to draw sequence logos  in different layouts. To make it easy to use, we integrated different functionalities into one workflow function named as `motifStack`.
+
+
 
 ```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
 suppressPackageStartupMessages(library(motifStack))
@@ -158,7 +154,8 @@ motifStack(motifs2, layout="radialPhylog",
 ```
 
 ## plot a sequence logo cloud
-We can also plot a sequence logo cloud for DNA sequence logo.
+
+We can also plot a sequence logo cloud for DNA motifs.
 
 ```{r motifCloud,fig.cap="Sequence logo cloud with rectangle packing layout",fig.width=6,fig.height=6}
 ## assign groups for motifs
@@ -193,7 +190,9 @@ motifCloud(motifSig, scale=c(6, .5),
 ```
 
 ## plot grouped sequence logo
-To plot grouped sequence logo, except do motifCloud, we can also plot it with radialPhylog style.
+
+Grouped sequence logo can also be plotted in radial phylogeny tree style.
+
 
 ```{r motifRadialPhylog,fig.cap="Grouped sequence logo with radialPhylog style layout",fig.width=6,fig.height=6}
 ## get the signatures from object of motifSignature
@@ -234,8 +233,9 @@ motifCircos(phylog=phylog, pfms=pfms, pfms2=sig,
 
 
 ## motifPiles
-We can also plot it with pile style. In pile style,
-we can plot two group of motifs and with multiple color annoations.
+
+We can also plot the motifs in pile style. In pile style, 
+we can plot two group of motifs with multiple types of annotation.
 
 ```{r motifPiles,fig.cap="Grouped sequence logo with piles style layout",fig.width=6,fig.height=6}
 ## plot the logo stack with radial style.
@@ -254,8 +254,9 @@ motifPiles(phylog=phylog, pfms=pfms, pfms2=sig,
 
 # plot motifs with d3.js
 
-We can also plot motifs with d3.js. With d3.js, all motifs are draggable. 
-And the it could be exported as a SVG file.
+Interactive plot can be generated using `browseMotifs` function which leverages the __d3.js__ library. 
+All motifs on the plot are draggable and the plot can be easily exported as a **Scalable Vector Graphics (SVG)** file.
+
 
 ```{r browseMotifs,fig.width=8,fig.height=8}
 browseMotifs(pfms = pfms, phylog = phylog, layout="tree", yaxis = FALSE, baseWidth=6, baseHeight = 15)
@@ -268,7 +269,9 @@ browseMotifs(pfms = pfms, phylog = phylog, layout="radialPhylog", yaxis = FALSE,
 ```
 
 # docker container for motifStack
-\href{https://docs.docker.com/}{Docker} allows software to be packaged into containers and the containers can be run any platform as well using a virtual machine called boot2docker. motifStack has its docker image stored in \href{https://hub.docker.com/r/jianhong/motifstack_1.13.6/}{Docker Hub}. Users can download the image and run.
+
+[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker.  Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack_1.13.6/) image using the following code snippet.
+
 
 <pre>
 docker pull jianhong/motifstack_1.13.6
