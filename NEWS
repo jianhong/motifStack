@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.21.2
+-----------------------
+
+    o fix a bug in plotMotifLogo for pcm
+
 CHANGES IN VERSION 1.21.1
 -----------------------
 

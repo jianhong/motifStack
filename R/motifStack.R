@@ -7,7 +7,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
         pfm <- as.matrix(pfm)
     }else{
         if(class(pfm) == "pcm"){
-            pfm <- pcm2pfm
+            pfm <- pcm2pfm(pfm)
         }
         if(class(pfm) == "pfm"){
             pfm <- pfm@mat
