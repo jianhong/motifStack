@@ -23,7 +23,7 @@ motifCircos(phylog, pfms=NULL, pfms2=NULL, R=2.5,
             draw.box=FALSE,
             clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
             angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
-            motifScale=c("linear","logarithmic"), ic.scale=TRUE,
+            motifScale=c("linear","logarithmic","none"), ic.scale=TRUE,
             plotIndex=FALSE, IndexCol="black", IndexCex=.8,
             groupDistance=NA, groupDistanceLineCol="red", 
             plotAxis=FALSE)

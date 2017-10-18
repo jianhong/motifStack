@@ -732,7 +732,7 @@ motifStack <-function(pfms,
 ######## 
 ###############################################################################
 motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)", 
-                           min.freq=2, trim=0.2, families=list()){
+                           min.freq=2, trim=0.2, families=list(), sort=TRUE){
     if (!inherits(phylog, "phylog")) 
         stop("phylog should be an object of phylog of package ade4")
     leaves.number <- length(phylog$leaves)
@@ -954,9 +954,11 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
     signatures <- signatures[ord]
     freq <- freq[ord]
     #sort signatures
-    ord <- order(freq, decreasing=TRUE)
-    signatures <- signatures[ord]
-    freq <- freq[ord]
+    if(sort){
+      ord <- order(freq, decreasing=TRUE)
+      signatures <- signatures[ord]
+      freq <- freq[ord]
+    }
     if(length(freq)==0){
         if(interactive()) warning("All frequency are smaller than min.freq.")
         return(FALSE)

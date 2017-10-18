@@ -4,7 +4,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
                         cleaves=.2, labels.leaves=names(phylog$leaves), clabel.leaves=1,
                         col.leaves=rep("black", length(labels.leaves)),
                         col.leaves.bg=NULL, col.leaves.bg.alpha=1,
-                        r.pfms=NA, r.pfms2=NA, motifScale=c("logarithmic", "linear"),
+                        r.pfms=NA, r.pfms2=NA, motifScale=c("logarithmic", "linear", "none"),
                         col.pfms=NULL, col.pfms.width=0.02,
                         col.pfms2=NULL, col.pfms2.width=0.02,
                         r.anno=0, col.anno=list(),
@@ -86,7 +86,11 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         if(motifScale=="linear"){
             vph <- vpheight * pfmsLen
         }else{
+          if(motifScale=="logarithmic"){
             vph <- vpheight*(1+log2(pfmsLen))
+          }else{
+            vph <- rep(vpheight, length(pfmsLen))
+          }
         }
         vpwidth <- mapply(function(.ele, vpht) vpht * ncol(.ele@mat) / 2 * asp, pfms, vph)
         r.total <- r.pfms + max(vpwidth) + col.pfms2.width + 2*string.width
@@ -100,7 +104,11 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         if(motifScale=="linear"){
             vph2 <- vpheight * pfmsLen2
         }else{
+          if(motifScale=="logarithmic"){
             vph2 <- vpheight*(1+log2(pfmsLen2))
+          }else{
+            vph2 <- rep(vpheight, length(pfmsLen2))
+          }
         }
         vpwidth2 <- mapply(function(.ele, vpht) vpht * ncol(.ele@mat) / 2 * asp, pfms2, vph2)
         r.total <- r.pfms2 + max(vpwidth2) + 2*string.width
@@ -209,6 +217,13 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
         ##extract names
         pfmNames <- lapply(pfms, function(.ele) .ele@name)
+        if(idx=="pfm2"){
+          ## sort the pfms
+          freq <- lengths(strsplit(unlist(pfmNames), pfmNameSpliter))
+          freq.id <- order(freq, decreasing = TRUE)
+          pfms <-pfms[freq.id]
+          pfmNames <- pfmNames[freq.id]
+        }
         for(i in 1:length(pfmNames)){
             pfmname <- unlist(strsplit(pfmNames[[i]], pfmNameSpliter))
             pfmname <- gsub(paste(rcpostfix,"$",sep=""),"",pfmname)

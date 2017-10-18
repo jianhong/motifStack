@@ -6,7 +6,7 @@
 }
 \usage{
 motifSignature(pfms, phylog, groupDistance, rcpostfix="(RC)", 
-min.freq=2, trim=0.2, families=list())
+min.freq=2, trim=0.2, families=list(), sort=TRUE)
 }
 \arguments{
 \item{pfms}{a list of objects of class pfm}
@@ -16,6 +16,7 @@ min.freq=2, trim=0.2, families=list())
 \item{min.freq}{signatures with frequency below min.freq will not be plotted}
 \item{trim}{minimal information content for each position of signature}
 \item{families}{for each family, the motif number in one signature should only count as 1}
+\item{sort}{sort the signatures by frequency or not.}
 }
 \value{
  an Object of class \linkS4class{motifSig}

@@ -12,7 +12,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                          draw.box=FALSE,
                          clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
                          angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
-                         motifScale=c("linear","logarithmic"), ic.scale=TRUE,
+                         motifScale=c("linear","logarithmic","none"), ic.scale=TRUE,
                          plotIndex=FALSE, IndexCol="black", IndexCex=.8,
                          groupDistance=NA, groupDistanceLineCol="red", 
                          plotAxis=FALSE)
@@ -106,7 +106,11 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             if(motifScale=="linear"){
                 vph <- R*vpheight*pfmNamesLen
             }else {
+              if(motifScale=="logarithmic"){
                 vph <- R*vpheight*(1+log2(pfmNamesLen+0.0001))
+              }else{
+                vph <- rep(R*vpheight, length(pfmNamesLen))
+              }
             }
             r.pfms <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
         }
@@ -123,9 +127,15 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             r.pfms2 <- 0
             pfmNamesLen <- sapply(pfms2, function(.ele) 
                 length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
-            if(motifScale=="linear")
-                vph <- R*vpheight2*pfmNamesLen
-            else vph <- R*vpheight2*(1+log2(pfmNamesLen+0.0001))
+            if(motifScale=="linear"){
+              vph <- R*vpheight2*pfmNamesLen
+            }else{
+              if(motifScale=="logarithmic"){
+                vph <- R*vpheight2*(1+log2(pfmNamesLen+0.0001))
+              }else{
+                vph <- rep(R*vpheight2, length(pfmNamesLen))
+              }
+            } 
             r.pfms2 <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms2, vph))
         }
     }
@@ -234,7 +244,9 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                 if(length(pfmIdx)>0){
                     vph <- ifelse(motifScale=="linear",
                                   vpheight*length(pfmname),
-                                  vpheight*(1+log2(length(pfmname))))
+                                  ifelse(motifScale=="logarithmic", 
+                                         vpheight*(1+log2(length(pfmname))),
+                                         vpheight))
                     vpw <- vph * ncol(pfms[[i]]@mat) / 2
                     vpd <- sqrt(vph*vph+vpw*vpw) / 2
                     angle <- median(beta[pfmIdx])
