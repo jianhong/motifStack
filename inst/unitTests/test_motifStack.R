@@ -170,3 +170,21 @@ test_matrixReverseComplement<-function(){
 	pr<-matrixReverseComplement(p2)
 	checkEqualsNumeric(1, pr@mat[3,5])
 }
+
+test_importMatrix<-function(){
+  path <- system.file("extdata", package = "motifStack")
+  ## meme
+  importMatrix(file.path(path, "dna.meme"))
+  ## pcm
+  importMatrix(dir(path, "*.pcm", full.names = TRUE))
+  ## pfm
+  importMatrix(dir(path, "*.pfm", full.names = TRUE))
+  ## jaspar
+  importMatrix(file.path(path, "MA0002.1.jaspar"))
+  ## transfac
+  importMatrix(file.path(path, c("transfac.like.test.transfac", "RUNX1.transfac")))
+  ## beeml
+  importMatrix(file.path(path, "test.beeml"))
+  ## cisbp
+  importMatrix(file.path(path, "PWM.cisbp"))
+}

@@ -13,6 +13,7 @@ export(
     plotMotifLogo, plotMotifLogoA, 
     plotXaxis, plotYaxis, 
     colorset,highlightCol,
+    importMatrix,
     mergeMotifs,
     motifStack,
     plotMotifOverMotif,

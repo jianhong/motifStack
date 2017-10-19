@@ -68,7 +68,7 @@
     
     \item{trimMotif}{\code{signature(x = "pcm", t= "numeric")} trim motif by information content. }
     
-    \item{$, $<-}{Get or set the slot of \code{\link{pcm}}}
+    \item{$, $<-}{Get or set the slot of \code{\link{pcm-class}}}
  } 
 }
 \examples{

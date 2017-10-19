@@ -101,16 +101,15 @@ To show multiple motifs on the same canvas as a sequence logo stack, the distanc
 ```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
 suppressPackageStartupMessages(library(motifStack))
 #####Input#####
-pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-motifs<-lapply(pcms,pcm2pfm)
+motifs<-importMatrix(dir(file.path(find.package("motifStack"), "extdata"),"pcm$", full.names = TRUE))
 
 ## plot stacks
-#motifStack(motifs, layout="stack", ncex=1.0)
+motifStack(motifs, layout="stack", ncex=1.0)
 ```
 
 ```{r treestack,fig.cap="Sequence logo stack with hierarchical cluster tree",fig.width=5,fig.height=6}
 ## plot stacks with hierarchical tree
-#motifStack(motifs, layout="tree")
+motifStack(motifs, layout="tree")
 ```
 
 ```{r radialstack,fig.cap="Plot motifs in a radial style when the number of motifs is too much to be shown in a vertical stack",fig.width=6,fig.height=6}
@@ -270,42 +269,22 @@ browseMotifs(pfms = pfms, phylog = phylog, layout="radialPhylog", yaxis = FALSE,
 
 # docker container for motifStack
 
-[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker.  Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack_1.13.6/) image using the following code snippet.
+[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker.  Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack_1.21.1/) image using the following code snippet.
 
 
 <pre>
-docker pull jianhong/motifstack_1.13.6
 cd ~ ## in windows, please try cd c:\\ Users\\ username
+docker pull jianhong/motifstack_1.21.1
 mkdir tmp4motifstack ## this will be the share folder for your host and container.
-docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack_1.13.6 R
-## in R
-setwd("/tmp")
-library(motifStack)
-packageVersion("motifStack")
-pcmpath <- "pcmsDatasetFly"
-pcms <- readPCM(pcmpath)
-pfms <- lapply(pcms, pcm2pfm)
-matalign_path <- "/usr/bin/matalign"
-neighbor_path <- "/usr/bin/phylip/neighbor"
-outpath <- "output"
-system(paste("perl MatAlign2tree.pl --in . --pcmpath", pcmpath, "--out", outpath,
-    "--matalign", matalign_path, "--neighbor", neighbor_path, "--tree","UPGMA"))
-newickstrUPGMA <- readLines(con=file.path(outpath, "NJ.matalign.distMX.nwk"))
-phylog <- newick2phylog(newickstrUPGMA, FALSE)
-leaves <- names(phylog$leaves)
-motifs <- pfms[leaves]
-motifSig <- motifSignature(motifs, phylog, groupDistance=2, min.freq=1, trim=.2)
-sig <- signatures(motifSig)
-gpCol <- sigColor(motifSig)
-leaveNames <- gsub("^Dm_", "", leaves)
-pdf("/volume/data/test.pdf", width=8, height=11)
-motifPiles(phylog=phylog, DNAmotifAlignment(motifs), sig, 
-    col.pfms=gpCol, col.pfms.width=.01, 
-    col.pfms2=gpCol, col.pfms2.width=.01, 
-    labels.leaves=leaveNames, 
-    plotIndex=c(FALSE, TRUE), IndexCex=1, 
-    groupDistance=2, clabel.leaves=1)
-dev.off()
+docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack_1.21.1 bash
+  In motifstack-1.21.1 docker
+    1  cd /volume/data
+    2  git clone https://github.com/jianhong/motifStack.documentation.git
+    3  cd motifStack.documentation/
+    4  cp /usr/bin/matalign app/matalign-v4a
+    5  cp /usr/bin/phylip/neighbor app/neighbor.app/Contents/MacOS/neighbor
+    6  R cmd -e "rmarkdown::render('suppFigure2.Rmd')"
+    7  R cmd -e "rmarkdown::render('suppFigure6.Rmd')"
 </pre>
 
 You will see the test.pdf file in the folder of tmp4motifstack. 
