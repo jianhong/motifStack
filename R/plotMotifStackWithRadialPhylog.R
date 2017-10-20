@@ -196,7 +196,11 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
             vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L] *1.1/5
           }
           pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
-          plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
+          if(class(pfms[[i]])!="psam"){
+            plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
+          }else{
+            plotAffinityLogo(pfms[[i]], font=font, fontsize=fontsize, newpage=FALSE)
+          }
           popViewport()
           if(plotIndex) {
             grid.text(label=i, x=vpx1, 

@@ -1,6 +1,9 @@
 DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0, rcpostfix="(RC)", revcomp=rep(TRUE, length(pfms))){
   if(length(pfms)<2) stop("less than 2 motifs")
   if(length(revcomp)!=length(pfms)) stop("length of revcomp and pfms is not identical")
+  if(all(sapply(pfms, class)=="psam")){
+    return(alignmentByPCC(pfms, minimalConsensus, rcpostfix, revcomp))
+  }
   lapply(pfms,function(.ele){
     if(class(.ele)!="pfm" && class(.ele)!="pcm") stop("pfms must be a list of class pfm")
     if(.ele@alphabet!="DNA") stop("the alphabet of pfm must be DNA")

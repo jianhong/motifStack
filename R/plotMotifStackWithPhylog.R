@@ -12,7 +12,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
   n<-length(pfms)
   lapply(pfms,function(.ele){
-    if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+    if(inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of class pfm or psam")
   })
   leaves.number <- length(phylog$leaves)
   leaves.names<- names(phylog$leaves)
@@ -66,7 +66,11 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
       vpwidth <- vpheight * ncol(pfms[[i]]@mat) / 2
       pushViewport(viewport(x=f.logo, y=y[i], width=vpwidth, height=vpheight, just=c(0, .5)))
       if(!is.null(pfms[[i]])) 
-        plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
+        if(class(pfms[[i]])!="psam"){
+          plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
+        }else{
+          plotAffinityLogo(pfms[[i]], font=font, fontsize=fontsize, newpage=FALSE)
+        }
       popViewport()
     }
   }

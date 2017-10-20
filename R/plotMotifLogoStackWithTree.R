@@ -1,7 +1,7 @@
 plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ...){
   n<-length(pfms)
   lapply(pfms,function(.ele){
-    if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+    if(!inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of class pfm or psam")
   })
   if(class(hc)!="hclust") stop("hc class must be hclust")
   if(treewidth>0.5) stop("treewidth can not greater than 0.5")
@@ -42,12 +42,31 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   }
   
   #plot logo
-  par(mar=c(3.5,3.5,1.5,0.5))
-  assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
-  for(i in 1:(n-1)){
-    plot(pfms[[n-i+1]],xlab=NA, ...)
+  if(all(sapply(pfms, class)=="psam")){
+    vp <- plotViewport(margins = c(3.5,3.5,1.5,0.5))
+    pushViewport(vp)
+    ht <- 1/n
+    y0 <- .5 * ht
+    for(i in seq.int(n)){
+      pushViewport(viewport(y=y0, h=ht))
+      ht.title <- convertUnit(unit(1.5, "lines"), unitTo = "npc", valueOnly = TRUE)
+      ht.body <- 1 - ht.title
+      grid.text(label=pfms[[i]]@name, y=1-.5*ht.title)
+      pushViewport(viewport(y=ht.body*.5, h=ht.body))
+      plotAffinityLogo(pfms[[i]], newpage=FALSE)
+      popViewport()
+      popViewport()
+      y0 <- y0 + ht
+    }
+    popViewport(vp)
+  }else{
+    par(mar=c(3.5,3.5,1.5,0.5))
+    assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+    for(i in 1:(n-1)){
+      plot(pfms[[n-i+1]],xlab=NA, ...)
+    }
+    plot(pfms[[1]], ...)
+    rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
   }
-  plot(pfms[[1]], ...)
-  rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
   par(opar)
 }

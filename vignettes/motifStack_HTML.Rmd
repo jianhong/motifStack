@@ -123,6 +123,11 @@ motifs<-importMatrix(dir(file.path(find.package("motifStack"), "extdata"),"pcm$"
 
 ## plot stacks
 motifStack(motifs, layout="stack", ncex=1.0)
+motif2 <- motif
+motif2$mat <- motif$mat[, 5:12]
+motif2$name <- "logo2"
+psamMotifs <- list(motif, motif2)
+motifStack(psamMotifs)
 ```
 
 ```{r treestack,fig.cap="Sequence logo stack with hierarchical cluster tree",fig.width=5,fig.height=6}

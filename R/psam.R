@@ -77,7 +77,7 @@ setMethod("matrixReverseComplement", "psam", function(x){
 
 setMethod("addBlank", signature(x="psam", n="numeric", b="logical"), function(x, n, b){
   if(x@alphabet!="DNA") stop("alphabet of psam must be DNA")
-  N<-matrix(rep(0, n), nrow=4)
+  N<-matrix(rep(0, n*4), nrow=4)
   if(b){
     N<-cbind(x@mat,N)
   }else{
