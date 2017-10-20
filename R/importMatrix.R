@@ -1,7 +1,8 @@
 importMatrix <- function(filenames, 
                          format=c("auto", "pfm", "cm", "pcm", "meme", 
-                                  "transfac", "jaspar", "scpd", "beeml", "cisbp"), 
-                         to=c("auto", "pcm", "pfm")){
+                                  "transfac", "jaspar", "scpd", "beeml", "cisbp",
+                                  "psam"), 
+                         to=c("auto", "pcm", "pfm", "psam")){
   if(missing(filenames)){
     stop("filenames are required.")
   }
@@ -35,7 +36,7 @@ importMatrix <- function(filenames,
      if(length(ext)!=1){
        stop("There are multiple file formats in your inputs.")
      }
-     format <- c("pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "beeml", "cisbp")
+     format <- c("pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "beeml", "cisbp", "psam")
      format <- format[format==ext]
      if(length(format)!=1){
        stop("Can not determine the format of inputs by its extensions.")
@@ -43,8 +44,11 @@ importMatrix <- function(filenames,
   }
   ## importM_... will output a list of matrix, 
   ## matrix rownames must be symbols, such as c(A, C, G, T)
-  m <- do.call(paste0("importM_", ext), list(fns=filenames))
+  m <- do.call(paste0("importM_", format), list(fns=filenames))
   if(format=="meme"){
+    return(m)
+  }
+  if(format=="psam"){
     return(m)
   }
   ## check is counts
@@ -354,5 +358,18 @@ importM_meme <- function(fns){
     }
   })
   m <- unlist(m)
+  m
+}
+
+importM_psam <- function(fns){
+  m <- lapply(fns, function(fn){
+    lines <- xmlToList(xmlParse(fn))
+    psam <- trimws(lines$psam) ## now ACGT only, don't know what is exactly format of MatrixREDUCE 2.0
+    psam <- read.delim(text = psam, header = FALSE, skip = 2)
+    psam <- t(psam)
+    rownames(psam) <- c("A", "C", "G", "T")
+    new("psam", mat=psam, name=make.names(basename(fn)))
+  })
+  names(m) <- make.names(sapply(m, function(.ele) .ele@name), unique = TRUE, allow_ = TRUE)
   m
 }

@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.21.5
+-----------------------
+
+    o add class psam
+    o add function plotAffinityLogo
+    
 CHANGES IN VERSION 1.21.4
 -----------------------
 

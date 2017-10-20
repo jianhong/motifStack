@@ -187,4 +187,6 @@ test_importMatrix<-function(){
   importMatrix(file.path(path, "test.beeml"))
   ## cisbp
   importMatrix(file.path(path, "PWM.cisbp"))
+  ## psam
+  importMatrix(file.path(path, "PSAM.mxr"), format = "psam")
 }

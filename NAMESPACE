@@ -1,3 +1,6 @@
+import(grDevices)
+import(stats)
+import(utils)
 import(methods)
 import(grid)
 import(ade4)
@@ -10,7 +13,7 @@ import(htmlwidgets)
 export(
     browseMotifs,
     browseMotifsOutput,
-    plotMotifLogo, plotMotifLogoA, 
+    plotMotifLogo, plotMotifLogoA, plotAffinityLogo,
     plotXaxis, plotYaxis, 
     colorset,highlightCol,
     importMatrix,
@@ -26,7 +29,7 @@ export(
     reorderUPGMAtree,
     getRankedUniqueMotifs
 )
-exportClasses("pfm", "pcm", "ouNode", "motifSig")
+exportClasses("pfm", "pcm", "psam", "ouNode", "motifSig")
 exportMethods(
         getIC,
         matrixReverseComplement,

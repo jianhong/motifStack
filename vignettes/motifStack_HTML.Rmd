@@ -92,6 +92,24 @@ motif<-new("pfm", mat=motif, name="CAP",
 plot(motif)
 ```
 
+## plot an affinity logo
+If a PSAM matrix if provided,  
+it can also be used to draw affinity logos.
+```{r affinityLogo,fig.cap="Plot an affinity logo",fig.width=6,fig.height=3}
+library(motifStack)
+motif<-matrix(
+  c(
+    .846, .631, .593, .000, .000, .000, .434, .410, 1.00, .655, .284, .000, .000, .771, .640, .961,
+    .625, .679, .773, 1.00, 1.00, .000, .573, .238, .397, 1.00, 1.00, .000, .298, 1.00, 1.00, .996,
+    1.00, 1.00, 1.00, .228, .000, 1.00, 1.00, .597, .622, .630, .000, 1.00, 1.00, .871, .617, 1.00,
+    .701, .513, .658, .000, .000, .247, .542, 1.00, .718, .686, .000, .000, .000, .595, .437, .970
+  ), nrow=4, byrow = TRUE)
+rownames(motif) <- c("A", "C", "G", "T")
+motif<-new("psam", mat=motif, name="affinity logo")
+plot(motif)
+```
+
+
 ## plot sequence logo stack
 
 To show multiple motifs on the same canvas as a sequence logo stack, the distance of motifs need to be calculated first. By default,  MotIV\cite{@Eloi2010}::`motifDistances` ( R implementation of STAMP\cite{@Mahony2007}) is used to calculate the distance. After alignment, users can use `plotMotifLogoStack`, `plotMotifLogoStackWithTree` or `plotMotifStackWithRadialPhylog` to draw sequence logos  in different layouts. To make it easy to use, we integrated different functionalities into one workflow function named as `motifStack`.

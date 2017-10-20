@@ -4,7 +4,7 @@
 #'
 #' @import htmlwidgets
 #'
-#' @param pfms a list of \link{pfm}
+#' @param pfms a list of \link{pfm-class}
 #' @param phylog an object of \link[ade4]{phylog}
 #' @param layout layout type. Could be tree, cluster or radialPhylog.
 #' @param nodeRadius node radius, default 2.5px.
@@ -54,10 +54,10 @@ browseMotifs <- function(pfms, phylog,
   }
   maxW <- 0
   if(length(pfms)<=2){
-    elements <- lapply(pfms, function(.ele){
+    elements <- lapply(pfms, function(pfm){
       w <- (ncol(pfm$mat)+1)*baseWidth
       if(w > maxW) maxW <<- w
-      list(name=nodeName,
+      list(name="Root",
            motif=list(t(pfm$mat)),
            letters=rownames(pfm$mat),
            color=as.list(pfm$color),
