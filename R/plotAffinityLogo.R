@@ -48,9 +48,9 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
     #calculate postion of each symbol and plot
     if(newpage) grid.newpage()
     
-    ddG <- log(psam+1)
-    ddG.mu<-colMeans(psam)
-    ddG.height <- t(t(psam) - ddG.mu)
+    ddG <- log(psam+1e-2)
+    ddG.mu<-colMeans(ddG)
+    ddG.height <- t(t(ddG) - ddG.mu)
     ddG.h.pos <- ddG.h.neg <- ddG.height
     ddG.h.pos[ddG.h.pos<0] <- 0
     ddG.h.neg[ddG.h.neg>0] <- 0
