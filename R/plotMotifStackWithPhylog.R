@@ -12,7 +12,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
   n<-length(pfms)
   lapply(pfms,function(.ele){
-    if(inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of class pfm or psam")
+    if(!inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of class pfm or psam")
   })
   leaves.number <- length(phylog$leaves)
   leaves.names<- names(phylog$leaves)
