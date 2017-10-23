@@ -2,7 +2,7 @@
 \alias{plotAffinityLogo}
 \title{plot affinity logo}
 \description{
-plot amino acid or DNA sequence affinity logo
+plot affinity logo
 }
 \usage{
 plotAffinityLogo(psam, motifName, font="Helvetica-Bold",
@@ -10,13 +10,16 @@ plotAffinityLogo(psam, motifName, font="Helvetica-Bold",
                              alpha=0.5, newpage=TRUE, fontsize=12)
 }
 \arguments{
-\item{psam}{a position frequency matrices}
+\item{psam}{a position-specific affinity matrix}
 \item{motifName}{motif name}
 \item{font}{font of logo}
 \item{colset}{color setting for each logo letter}
 \item{alpha}{Alpha channel for transparency of low affinity letters.}
 \item{newpage}{plot in a new canvas or not.}
 \item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
+}
+\references{
+Barrett C. Foat, Alexandre V. Morozov, Harmen J. Bussemaker; Statistical mechanical modeling of genome-wide transcription factor occupancy data by MatrixREDUCE, Bioinformatics, Volume 22, Issue 14, 15 July 2006, Pages e141-e149, https://doi.org/10.1093/bioinformatics/btl223
 }
 \value{
  none

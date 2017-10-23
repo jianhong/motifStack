@@ -2,6 +2,8 @@ setClass("psam",
          representation(mat="matrix", name="character", alphabet="character", color="character"),
          validity=function(object){
            re<-TRUE
+           if (abs(1-max(object@mat)) > 0.01) re<-"PSAM matrix should be normalized with respect to the value of the highest affinity oligonucleotied."
+           if (any(object@mat<0)) re<-"PSAM matrix contain value less than 0"
            if (is.null(rownames(object@mat))) re<-"rownames of PSAM is empty"
            if (is.null(names(object@color))) re<-"names of color is empty"
            if (length(setdif(rownames(object@mat), names(object@color)))>0) re<-"not every alphabet in psam has a corresponding color"

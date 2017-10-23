@@ -7,7 +7,7 @@ bibliography: ref.bib
 abstract: >
   The motifStack package is designed for graphic representation of multiple 
   motifs with different similarity scores. It works with both DNA/RNA 
-  sequence motif and amino acid sequence motif. In addition, it provides 
+  sequence motif, affinity logo and amino acid sequence motif. In addition, it provides 
   the flexibility for users to customize the graphic parameters such as 
   the font type and symbol colors.
 vignette: >
@@ -93,8 +93,7 @@ plot(motif)
 ```
 
 ## plot an affinity logo
-If a PSAM matrix if provided,  
-it can also be used to draw affinity logos.
+It can also be used to draw affinity logos given a position specifice affinity matrix (PSAM) \cite{@foat2006statistical}.
 ```{r affinityLogo,fig.cap="Plot an affinity logo",fig.width=6,fig.height=3}
 library(motifStack)
 motif<-matrix(
@@ -292,7 +291,7 @@ browseMotifs(pfms = pfms, phylog = phylog, layout="radialPhylog", yaxis = FALSE,
 
 # docker container for motifStack
 
-[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker.  Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack_1.21.1/) image using the following code snippet.
+[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker. To ease the installation of motifStack and its depencies, we have created a docker image containing all the components needed to run motifStack. Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack_1.21.1/) image using the following code snippet.
 
 
 <pre>

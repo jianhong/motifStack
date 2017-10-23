@@ -64,6 +64,11 @@ importMatrix <- function(filenames,
     return(FALSE)
   }
   isCnt <- sapply(m, isCounts)
+  # check if position frequency matrix
+  isPFMmatrix <- function(cnt){
+    if (any(abs(1 - colSums(cnt)) > 0.01)) return(FALSE)
+    return(TRUE)
+  }
   if(to=="auto"){
     if(all(isCnt)){
       to <- "pcm"
@@ -78,7 +83,16 @@ importMatrix <- function(filenames,
       }
       new("pcm", mat=as.matrix(.m), name=.f)
     }else{
-      new("pfm", mat=as.matrix(.m), name=.f)
+      if(isPFMmatrix(.m)){
+        new("pfm", mat=as.matrix(.m), name=.f)
+      }else{
+        if(.type){
+          message("trying to convert data into position frequency matrix from count matrix.")
+          pcm2pfm(new("pcm", mat=as.matrix(m), name=.f))
+        }else{
+          stop("Can not import data into PFM. Columns of PFM must add up to 1.0")
+        }
+      }
     }
   }, m, isCnt, names(m))
 }
