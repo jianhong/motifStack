@@ -10,7 +10,7 @@ Transfac, CisBP, and JASPAR.
 \usage{
 importMatrix(filenames, 
              format=c("auto", "pfm", "cm", "pcm", "meme", 
-                      "transfac", "jaspar", "scpd", "beeml", "cisbp",
+                      "transfac", "jaspar", "scpd", "cisbp",
                       "psam"), 
              to=c("auto", "pcm", "pfm", "psam"))
 }
