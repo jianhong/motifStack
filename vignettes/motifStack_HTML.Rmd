@@ -93,7 +93,7 @@ plot(motif)
 ```
 
 ## plot an affinity logo
-It can also be used to draw affinity logos given a position specifice affinity matrix (PSAM) \cite{@foat2006statistical}.
+It can also be used to draw affinity logos given a position specific affinity matrix (PSAM) \cite{@foat2006statistical}.
 ```{r affinityLogo,fig.cap="Plot an affinity logo",fig.width=6,fig.height=3}
 library(motifStack)
 motif<-matrix(
