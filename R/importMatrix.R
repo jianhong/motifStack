@@ -1,6 +1,6 @@
 importMatrix <- function(filenames, 
                          format=c("auto", "pfm", "cm", "pcm", "meme", 
-                                  "transfac", "jaspar", "scpd", "beeml", "cisbp",
+                                  "transfac", "jaspar", "scpd", "cisbp",
                                   "psam"), 
                          to=c("auto", "pcm", "pfm", "psam")){
   if(missing(filenames)){
@@ -36,7 +36,7 @@ importMatrix <- function(filenames,
      if(length(ext)!=1){
        stop("There are multiple file formats in your inputs.")
      }
-     format <- c("pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "beeml", "cisbp", "psam")
+     format <- c("pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "cisbp", "psam")
      format <- format[format==ext]
      if(length(format)!=1){
        stop("Can not determine the format of inputs by its extensions.")
