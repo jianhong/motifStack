@@ -293,14 +293,14 @@ browseMotifs(pfms = pfms, phylog = phylog, layout="radialPhylog", yaxis = FALSE,
 
 # docker container for motifStack
 
-[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker. To ease the installation of motifStack and its depencies, we have created a docker image containing all the components needed to run motifStack. Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack_1.21.1/) image using the following code snippet.
+[Docker](https://docs.docker.com/) container allows software to be packaged into containers which can be run in any platform using a virtual machine called boot2docker. To ease the installation of motifStack and its depencies, we have created a docker image containing all the components needed to run motifStack. Users can download the [motifStack docker](https://hub.docker.com/r/jianhong/motifstack/) image using the following code snippet.
 
 
 <pre>
 cd ~ ## in windows, please try cd c:\\ Users\\ username
-docker pull jianhong/motifstack_1.21.1
+docker pull jianhong/motifstack:latest
 mkdir tmp4motifstack ## this will be the share folder for your host and container.
-docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack_1.21.1 bash
+docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack:latest bash
   In motifstack-1.21.1 docker
     1  cd /volume/data
     2  git clone https://github.com/jianhong/motifStack.documentation.git
