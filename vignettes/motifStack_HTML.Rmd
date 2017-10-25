@@ -115,7 +115,7 @@ To show multiple motifs on the same canvas as a sequence logo stack, the distanc
 
 
 
-```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
+```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=4}
 suppressPackageStartupMessages(library(motifStack))
 #####Input#####
 motifs<-importMatrix(dir(file.path(find.package("motifStack"), "extdata"),"pcm$", full.names = TRUE))
