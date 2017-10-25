@@ -223,6 +223,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
           freq.id <- order(freq, decreasing = TRUE)
           pfms <-pfms[freq.id]
           pfmNames <- pfmNames[freq.id]
+          vpwid <- vpwid[freq.id]
+          vphei <- vphei[freq.id]
         }
         for(i in 1:length(pfmNames)){
             pfmname <- unlist(strsplit(pfmNames[[i]], pfmNameSpliter))
