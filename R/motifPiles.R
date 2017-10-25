@@ -261,7 +261,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     }
     
     if(!is.null(pfms2) && r.pfms2 < .95){
-        drawPFMcir(pfms2, r.pfms2, y, vpwidth2, vph2, col.pfms.width, "pfm2")
+        drawPFMcir(pfms2, r.pfms2, y, vpwidth2, vph2, col.pfms2.width, "pfm2")
     }
     
     if(sum(r.anno, na.rm=TRUE)>0){
