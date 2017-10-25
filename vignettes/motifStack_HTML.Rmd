@@ -301,7 +301,7 @@ cd ~ ## in windows, please try cd c:\\ Users\\ username
 docker pull jianhong/motifstack:latest
 mkdir tmp4motifstack ## this will be the share folder for your host and container.
 docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack:latest bash
-  In motifstack-1.21.1 docker
+  In motifstack:latest docker
     1  cd /volume/data
     2  git clone https://github.com/jianhong/motifStack.documentation.git
     3  cd motifStack.documentation/
