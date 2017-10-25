@@ -1,8 +1,8 @@
 ---
 title: "motifStack Vignette"
 author: "Jianhong Ou, Michael Brodsky, Lihua Julie Zhu"
-date: "`r doc_date()`"
-package: "`r pkg_ver('motifStack')`"
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('motifStack')`"
 bibliography: ref.bib
 abstract: >
   The motifStack package is designed for graphic representation of multiple 

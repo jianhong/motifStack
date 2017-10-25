@@ -5,11 +5,11 @@ plotMotifLogoStack<-function(pfms, ...){
     ht <- 1/n
     y0 <- .5 * ht
     for(i in seq.int(n)){
-      pushViewport(viewport(y=y0, h=ht))
+      pushViewport(viewport(y=y0, height=ht))
       ht.title <- convertUnit(unit(1.5, "lines"), unitTo = "npc", valueOnly = TRUE)
       ht.body <- 1 - ht.title
       grid.text(label=pfms[[i]]@name, y=1-.5*ht.title)
-      pushViewport(viewport(y=ht.body*.5, h=ht.body))
+      pushViewport(viewport(y=ht.body*.5, height=ht.body))
       plotAffinityLogo(pfms[[i]], newpage=FALSE)
       popViewport()
       popViewport()
