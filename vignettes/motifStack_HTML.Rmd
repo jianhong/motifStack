@@ -4,6 +4,7 @@ author: "Jianhong Ou, Michael Brodsky, Lihua Julie Zhu"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('motifStack')`"
 bibliography: ref.bib
+csl: nature.csl
 abstract: >
   The motifStack package is designed for graphic representation of multiple 
   motifs with different similarity scores. It works with both DNA/RNA 
@@ -23,7 +24,7 @@ A sequence logo, based on information theory, has been widely used as a graphica
 representation of sequence conservation (aka motif) in multiple amino acid or 
 nucleic acid sequences. Sequence motif represents conserved characteristics 
 such as DNA binding sites, where transcription factors bind, and catalytic sites 
-in enzymes. Although many tools, such as seqlogo\cite{Oliver2006}, have been 
+in enzymes. Although many tools, such as seqlogo[@Oliver2006], have been 
 developed to create sequence motif and to represent it as individual sequence 
 logo, software tools for depicting the relationship among multiple sequence 
 motifs are still lacking. We developed a flexible and powerful open-source 
@@ -93,7 +94,7 @@ plot(motif)
 ```
 
 ## plot an affinity logo
-It can also be used to draw affinity logos given a position specific affinity matrix (PSAM) as described by Foat et al. \cite{@foat2006statistical}.
+It can also be used to draw affinity logos given a position specific affinity matrix (PSAM) as described by Foat et al. [@foat2006statistical].
 ```{r affinityLogo,fig.cap="Plot an affinity logo",fig.width=6,fig.height=3}
 library(motifStack)
 motif<-matrix(
@@ -111,7 +112,7 @@ plot(motif)
 
 ## plot sequence logo stack
 
-To show multiple motifs on the same canvas as a sequence logo stack, the distance of motifs need to be calculated first. By default,  MotIV\cite{@Eloi2010}::`motifDistances` ( R implementation of STAMP\cite{@Mahony2007}) is used to calculate the distance. After alignment, users can use `plotMotifLogoStack`, `plotMotifLogoStackWithTree` or `plotMotifStackWithRadialPhylog` to draw sequence logos  in different layouts. To make it easy to use, we integrated different functionalities into one workflow function named as `motifStack`.
+To show multiple motifs on the same canvas as a sequence logo stack, the distance of motifs need to be calculated first. By default,  MotIV[@Eloi2010]::`motifDistances` ( R implementation of STAMP[@Mahony2007]) is used to calculate the distance. After alignment, users can use `plotMotifLogoStack`, `plotMotifLogoStackWithTree` or `plotMotifStackWithRadialPhylog` to draw sequence logos  in different layouts. To make it easy to use, we integrated different functionalities into one workflow function named as `motifStack`.
 
 
 
