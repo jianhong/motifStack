@@ -93,7 +93,7 @@ plot(motif)
 ```
 
 ## plot an affinity logo
-It can also be used to draw affinity logos given a position specific affinity matrix (PSAM) \cite{@foat2006statistical}.
+It can also be used to draw affinity logos given a position specific affinity matrix (PSAM) as described by Foat et al. \cite{@foat2006statistical}.
 ```{r affinityLogo,fig.cap="Plot an affinity logo",fig.width=6,fig.height=3}
 library(motifStack)
 motif<-matrix(
@@ -123,7 +123,7 @@ motifs<-importMatrix(dir(file.path(find.package("motifStack"), "extdata"),"pcm$"
 ## plot stacks
 motifStack(motifs, layout="stack", ncex=1.0)
 ```
-```{r logostack2,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=4}
+```{r logostack2,fig.cap="Plot affinity logos with sequence logo stack style",fig.width=4,fig.height=3.5}
 motif2 <- motif
 motif2$mat <- motif$mat[, 5:12]
 motif2$name <- "logo2"
