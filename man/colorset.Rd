@@ -9,7 +9,7 @@ colorset(alphabet="DNA", colorScheme='auto')
 }
 \arguments{
 \item{alphabet}{character, 'DNA', 'RNA' or 'AA'}
-\item{colorScheme}{'auto', 'charge', 'chemistry', 'classic' or 'hydrophobicity' for AA, 'auto' or 'basepairing' for DNA ro RNA}
+\item{colorScheme}{'auto', 'charge', 'chemistry', 'classic' or 'hydrophobicity' for AA, 'auto', 'basepairing', or 'colorBlindness' for DNA ro RNA}
 }
 \value{
 	A character vector of color scheme

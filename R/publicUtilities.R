@@ -129,13 +129,16 @@ colorset<-function(alphabet="DNA", colorScheme='auto'){
                          'Y'='#2000C7')
     base_pairing<-c('A'="#ff8c00",'C'="#2000C7",'G'="#2000C7",'TU'="#ff8c00")
     nucleotide<-c('A'="#00811B",'C'="#2000C7",'G'="#FFB32C",'TU'="#D00001")
+    colorBlindness <- c('A'="#009E73", 'C'="#0072B2", 'G'="#E69F00", 'TU'="#D55E00")
     if(alphabet=='DNA'){
-        color<-switch(colorScheme, auto=nucleotide, basepairing=base_pairing)
+        color<-switch(colorScheme, auto=nucleotide, 
+                      basepairing=base_pairing, colorBlindness=colorBlindness)
         names(color)<-c('A','C','G','T')
         color
     }else{
         if(alphabet=='RNA'){
-            color<-switch(colorScheme, auto=nucleotide, basepairing=base_pairing)
+            color<-switch(colorScheme, auto=nucleotide, 
+                          basepairing=base_pairing, colorBlindness=colorBlindness)
             names(color)<-c('A','C','G','U')
             color
         }else{
