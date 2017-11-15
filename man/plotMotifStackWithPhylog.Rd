@@ -19,7 +19,7 @@ plotMotifStackWithPhylog(phylog, pfms=NULL,
 \item{cleaves}{a character size for plotting the points that represent the leaves, used with par("cex")*cleaves. If zero, no points are drawn}
 \item{cnodes}{a character size for plotting the points that represent the nodes, used with par("cex")*cnodes. If zero, no points are drawn}
 \item{labels.leaves}{a vector of strings of characters for the leaves labels}
-\item{clabel.leaves}{a character size for the leaves labels, used with}
+\item{clabel.leaves}{a character size for the leaves labels, used with par("cex")*clavel.leaves}
 \item{labels.nodes}{a vector of strings of characters for the nodes labels}
 \item{clabel.nodes}{a character size for the nodes labels, used with par("cex")*clabel.nodes. If zero, no nodes labels are drawn}
 \item{font}{font of logo}

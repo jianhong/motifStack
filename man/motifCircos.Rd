@@ -43,7 +43,7 @@ motifCircos(phylog, pfms=NULL, pfms2=NULL, R=2.5,
 \item{r.leaves}{width of the leaves}
 \item{cleaves}{a character size for plotting the points that represent the leaves, used with par("cex")*cleaves. If zero, no points are drawn}
 \item{labels.leaves}{a vector of strings of characters for the leaves labels}
-\item{clabel.leaves}{a character size for the leaves labels, used with}
+\item{clabel.leaves}{a character size for the leaves labels, used with par("cex")*clavel.leaves}
 \item{col.leaves}{a vector of colors for leaves labels}
 \item{col.leaves.bg}{a vector of colors for background of leaves labels}
 \item{col.leaves.bg.alpha}{alpha value [0, 1] for the colors of backgroud of leaves labels}

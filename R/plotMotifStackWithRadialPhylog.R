@@ -227,12 +227,12 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
     ang[but] <- mean(ang[w])
     b <- range(ang[w])
     a.seq <- c(seq(b[1], b[2], by = pi/180), b[2])
-    lines(dis[but] * cos(a.seq), dis[but] * sin(a.seq), col="#222222")
+    lines(dis[but] * cos(a.seq), dis[but] * sin(a.seq), col="#222222", lwd=par("cex") * clabel.leaves)
     x1 <- dis[w] * cos(ang[w])
     y1 <- dis[w] * sin(ang[w])
     x2 <- dis[but] * cos(ang[w])
     y2 <- dis[but] * sin(ang[w])
-    segments(x1, y1, x2, y2, col="#222222")
+    segments(x1, y1, x2, y2, col="#222222", lwd=par("cex") * clabel.leaves)
   } 
   if(!is.na(groupDistance)){
     if(length(groupDistanceLineCol)!=length(groupDistance)){
@@ -272,7 +272,7 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
     }
   }
   
-  points(0, 0, pch = 21, cex = par("cex") * 2, bg = "red")
+  points(0, 0, pch = 21, cex = par("cex") * 2 * clabel.leaves, bg = "red")
   if (clabel.nodes > 0) {
     delta <- strwidth(as.character(length(dist.nodes)), cex = par("cex") *
                         clabel.nodes)
