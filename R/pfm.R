@@ -58,7 +58,7 @@ setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, backg
     .Object
 })
 
-setMethod("plot", signature(x="pfm"), 
+setMethod("plot", signature(x="pfm", y="ANY"), 
     function(x, y="missing", ...){
         plotMotifLogo(pfm=x@mat, 
                       motifName=x@name, 

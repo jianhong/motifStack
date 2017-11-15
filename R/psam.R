@@ -48,7 +48,7 @@ setMethod("initialize","psam",function(.Object, mat, name, alphabet, color){
   .Object
 })
 
-setMethod("plot", signature(x="psam"), 
+setMethod("plot", signature(x="psam", y="ANY"), 
           function(x, y="missing", ...){
             plotAffinityLogo(psam=x@mat, 
                           motifName=x@name, 
