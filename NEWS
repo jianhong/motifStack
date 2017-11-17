@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.23.3
+-----------------------
+
+    o change the colorset name from colorBlindness to blindnessSafe
+    
 CHANGES IN VERSION 1.23.2
 -----------------------
 
