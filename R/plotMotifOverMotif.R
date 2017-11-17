@@ -41,8 +41,8 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
     key<-paste("x", ncha, font, paste(colset[rname], collapse=""), 
                paste(rname, collapse=""), sep="_")
     symbolsCache <- 
-        if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")){
-            get("tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+        if(exists("tmp_motifStack_symbolsCache", envir=.globals)){
+            get("tmp_motifStack_symbolsCache", envir=.globals)
         } else {
             list()
         }
@@ -51,7 +51,7 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
     } else {
         symbols <- coloredSymbols(ncha, font, colset[rname], rname)
         symbolsCache[[key]]<-symbols
-        assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
+        assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
     }
     
     ##check font height to fix the number size

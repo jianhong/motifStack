@@ -214,7 +214,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),rcpostfix,fixed=TRUE)
     }
     drawPFMcir <- function(pfms, r.x, ym, vpwid, vphei, col.pfms.wid, idx){
-        assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+        assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
         ##extract names
         pfmNames <- lapply(pfms, function(.ele) .ele@name)
         if(idx=="pfm2"){
@@ -247,7 +247,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
                 warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
             }
         }
-        rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+        rm(list="tmp_motifStack_symbolsCache", envir=.globals)
     }
     
     if(!is.null(col.pfms)){

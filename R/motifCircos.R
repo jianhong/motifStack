@@ -226,7 +226,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
         }
         
-        assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+        assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
         for(metaChar in c("\\","$","*","+",".","?","[","]","^","{","}","|","(",")"))
         {
             rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),rcpostfix,fixed=TRUE)
@@ -284,7 +284,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             drawPFMcir(pfms2, xm2, ym2, vpheight2, plotIndex[2])
         }
         
-        rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+        rm(list="tmp_motifStack_symbolsCache", envir=.globals)
     }
     if (cleaves > 0) {
         for (i in 1:leaves.number) points(x[i], y[i], pch = 21, col=col.leaves[i],

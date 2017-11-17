@@ -4,6 +4,7 @@ motifStack <-function(pfms,
                       layout=c("stack", "treeview", "phylog", "radialPhylog"), 
                       ...){
     if(!is.list(pfms)){
+      if(is(pfms, "pcm")) pfms <- pcm2pfm(pfms)
         plot(pfms)
         return(invisible())
     }

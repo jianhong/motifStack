@@ -61,12 +61,12 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
     popViewport(vp)
   }else{
     par(mar=c(3.5,3.5,1.5,0.5))
-    assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+    assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
     for(i in 1:(n-1)){
       plot(pfms[[n-i+1]],xlab=NA, ...)
     }
     plot(pfms[[1]], ...)
-    rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+    rm(list="tmp_motifStack_symbolsCache", envir=.globals)
   }
   par(opar)
 }

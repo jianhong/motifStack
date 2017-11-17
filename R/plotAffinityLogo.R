@@ -37,13 +37,13 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
     npos<-ncol(psam)
     ncha<-nrow(psam)
     key<-paste("x", ncha, font, paste(colset, collapse=""), paste(rname, collapse=""), sep="_")
-    symbolsCache <- if(exists("tmp_motifStack_symbolsCache", where=".GlobalEnv")) get("tmp_motifStack_symbolsCache", pos=".GlobalEnv") else list()
+    symbolsCache <- if(exists("tmp_motifStack_symbolsCache", envir=.globals)) get("tmp_motifStack_symbolsCache", envir=.globals) else list()
     if(!is.null(symbolsCache[[key]])){
       symbols<-symbolsCache[[key]]
     } else {
       symbols<-coloredSymbols(ncha, font, colset, rname, fontsize)
       symbolsCache[[key]]<-symbols
-      assign("tmp_motifStack_symbolsCache", symbolsCache, pos=".GlobalEnv")
+      assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
     }
     #calculate postion of each symbol and plot
     if(newpage) grid.newpage()

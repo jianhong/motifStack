@@ -42,7 +42,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   xcar <- maxx*1.05
   xx <- c(x.leaves, x.nodes)
   
-  assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+  assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
   vpheight <- y[length(y)] * .95
   if(is.null(f.logo)){
     f.logo <- max(unlist(lapply(leaves.names, strwidth, units="figure", cex=clabel.leaves)))
@@ -74,7 +74,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
       popViewport()
     }
   }
-  rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+  rm(list="tmp_motifStack_symbolsCache", envir=.globals)
   
   yleaves <- y[1:leaves.number]
   xleaves <- xx[1:leaves.number]

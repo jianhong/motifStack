@@ -160,7 +160,7 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
       segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
     }
     
-    assign("tmp_motifStack_symbolsCache", list(), pos=".GlobalEnv")
+    assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
     if(!is.null(pfms)){
       ##extract names
       for(metaChar in c("\\","$","*","+",".","?","[","]","^","{","}","|","(",")"))
@@ -212,7 +212,7 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
         }
       }
     }
-    rm(list="tmp_motifStack_symbolsCache", pos=".GlobalEnv")
+    rm(list="tmp_motifStack_symbolsCache", envir=.globals)
   }
   if (cleaves > 0) {
     for (i in 1:leaves.number) points(x[i], y[i], pch = 21, col=col.leaves[i],
