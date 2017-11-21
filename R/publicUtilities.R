@@ -46,7 +46,7 @@ colorset<-function(alphabet="DNA", colorScheme='auto'){
     if(alphabet=='PROTEIN' & !(colorScheme %in% c('auto', 'charge', 'chemistry', 'classic', 'hydrophobicity')))
     stop("color scheme must be one of 'auto', 'charge', 'chemistry', 'classic' or 'hydrophobicity' for protein")
     if(alphabet %in% c('DNA','RNA') & !(colorScheme %in% c('auto', 'basepairing', 'blindnessSafe')))
-    stop("color scheme must be one of 'auto' or 'basepairing'")
+    stop("color scheme must be one of 'auto', 'basepairing' or 'blindnessSafe'")
     taylor<-c(  'A'='#CCFF00',
                 'C'='#FFFF00',
                 'D'='#FF0000',
