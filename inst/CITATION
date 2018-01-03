@@ -1,0 +1,13 @@
+citHeader("Please cite the paper below for the motifStack package.")
+
+citEntry(entry="Article",
+	title="motifStack for the analysis of transcription factor binding site evolution",
+	author=personList(as.person("Jianhong Ou"), as.person("Scot A Wolfe"), as.person("Michael H Brodsky"), as.person("Lihua Julie Zhu")),
+	journal="Nature Methods",
+	volume=15,
+	year=2018,
+	pages="8-9",
+	url="http://dx.doi.org/10.1038/nmeth.4555",
+	doi="10.1038/nmeth.4555",
+	textVersion="Ou J. motifStack for the analysis of transcription factor binding site evolution. Nature Methods 15, 8-9 (2018)"
+)
