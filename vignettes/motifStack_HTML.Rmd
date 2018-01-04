@@ -240,7 +240,7 @@ We can also plot it with circos style. In circos style,
 we can plot two group of motifs and with multiple color rings.
 
 ```{r motifCircos,fig.cap="Grouped sequence logo with circos style layout",fig.width=6,fig.height=6}
-## plot the logo stack with radial style.
+## plot the logo stack with cirsoc style.
 motifCircos(phylog=phylog, pfms=pfms, pfms2=sig, 
             col.tree.bg=rep(color, each=5), col.tree.bg.alpha=0.3, 
             col.leaves=rep(rev(color), each=5),
@@ -262,7 +262,7 @@ We can also plot the motifs in pile style. In pile style,
 we can plot two group of motifs with multiple types of annotation.
 
 ```{r motifPiles,fig.cap="Grouped sequence logo with piles style layout",fig.width=6,fig.height=6}
-## plot the logo stack with radial style.
+## plot the logo stack with pile style.
 motifPiles(phylog=phylog, pfms=pfms, pfms2=sig, 
             col.tree=rep(color, each=5),
             col.leaves=rep(rev(color), each=5),
@@ -271,6 +271,27 @@ motifPiles(phylog=phylog, pfms=pfms, pfms2=sig,
             col.anno=list(sample(colors(), 50), 
                           sample(colors(), 50), 
                           sample(colors(), 50)),
+            motifScale="logarithmic",
+            plotIndex=TRUE,
+            groupDistance=0.01)
+```
+
+We can also use motifPiles to plot motifs with a heatmap.
+```{r motifPilesHeatmap,fig.cap="Grouped sequence logo with a heatmap",fig.width=6,fig.height=6}
+## plot the logo stack with heatmap.
+df <- data.frame(A=runif(n = 50), B=runif(n = 50), C=runif(n = 50), D=runif(n = 50))
+map2col <- function(x, pal){
+  rg <- range(x)
+  pal[findInterval(x, seq(rg[1], rg[2], length.out = length(pal)+1), 
+                   all.inside = TRUE)]
+}
+dl <- lapply(df, map2col, pal=heat.colors(10))
+motifPiles(phylog=phylog, pfms=pfms, 
+            col.tree=rep(color, each=5),
+            col.leaves=rep(rev(color), each=5),
+            col.pfms2=gpCol, 
+            r.anno=rep(0.02, length(dl)), 
+            col.anno=dl,
             motifScale="logarithmic",
             plotIndex=TRUE,
             groupDistance=0.01)
