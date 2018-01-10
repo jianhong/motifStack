@@ -25,7 +25,7 @@ plotMotifStackWithRadialPhylog(phylog, pfms=NULL,
 \arguments{
 \item{phylog}{an object of class phylog}
 \item{pfms}{a list of objects of class pfm}
-\item{circle}{a size coefficient for the outer circle}
+\item{circle}{a size coefficient for the outer circle of the labels. Please note it is the position of inner label.circle.}
 \item{circle.motif}{a size coefficient for the motif circle}
 \item{cleaves}{a character size for plotting the points that represent the leaves, used with par("cex")*cleaves. If zero, no points are drawn}
 \item{cnodes}{a character size for plotting the points that represent the nodes, used with par("cex")*cnodes. If zero, no points are drawn}
