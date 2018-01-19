@@ -18,7 +18,7 @@ pfm2pwm(x)
 A numeric matrix representing the Position Weight Matrix for PWM.
 }
 \seealso{
-\code{\link[Biostrings]{PWM}}
+\code{\link[Biostrings:matchPWM]{PWM}}
 }
 \author{
  Jianhong Ou
