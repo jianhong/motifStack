@@ -312,6 +312,10 @@ importM_meme <- function(fns){
     lines <- lines[-1]
     alphabet <- lines[grepl("^ALPHABET=", lines)]
     alphabet <- sub("^.*(AC.*)\\s*$", "\\1", alphabet)
+    alphabet <- unique(alphabet)
+    if(length(alphabet)>1){
+      stop("mixed alphabet in your input file.")
+    }
     alphabet <- switch(alphabet, ACGT="DNA", ACGU="RNA", ACDEFGHIKLMNPQRSTVWY="AA", "others")
     letters <- switch(alphabet, DNA=c("A", "C", "G", "T"),
                       RNA=c("A", "C", "G", "U"),
@@ -346,26 +350,39 @@ importM_meme <- function(fns){
     background <- NA
     if(any(grepl("^Background\\s+letter\\s+frequencies", lines))){
       bcklines.fr <- which(grepl("^Background\\s+letter\\s+frequencies", lines))+1
-      bcklines <- lines[bcklines.fr:(length(lines))]
-      bcklines.keep <- which(grepl("^[a-zA-Z]\\s+[0-9\\.]+", bcklines))
-      bcklines.keep.diff <- diff(c(0, bcklines.keep))
-      bcklines.keep.to <- which(bcklines.keep.diff!=1)
-      if(length(bcklines.keep.to)<1){
-        bcklines.keep.to <- length(bcklines.keep.to)
-      }else{
-        bcklines.keep.to <- bcklines.keep.to[1]-1
+      if(length(bcklines.fr)!=length(mat.frs)){
+        stop("Not all the matrix have background")
       }
-      bcklines <- bcklines[seq.int(bcklines.keep.to)]
-      if(length(bcklines)>0){
-        bcklines <- paste(bcklines, collapse = " ")
-        bcklines <- sub("\\s*$", "", bcklines)
-        bcklines <- strsplit(bcklines, "\\s+")[[1]]
-        bcklines <- matrix(bcklines, nrow=2)
-        background <- as.numeric(bcklines[2, ])
-        names(background) <- bcklines[1, ]
-      }
-      mapply(function(mat, tfName) new("pfm", mat=mat, name=tfName, alphabet=alphabet, background=background),
-             motifs, names(motifs))
+      background <- mapply(function(bckline.fr, mat.fr){
+        bcklines <- lines[bckline.fr:mat.fr]
+        bcklines.keep <- which(grepl("^[a-zA-Z]\\s+[0-9\\.]+", bcklines))
+        bcklines.keep.diff <- diff(c(0, bcklines.keep))
+        bcklines.keep.to <- which(bcklines.keep.diff!=1)
+        if(length(bcklines.keep.to)<1){
+          bcklines.keep.to <- length(bcklines.keep.to)
+        }else{
+          bcklines.keep.to <- bcklines.keep.to[1]-1
+        }
+        bcklines <- bcklines[seq.int(bcklines.keep.to)]
+        if(length(bcklines)>0){
+          bcklines <- paste(bcklines, collapse = " ")
+          bcklines <- sub("\\s*$", "", bcklines)
+          bcklines <- strsplit(bcklines, "\\s+")[[1]]
+          bcklines <- matrix(bcklines, nrow=2)
+          bck <- as.numeric(bcklines[2, ])
+          names(bck) <- bcklines[1, ]
+        }else{
+          bck <- NULL
+        }
+        bck
+      }, bcklines.fr, mat.frs, SIMPLIFY = FALSE)
+      mapply(function(mat, tfName, thisBck) {
+        if(length(thisBck)>0){
+          new("pfm", mat=mat, name=tfName, alphabet=alphabet, background=thisBck)
+        }else{
+          new("pfm", mat=mat, name=tfName, alphabet=alphabet)
+        }
+        }, motifs, names(motifs), background)
     }else{
       mapply(function(mat, tfName) new("pfm", mat=mat, name=tfName, alphabet=alphabet),
              motifs, names(motifs))
