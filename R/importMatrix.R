@@ -331,7 +331,7 @@ importM_meme <- function(fns){
       mat.info <- lines[mat.fr]
       alength <- sub("^.*?alength=\\s*(\\d+)\\s*w=.*$", "\\1", mat.info)
       w <- sub("^.*?w=\\s*(\\d+)\\s.*$", "\\1", mat.info)
-      mat.lines <- lines[(mat.fr+1):(mat.fr+1+as.numeric(w))]
+      mat.lines <- lines[(mat.fr+1):(mat.fr+as.numeric(w))]
       mat <- matrix(scan(text=mat.lines, what = double()), ncol = as.numeric(alength), byrow=TRUE)
       mat <- t(mat)
       if(length(letters)!=nrow(mat)){

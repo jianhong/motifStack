@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.22.3
+-----------------------
+
+    o fix a bug in importMatrix for meme format file.
+    
 CHANGES IN VERSION 1.22.2
 -----------------------
 
