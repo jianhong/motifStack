@@ -142,7 +142,7 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
         }
       }
     }
-    .ele <- matrix(scan(text=.ele, what=double()), nrow=4, byrow = TRUE)
+    .ele <- matrix(scan(text=.ele, what=double(), quiet=TRUE), nrow=4, byrow = TRUE)
     rownames(.ele) <- rown
     .ele
   })
@@ -191,7 +191,7 @@ importTRANSFAClikeFile <- function(fn){
     .ele <- .ele[-1]
     ## remove last column if there is consensus
     .ele <- gsub("[a-zA-Z]*\\s*$", "", .ele)
-    .ele <- matrix(scan(text=.ele, what = double()), ncol = 5, byrow=TRUE)
+    .ele <- matrix(scan(text=.ele, what = double(), quiet=TRUE), ncol = 5, byrow=TRUE)
     ## check first column
     if(!all(.ele[, 1]==seq_along(.ele[, 1]))){
       stop("In counts section, rownname should be from 01 to n.")
@@ -248,7 +248,7 @@ importCisBP <- function(fn){
     .ele <- .ele[-1]
     ## remove last column if there is consensus
     .ele <- gsub("[a-zA-Z]*\\s*$", "", .ele)
-    .ele <- matrix(scan(text=.ele, what = double()), ncol = 5, byrow=TRUE)
+    .ele <- matrix(scan(text=.ele, what = double(), quiet=TRUE), ncol = 5, byrow=TRUE)
     ## check first column
     if(!all(.ele[, 1]==seq_along(.ele[, 1]))){
       stop("In counts section, rownname should be from 01 to n.")
@@ -310,7 +310,7 @@ importM_meme <- function(fns){
       stop("MEME version is required in first line.")
     }
     lines <- lines[-1]
-    alphabet <- lines[grepl("^ALPHABET=", lines)]
+    alphabet <- lines[grepl("^ALPHABET", lines)]
     alphabet <- sub("^.*(AC.*)\\s*$", "\\1", alphabet)
     alphabet <- unique(alphabet)
     if(length(alphabet)>1){
@@ -321,7 +321,7 @@ importM_meme <- function(fns){
                       RNA=c("A", "C", "G", "U"),
                       AA=c("A","C","D","E","F","G","H","I","K","L","M","N","P","Q","R","S","T","V","W","Y"),
                       others={
-                        fr <- which(grepl("^ALPHABET=", lines))
+                        fr <- which(grepl("^ALPHABET", lines))
                         to <- which(grepl("^END\\s+ALPHABET", lines))
                         substr(lines[(fr+1):(to-1)], 1, 1)
                       })
@@ -336,7 +336,7 @@ importM_meme <- function(fns){
       alength <- sub("^.*?alength=\\s*(\\d+)\\s*w=.*$", "\\1", mat.info)
       w <- sub("^.*?w=\\s*(\\d+)\\s.*$", "\\1", mat.info)
       mat.lines <- lines[(mat.fr+1):(mat.fr+as.numeric(w))]
-      mat <- matrix(scan(text=mat.lines, what = double()), ncol = as.numeric(alength), byrow=TRUE)
+      mat <- matrix(scan(text=mat.lines, what = double(), quiet=TRUE), ncol = as.numeric(alength), byrow=TRUE)
       mat <- t(mat)
       if(length(letters)!=nrow(mat)){
         stop("alength is not as same as length of letters")

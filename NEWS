@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.23.12
+-----------------------
+
+    o Silence importMatrix for scan.
+    
 CHANGES IN VERSION 1.23.11
 -----------------------
 
