@@ -111,10 +111,14 @@ plotXaxis<-function(pfm, p=rep(0.25, 4)){
 
 plotYaxis<-function(ymax){
   ie <- ymax
-  majorat<-seq(0,floor(ie)/ceiling(ie),by=1/ceiling(ie))
-  majorlab<-0:floor(ie)
+  majorat<-seq(0,floor(ie),length.out = 5)
+  majorat <- majorat/ie
+  majorlab<-seq(0,floor(ie),length.out = 5)
   axis(2,at=majorat,labels=majorlab, lwd=0, lwd.ticks=1)
-  minorat<-seq(0,ie,by=1/(ceiling(ie)*5))
+  
+  minorat<-seq(0, floor(ie), length.out = 25)
+  minorat <- seq(0, ie, by=diff(minorat)[1])
+  minorat <- minorat/ie
   minorat<-minorat[!(minorat %in% majorat)]
   axis(2,at=minorat,tcl=par("tcl")*0.5,labels=FALSE,lwd=0,lwd.ticks=1)
   at <- c(min(c(minorat, majorat)), max(c(minorat, majorat)))
