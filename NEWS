@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.25.2
+-----------------------
+
+    o fix the bug when plot "others" type of motif.
+    
 CHANGES IN VERSION 1.25.1
 -----------------------
 

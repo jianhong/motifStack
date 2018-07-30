@@ -40,8 +40,14 @@ setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, backg
         }
     }
     if(missing(color)){
+      if(alphabet!="others"){
         color<-colorset(alphabet, "auto")
+      }else{
+        color <- rainbow(nrow(mat))
+        names(color) <- rname
+      }
     }
+    names(color) <- toupper(names(color))
     if(missing(background)){
         background<-rep(1/nrow(mat), nrow(mat))
         names(background)<-rname
