@@ -12,8 +12,8 @@ The motifStack package is designed for graphic representation of multiple motifs
 To install this package, start R and enter:
 
 ```r
-library(BiocInstaller)
-biocLite("motifStack")
+library(BiocManager)
+BiocManager::install("motifStack")
 ```
 
 ## Documentation
