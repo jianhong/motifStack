@@ -19,6 +19,12 @@ output:
   BiocStyle::html_document
 ---
 
+```{r checkplatform, include=FALSE}
+if(.Platform$OS.type=="windows"){
+  opts_chunk$set(eval=FALSE)
+}
+```
+
 # Introduction
 A sequence logo, based on information theory, has been widely used as a graphical 
 representation of sequence conservation (aka motif) in multiple amino acid or 
