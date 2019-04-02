@@ -9,26 +9,34 @@ hex2psrgb<-function(col){
     col
 }
 
-motifStack_private_fontsize <- 18
-coloredSymbols <- function(ncha, font, color, rname, fontsize=motifStack_private_fontsize){
-    symbols<-list()
+colalpha <- function(col, alpha){
+  col<-col2rgb(col)
+  rgb(t(col), alpha = round(alpha*255), maxColorValue = 255)
+}
+
+importSVG <- function(font, color, ch){
+  psfilename<-tempfile(fileext = ".svg")
+  svg(psfilename, width = 1, height = 1, bg = NA, pointsize=72, family = font)
+  h <- convertHeight(stringHeight(ch), unitTo = "points", valueOnly = TRUE)
+  grid.text(ch, gp = gpar(fontsize=floor(72*(72/h)), fontfamily=font, col=color, fontface="bold"))
+  dev.off()
+  x <- grImport2::readPicture(psfilename)
+  unlink(psfilename)
+  x
+}
+
+coloredSymbols <- function(ncha, font, color, rname, alpha){
+  symbols<-list()
+  for(i in 1:ncha){
+    symbols[[i]]<-importSVG(font, color[i], rname[i])
+  }
+  if(!missing(alpha)){
     for(i in 1:ncha){
-        ps<-paste("%!PS\n/",font," findfont\n",fontsize," scalefont\n",
-                  hex2psrgb(color[i])," setrgbcolor\nsetfont\nnewpath\n0 0 moveto\n(",
-                  rname[i],") show",sep="")
-        psfilename<-tempfile()
-        psfilename <- gsub("\\", "/", psfilename, fixed=TRUE)
-        # step1 create a ps file
-        cat(ps,file=paste(psfilename,".ps",sep=""))
-        # step2 convert it by grImport::PostScriptTrace
-        PostScriptTrace(paste(psfilename,".ps",sep=""), paste(psfilename,".xml",sep=""))
-        # step3 read by grImport::readPicture
-        symbols[[i]]<-readPicture(paste(psfilename,".xml",sep=""))
-        unlink(c(paste(psfilename,".ps",sep=""), 
-                 paste("capture",basename(psfilename),".ps",sep=""), 
-                 paste(psfilename,".xml",sep="")))
+      symbols[[paste0(i, "_", alpha)]]<-
+        importSVG(font, colalpha(color, alpha)[i], rname[i])
     }
-    symbols
+  }
+  symbols
 }
 
 addPseudolog2<-function(x){

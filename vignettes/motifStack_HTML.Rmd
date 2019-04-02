@@ -16,7 +16,11 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 output:
-  BiocStyle::html_document
+  html_document:
+    theme: simplex
+    toc: true
+    toc_float: true
+    toc_depth: 4
 ---
 
 ```{r checkplatform, include=FALSE}
@@ -38,21 +42,11 @@ motifs are still lacking. We developed a flexible and powerful open-source
 R/Bioconductor package, motifStack, for visualization of the alignment of 
 multiple sequence motifs.
 
-# Prepare environment
-
-You will need ghostscript. The full path to the executable can be set using the environment variable R\_GSCMD. If this is unset, environment variable gs (Unix, Linux or Mac) or GSC (Window) will be searched by name on your path. If gs/GSC is unset,  GhostScript executable "gswi64c.exe" and "gswin32c.exe" are tried sequentially.
-
-Here is an example on Windows assuming that the gswin32c.exe is installed at C:\\ Program Files\\ gs\\ gs9.06\\ bin. In a R session, please try:
-
-```{r setup, eval=FALSE, echo=TRUE}
-Sys.setenv(R_GSCMD=file.path("C:", "Program Files", "gs", 
-                             "gs9.06", "bin", "gswin32c.exe"))
-```
 
 # Examples of using motifStack
 ## plot a DNA sequence logo with different fonts and colors
 Users can select different fonts and colors to draw the sequence logo.
-```{r DNAseqLogo,fig.cap="Plot a DNA sequence logo with different fonts and colors",fig.width=8,fig.height=6}
+```{r DNAseqLogo,fig.cap="Plot a DNA sequence logo with different fonts and colors",fig.width=8,fig.height=2.5}
 suppressPackageStartupMessages(library(motifStack))
 pcm <- read.table(file.path(find.package("motifStack"), 
                             "extdata", "bin_SOLEXA.pcm"))
@@ -62,7 +56,6 @@ motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 ##pfm object
 #motif <- pcm2pfm(pcm)
 #motif <- new("pfm", mat=motif, name="bin_SOLEXA")
-opar<-par(mfrow=c(4,1))
 plot(motif)
 #plot the logo with same height
 plot(motif, ic.scale=FALSE, ylab="probability")
@@ -71,7 +64,6 @@ plot(motif, font="mono,Courier")
 #try a different font and a different color group
 motif@color <- colorset(colorScheme='basepairing')
 plot(motif,font="Times")
-par(opar)
 ```
 
 ## plot a RNA sequence logo

@@ -5,10 +5,10 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   })
   if(class(hc)!="hclust") stop("hc class must be hclust")
   if(treewidth>0.5) stop("treewidth can not greater than 0.5")
-  opar<-par(mar=c(0,0,0,0), mfrow=par("mfrow"))
-  layout(matrix(c(rep(1,n),rep(2:(n+1),ceiling(1/treewidth)-1)),nrow=n,ncol=ceiling(1/treewidth)))
+  #opar<-par(mar=c(0,0,0,0), mfrow=par("mfrow"))
+  #layout(matrix(c(rep(1,n),rep(2:(n+1),ceiling(1/treewidth)-1)),nrow=n,ncol=ceiling(1/treewidth)))
   #plot tree
-  plot.new()
+  grid.newpage()
   if(trueDist) h <- hc$height / max(hc$height) / 1.05
   else h<- seq(0.01, 0.95, length.out=length(hc$height))[order(hc$height)]
   m <- hc$merge
@@ -28,7 +28,7 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   trx <- function(x) 0.9*treewidth*(1 - x)+ 0.01
   for(i in 1:nrow(dist)){
     dist[i, 1] <- trx(dist[i, 1])
-    dist[i, 2] <- dist[i, 2] + 1/(4*n)
+    #dist[i, 2] <- dist[i, 2] + 1/(4*n)
   }
   
   draw_connection <- function(x1, x2, y1, y2, x){
@@ -42,9 +42,10 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   }
   
   #plot logo
+  vp <- viewport(x = .5 + treewidth/2, y = .5,
+                 width = 1-treewidth, height = 1)
+  pushViewport(vp)
   if(all(sapply(pfms, class)=="psam")){
-    vp <- plotViewport(margins = c(3.5,3.5,1.5,0.5))
-    pushViewport(vp)
     ht <- 1/n
     y0 <- .5 * ht
     for(i in seq.int(n)){
@@ -58,15 +59,24 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
       popViewport()
       y0 <- y0 + ht
     }
-    popViewport(vp)
   }else{
-    par(mar=c(3.5,3.5,1.5,0.5))
+    lapply(pfms,function(.ele){
+      if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+    })
     assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
-    for(i in 1:(n-1)){
-      plot(pfms[[n-i+1]],xlab=NA, ...)
+    ht <- 1/n
+    y0 <- .5 * ht
+    for(i in seq.int(n)){
+      pushViewport(viewport(y=y0, height=ht))
+      plotMotifLogo(pfms[[i]], motifName=pfms[[i]]@name, 
+                    p=pfms[[i]]@background, colset = pfms[[i]]@color,
+                    xlab=NA, newpage=FALSE, 
+                    margins=c(1.5, 4.1, 1.1, .1), ...)
+      popViewport()
+      y0 <- y0 + ht
     }
-    plot(pfms[[1]], ...)
     rm(list="tmp_motifStack_symbolsCache", envir=.globals)
   }
-  par(opar)
+  popViewport()
+  return()
 }

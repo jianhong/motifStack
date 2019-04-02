@@ -9,7 +9,7 @@ plotMotifStackWithPhylog(phylog, pfms=NULL,
                          f.phylog = 0.3, f.logo = NULL, cleaves =1, cnodes =0,
                          labels.leaves = names(phylog$leaves), clabel.leaves=1,
                          labels.nodes = names(phylog$nodes), clabel.nodes = 0, 
-                         font="Helvetica-Bold", ic.scale=TRUE, fontsize=12)
+                         font="Helvetica-Bold", ic.scale=TRUE)
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -24,7 +24,6 @@ plotMotifStackWithPhylog(phylog, pfms=NULL,
 \item{clabel.nodes}{a character size for the nodes labels, used with par("cex")*clabel.nodes. If zero, no nodes labels are drawn}
 \item{font}{font of logo}
 \item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
-\item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
 }
 \value{
  none

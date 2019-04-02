@@ -17,7 +17,7 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
                                             motifScale=c("linear","logarithmic"), ic.scale=TRUE,
                                             plotIndex=FALSE, IndexCol="black", IndexCex=.8,
                                             groupDistance=NA, groupDistanceLineCol="red", 
-                                            plotAxis=FALSE, font="Helvetica-Bold", fontsize=12)
+                                            plotAxis=FALSE, font="Helvetica-Bold")
 {
   if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
@@ -197,9 +197,9 @@ plotMotifStackWithRadialPhylog <- function (phylog, pfms=NULL,
           }
           pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
           if(class(pfms[[i]])!="psam"){
-            plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale, fontsize=fontsize)
+            plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale)
           }else{
-            plotAffinityLogo(pfms[[i]], font=font, fontsize=fontsize, newpage=FALSE)
+            plotAffinityLogo(pfms[[i]], font=font, newpage=FALSE)
           }
           popViewport()
           if(plotIndex) {

@@ -33,7 +33,6 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
     #plotMotifLogo(pfm, motifName, background, ...)
     #plot
     dat <- pfm - background
-    gscmd <- Sys.getenv("R_GSCMD")
     npos <- ncol(dat)
     ncha <- nrow(dat)
     colset <- motif$color

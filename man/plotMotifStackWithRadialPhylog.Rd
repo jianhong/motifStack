@@ -20,7 +20,7 @@ plotMotifStackWithRadialPhylog(phylog, pfms=NULL,
        motifScale=c("linear","logarithmic"), ic.scale=TRUE,
        plotIndex=FALSE, IndexCol="black", IndexCex=.8,
        groupDistance=NA, groupDistanceLineCol="red",
-       plotAxis=FALSE, font="Helvetica-Bold", fontsize=12)
+       plotAxis=FALSE, font="Helvetica-Bold")
 }
 \arguments{
 \item{phylog}{an object of class phylog}
@@ -57,7 +57,6 @@ plotMotifStackWithRadialPhylog(phylog, pfms=NULL,
 \item{groupDistanceLineCol}{groupDistance line color, default: red}
 \item{plotAxis}{logical. If TRUE, will plot distance axis.}
 \item{font}{font of logo}
-\item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
 }
 \value{
  none

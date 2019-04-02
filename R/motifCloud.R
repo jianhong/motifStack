@@ -4,7 +4,7 @@ motifCloud <- function(motifSig, rcpostfix="(RC)",
                        draw.box=TRUE, draw.freq=TRUE, 
                        box.col="gray", freq.col="gray",
                        group.col=NULL, groups=NULL, draw.legend=FALSE,
-                       font="Helvetica-Bold", ic.scale=TRUE, fontsize=12)
+                       font="Helvetica-Bold", ic.scale=TRUE)
 {
   if (!inherits(motifSig, "motifSig")) 
     stop("motifSig be object of motifSig. You could try\n?motifSignature\nto get a motifSig.")
@@ -48,7 +48,7 @@ motifCloud <- function(motifSig, rcpostfix="(RC)",
   plotSignature <- function(x, y, wid, ht, just, angle, sig, freq, normedFreq){
     pushViewport(viewport(x=x, y=y, width=wid, height=ht, just=just, angle=angle))
     if(draw.box) grid.rect(gp=gpar(col=box.col, lty="dashed", fill="transparent"))
-    plotMotifLogoA(sig, font=font, ic.scale=ic.scale, fontsize=fontsize)
+    plotMotifLogoA(sig, font=font, ic.scale=ic.scale)
     if(draw.freq) grid.text(label=freq,x=.95,y=.95,gp=gpar(col=freq.col,cex=normedFreq), just=c("right","top"))
     if((!is.null(group.col)) & (!is.null(groups))) {
       sigNames <- unlist(strsplit(sig@name,";"))

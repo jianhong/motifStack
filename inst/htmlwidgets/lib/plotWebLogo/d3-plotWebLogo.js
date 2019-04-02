@@ -1,7 +1,7 @@
 /*
  plotWebLogo
 Copyright 2016, Jianhong Ou
-E-mail: jianhong.ou@umassmed.edu
+E-mail: jianhong.ou@duke.edu
 Licensed under the MIT license
 */
 ;(function(){

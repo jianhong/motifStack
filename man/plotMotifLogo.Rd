@@ -8,7 +8,8 @@ plot amino acid or DNA sequence logo
 plotMotifLogo(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", 
 colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
 xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
-xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE, fontsize=12)
+xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE, newpage=TRUE,
+margins=c(4.1, 4.1, 2.1, .1))
 }
 \arguments{
 \item{pfm}{a position frequency matrices}
@@ -24,7 +25,8 @@ xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE, fontsize=12)
 \item{ylcex}{cex value for y-label}
 \item{ncex}{cex value for motif name}
 \item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
-\item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
+\item{newpage}{logical If TRUE, plot it in a new page.}
+\item{margins}{A numeric vector interpreted in the same way as par(mar) in base graphics.}
 }
 \value{
  none

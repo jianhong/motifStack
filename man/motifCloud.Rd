@@ -11,7 +11,7 @@ motifCloud(motifSig, rcpostfix="(RC)",
            draw.box=TRUE, draw.freq=TRUE, 
            box.col="gray", freq.col="gray",
            group.col=NULL, groups=NULL, draw.legend=FALSE, 
-           font="Helvetica-Bold", ic.scale=TRUE, fontsize=12)
+           font="Helvetica-Bold", ic.scale=TRUE)
 }
 \arguments{
 \item{motifSig}{an object of class \linkS4class{motifSig}}
@@ -28,7 +28,6 @@ motifCloud(motifSig, rcpostfix="(RC)",
 \item{draw.legend}{draw group color legend or not}
 \item{font}{font of logo}
 \item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
-\item{fontsize}{font size of the template for grImport, default 12. Higher value make better quality figure, but also increase the file size.}
 }
 \value{
  none

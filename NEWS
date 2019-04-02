@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.27.3
+-----------------------
+
+    o use grImport2 instead grImport to avoid the installation of ghostscript.
+
 CHANGES IN VERSION 1.27.2
 -----------------------
 
