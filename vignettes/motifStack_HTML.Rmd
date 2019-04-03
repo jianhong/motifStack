@@ -21,6 +21,7 @@ output:
     toc: true
     toc_float: true
     toc_depth: 4
+    fig_caption: true
 ---
 
 ```{r checkplatform, include=FALSE}

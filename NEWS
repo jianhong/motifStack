@@ -1,3 +1,11 @@
+CHANGES IN VERSION 1.27.4
+-----------------------
+
+    o Update authors information.
+    o change the d3-tip background color.
+    o adjust the fontsize to remove the gaps.
+    o change the title position.
+
 CHANGES IN VERSION 1.27.3
 -----------------------
 

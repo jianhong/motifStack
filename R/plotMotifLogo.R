@@ -76,7 +76,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
   popViewport()
   if(!is.na(xlab)) grid.text(xlab, y=unit(1, units = "lines"), gp=gpar(cex=xlcex))
   if(!is.na(ylab)) grid.text(ylab, x=unit(1, units = "lines"), gp=gpar(cex=ylcex), rot=90)
-  if(!missing(motifName)) grid.text(motifName,y=unit(1, "npc")-unit(1, units = "lines"), gp=gpar(cex=ncex))
+  if(!missing(motifName)) grid.text(motifName,y=unit(1, "npc")-unit(.5, units = "lines"), gp=gpar(cex=ncex))
 }
 
 plotXaxis<-function(pfm, p=rep(0.25, 4)){
@@ -105,7 +105,7 @@ plotYaxis<-function(ymax){
   majorlab<-seq(0,floor(ie),length.out = 5)
   grid.yaxis(at=majorat,label=majorlab, gp=gpar(lwd=1, lex=1, lineheight=1))
   
-  if(convertUnit(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE) > 5){
+  if(convertUnit(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE) > 10){
     minorat<-seq(0, floor(ie), length.out = 25)
     minorat <- seq(0, ie, by=diff(minorat)[1])
     minorat <- minorat/ie

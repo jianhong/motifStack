@@ -64,9 +64,13 @@
   text-align: right;
   font-size: 8px;
   font-weight: normal;
-  background-color: rgba(.9, .9, .9, 0.9);
+  background-color: #E6E6E6;
 }
-.d3-tip tr, tr:nth-child(even), tr:nth-child(odd) {
-  background-color: rgba(.9, .9, .9, 0.9);
+.d3-tip tr, tr:nth-child(even) {
+  background-color: #E6E6E6;
+  font-size: 8px;
+}
+.d3-tip tr, tr:nth-child(odd) {
+  background-color: #FFE6E6;
   font-size: 8px;
 }

@@ -18,7 +18,7 @@ importSVG <- function(font, color, ch){
   psfilename<-tempfile(fileext = ".svg")
   svg(psfilename, width = 1, height = 1, bg = NA, pointsize=72, family = font)
   h <- convertHeight(stringHeight(ch), unitTo = "points", valueOnly = TRUE)
-  grid.text(ch, gp = gpar(fontsize=floor(72*(72/h)), fontfamily=font, col=color, fontface="bold"))
+  grid.text(ch, gp = gpar(fontsize=floor(1.05*72*(72/h)), fontfamily=font, col=color, fontface="bold"))
   dev.off()
   x <- grImport2::readPicture(psfilename)
   unlink(psfilename)
