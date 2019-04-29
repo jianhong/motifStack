@@ -41,10 +41,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
     assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
   }
   #calculate postion of each symbol and plot
-  if(newpage) grid.newpage()
-  
-  vp <- plotViewport(margins = margins)
-  pushViewport(vp)
+  plot <- gList()
   ic<-getIC(pfm, p)
   if(ic.scale){
     ie<-getIE(pfm)
@@ -66,17 +63,19 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
     y.pos<-0
     for(i in 1:ncha){
       h<-heights[id[i]]
-      if(h>0 && ic[j]>0) suppressWarnings(grid.draw(pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h, just=c(0,0),distort=TRUE)))
+      if(h>0 && ic[j]>0) plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h, just=c(0,0),distort=TRUE))
       y.pos<-y.pos+h
     }
     x.pos<-x.pos+dw
   }
-  if(xaxis) plotXaxis(pfm, p)
-  if(yaxis) plotYaxis(ie)
-  popViewport()
-  if(!is.na(xlab)) grid.text(xlab, y=unit(1, units = "lines"), gp=gpar(cex=xlcex))
-  if(!is.na(ylab)) grid.text(ylab, x=unit(1, units = "lines"), gp=gpar(cex=ylcex), rot=90)
-  if(!missing(motifName)) grid.text(motifName,y=unit(1, "npc")-unit(.5, units = "lines"), gp=gpar(cex=ncex))
+  if(xaxis) plot <- gList(plot, plotXaxis(pfm, p))
+  if(yaxis) plot <- gList(plot, plotYaxis(ie))
+  plot <- gTree(children=plot, vp= plotViewport(margins = margins))
+  if(!is.na(xlab)) plot <- gList(plot, textGrob(xlab, y=unit(1, units = "lines"), gp=gpar(cex=xlcex), name="xlab"))
+  if(!is.na(ylab)) plot <- gList(plot, textGrob(ylab, x=unit(1, units = "lines"), gp=gpar(cex=ylcex), rot=90, name="ylab"))
+  if(!missing(motifName)) plot <- gList(plot, textGrob(motifName,y=unit(1, "npc")-unit(.5, units = "lines"), gp=gpar(cex=ncex), name="motifName"))
+  if(newpage) grid.newpage()
+  grid.draw(plot)
 }
 
 plotXaxis<-function(pfm, p=rep(0.25, 4)){
@@ -95,26 +94,34 @@ plotXaxis<-function(pfm, p=rep(0.25, 4)){
   }
   grob <- xaxisGrob(at=at,label=label, gp=gpar(lwd=1, lex=1, lineheight=1))
   grob$children$labels$y <- unit(-1.1, "lines")
-  grid.draw(grob)
+  grob
 }
+
 
 plotYaxis<-function(ymax){
   ie <- ymax
   majorat<-seq(0,floor(ie),length.out = 5)
   majorat <- majorat/ie
   majorlab<-seq(0,floor(ie),length.out = 5)
-  grid.yaxis(at=majorat,label=majorlab, gp=gpar(lwd=1, lex=1, lineheight=1))
-  
+  majorY <- yaxisGrob(at=majorat,label=majorlab,
+                      name = "majorY",
+                      gp=gpar(lwd=1, lex=1, lineheight=1))
+  YgList <- gList(majorY)
   if(convertUnit(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE) > 10){
     minorat<-seq(0, floor(ie), length.out = 25)
     minorat <- seq(0, ie, by=diff(minorat)[1])
     minorat <- minorat/ie
     minorat<-minorat[!(minorat %in% majorat)]
-    grid.yaxis(at=minorat,label=FALSE,gp=gpar(lwd=1, lineheight=.5))
+    minorY <- yaxisGrob(at=minorat,label=FALSE,name="minorY",
+                        gp=gpar(lwd=1, lineheight=.5))
     at <- c(min(c(minorat, majorat)), max(c(minorat, majorat)))
-    grid.yaxis(at=at, label=FALSE, gp=gpar(lwd=1, lineheight=.5))
+    terminY <- yaxisGrob(at=at, label=FALSE, name="endY",
+                         gp=gpar(lwd=1, lineheight=.5))
+    YgList <- gList(YgList, minorY, terminY)
   }
+  YgList
 }
+
 
 ###############################################################################
 ######## plot motif logo without plot.new

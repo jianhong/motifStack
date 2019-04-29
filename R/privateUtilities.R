@@ -14,11 +14,11 @@ colalpha <- function(col, alpha){
   rgb(t(col), alpha = round(alpha*255), maxColorValue = 255)
 }
 
-importSVG <- function(font, color, ch){
+importSVG <- function(font, color, ch, fontface="bold"){
   psfilename<-tempfile(fileext = ".svg")
   svg(psfilename, width = 1, height = 1, bg = NA, pointsize=72, family = font)
   h <- convertHeight(stringHeight(ch), unitTo = "points", valueOnly = TRUE)
-  grid.text(ch, gp = gpar(fontsize=floor(1.05*72*(72/h)), fontfamily=font, col=color, fontface="bold"))
+  grid.text(ch, gp = gpar(fontsize=floor(1.05*72*(72/h)), fontfamily=font, col=color, fontface=fontface))
   dev.off()
   x <- grImport2::readPicture(psfilename)
   unlink(psfilename)
