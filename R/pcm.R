@@ -171,3 +171,11 @@ setMethod("pcm2pfm", signature(x="pcm"), function(x, background="missing"){
     .mat <- pcm2pfm(x@mat, x@background)
     new("pfm", mat=.mat, name=x@name, alphabet=x@alphabet, color=x@color, background=x@background)
 })
+
+## for data.frame
+setMethod("as.data.frame", signature(x="pcm"), function(x, row.names = NULL, optional = FALSE, ...){
+  as.data.frame(x@mat, ...)
+})
+setMethod("format", signature(x="pcm"), function(x, ...){
+  paste0(x@name, "_pcm")
+})

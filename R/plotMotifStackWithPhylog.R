@@ -45,7 +45,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
   vpheight <- y[length(y)] * .95
   if(is.null(f.logo)){
-    f.logo <- max(unlist(lapply(leaves.names, strwidth, units="figure", cex=clabel.leaves)))
+    f.logo <- ceiling(max(unlist(lapply(leaves.names, strwidth, units="figure", cex=clabel.leaves)))/2)
     if(!is.null(pfms)){
       pfms.width <- max(sapply(pfms, function(x) ncol(x@mat)))
       pfms.width <- strwidth(paste(rep("M", pfms.width), collapse=""), units="figure")

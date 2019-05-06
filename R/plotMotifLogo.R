@@ -1,8 +1,8 @@
-plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", 
+plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", fontface="bold", 
                         colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
                         xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
                         xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE,
-                        newpage=TRUE, margins=c(4.1, 4.1, 2.1, .1)){
+                        newpage=TRUE, margins=c(4.1, 4.1, 2.1, .1), draw=TRUE){
   if (class(pfm) == "data.frame"){
     pfm <- as.matrix(pfm)
   }else{
@@ -36,7 +36,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
   symbolsCache <- if(exists("tmp_motifStack_symbolsCache", envir=.globals)) get("tmp_motifStack_symbolsCache", envir=.globals) else list()
   if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
   else {
-    symbols<-coloredSymbols(ncha, font, colset, rname)
+    symbols<-coloredSymbols(ncha, font, colset, rname, fontface=fontface)
     symbolsCache[[key]]<-symbols
     assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
   }
@@ -74,8 +74,12 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold",
   if(!is.na(xlab)) plot <- gList(plot, textGrob(xlab, y=unit(1, units = "lines"), gp=gpar(cex=xlcex), name="xlab"))
   if(!is.na(ylab)) plot <- gList(plot, textGrob(ylab, x=unit(1, units = "lines"), gp=gpar(cex=ylcex), rot=90, name="ylab"))
   if(!missing(motifName)) plot <- gList(plot, textGrob(motifName,y=unit(1, "npc")-unit(.5, units = "lines"), gp=gpar(cex=ncex), name="motifName"))
-  if(newpage) grid.newpage()
-  grid.draw(plot)
+  if(draw){
+    if(newpage) grid.newpage()
+    suppressWarnings(grid.draw(plot))
+  }else{
+    plot
+  }
 }
 
 plotXaxis<-function(pfm, p=rep(0.25, 4)){
@@ -127,9 +131,9 @@ plotYaxis<-function(ymax){
 ######## plot motif logo without plot.new
 ######## to be used to create a better view of stack, eg. radial sty,
 ###############################################################################
-plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
+plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=TRUE, draw=TRUE){
   if (class(pfm) != "pfm"){
-    stop("pfms must be a list of class pfm")
+    stop("pfms must be a pfm object")
   }
   rname<-rownames(pfm@mat)
   if(is.null(rname))
@@ -140,12 +144,13 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
   symbolsCache <- if(exists("tmp_motifStack_symbolsCache", envir=.globals)) get("tmp_motifStack_symbolsCache", envir=.globals) else list()
   if(!is.null(symbolsCache[[key]])) symbols<-symbolsCache[[key]]
   else {
-    symbols<-coloredSymbols(ncha, font, pfm@color, rname)
+    symbols<-coloredSymbols(ncha, font, pfm@color, rname, fontface=fontface)
     symbolsCache[[key]]<-symbols
     assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
   }
   
   #calculate postion of each symbol and plot   
+  plot <- gList()
   ic<-getIC(pfm)
   ie<-getIE(pfm@mat)
   ie <- max(c(ie, ic))
@@ -163,9 +168,73 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", ic.scale=TRUE){
     y.pos<-0
     for(i in 1:ncha){
       h<-heights[id[i]]
-      if(h>0 && ic[j]>0) suppressWarnings(grid.draw(pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE)))
+      if(h>0 && ic[j]>0) plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
       y.pos<-y.pos+h
     }
     x.pos<-x.pos+dw
   }
+  if(draw){
+    suppressWarnings(grid.draw(plot))
+  }else{
+    plot
+  }
 }
+
+################## for ggplot2 ###################
+motifGrob <- function(pfm, x = unit(0.5, "npc"), y = unit(0.5, "npc"),
+                      width = unit(1, "npc"), height = unit(1, "npc"),
+                      angle = 0, ic.scale=TRUE, default.units = "native", name=NULL, 
+                      gp = gpar(fontfamily="Helvetica-Bold",
+                                fontface="bold")){
+  vp <- viewport(x=x, y=y, width = width, height = height, 
+                 default.units = default.units, angle = angle, name = "motifVP")
+  fontfamily <- ifelse(length(gp$fontfamily)>0, gp$fontfamily[1], "Helvetica-Bold")
+  fontface <- ifelse(length(gp$fontface)>0, gp$fontface[1], "bold")
+  gTree(children=plotMotifLogoA(pfm, font = fontfamily, fontface = fontface, ic.scale = ic.scale, draw=FALSE),
+        name=name, vp=vp, cl="motif")
+}
+
+geom_motif <- function(mapping = NULL, data = NULL,
+                       stat = "identity", position = "identity",
+                       ...,
+                       ic.scale=TRUE,
+                       show.legend = NA,
+                       inherit.aes = TRUE) {
+  
+  layer(
+    data = data,
+    mapping = mapping,
+    stat = stat,
+    geom = GeomMotif,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(
+      ic.scale = ic.scale,
+      ...
+    )
+  )
+}
+
+GeomMotif <- 
+  ggproto("GeoMotif", Geom, 
+          required_aes = c("xmin", "ymin", "xmax", "ymax", "motif"),
+          default_aes = aes(angle=0, fontfamily="Helvetica-Bold", 
+                            fontface="bold"),
+          draw_panel = function(data, panel_params, coord, ic.scale=TRUE){
+            coords <- coord$transform(data, panel_params)
+            n <- nrow(coords)
+            do.call(gList, lapply(seq.int(n), function(.id){
+              motifGrob(pfm=coords$motif[[.id]],
+                        x=mean(c(coords$xmin[.id], coords$xmax[.id])),
+                        y=mean(c(coords$ymin[.id], coords$ymax[.id])),
+                        width=coords$xmax[.id] - coords$xmin[.id], 
+                        height=coords$ymax[.id] - coords$ymin[.id],
+                        angle=coords$angle[.id], ic.scale=ic.scale,
+                        default.units = "native",
+                        gp = gpar(fontfamily=coords$fontfamily[.id],
+                                  fontface=coords$fontface[.id]),
+                        name = paste0("geom_motif_", .id))
+            }))
+          })
+

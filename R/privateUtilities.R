@@ -25,15 +25,15 @@ importSVG <- function(font, color, ch, fontface="bold"){
   x
 }
 
-coloredSymbols <- function(ncha, font, color, rname, alpha){
+coloredSymbols <- function(ncha, font, color, rname, alpha, fontface="bold"){
   symbols<-list()
   for(i in 1:ncha){
-    symbols[[i]]<-importSVG(font, color[i], rname[i])
+    symbols[[i]]<-importSVG(font, color[i], rname[i], fontface)
   }
   if(!missing(alpha)){
     for(i in 1:ncha){
       symbols[[paste0(i, "_", alpha)]]<-
-        importSVG(font, colalpha(color, alpha)[i], rname[i])
+        importSVG(font, colalpha(color, alpha)[i], rname[i], fontface)
     }
   }
   symbols

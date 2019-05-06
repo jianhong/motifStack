@@ -61,7 +61,7 @@ plot(motif)
 #plot the logo with same height
 plot(motif, ic.scale=FALSE, ylab="probability")
 #try a different font
-plot(motif, font="mono,Courier")
+plot(motif, font="mono,Courier", fontface="plain") # fontface can be 1=plain, 2=bold, 3=italic, 4=bold italic
 #try a different font and a different color group
 motif@color <- colorset(colorScheme='basepairing')
 plot(motif,font="Times")
@@ -334,6 +334,29 @@ docker run -ti --rm -v ${PWD}/tmp4motifstack:/volume/data jianhong/motifstack:la
 </pre>
 
 You will see the test.pdf file in the folder of tmp4motifstack. 
+
+# plot motifs with ggplot2
+
+motifs could be plotted by `geom_motif` function.
+
+```{r geommotif,fig.width=8, fig.height=8}
+pcm <- read.table(file.path(find.package("motifStack"), 
+                            "extdata", "bin_SOLEXA.pcm"))
+pcm <- pcm[,3:ncol(pcm)]
+rownames(pcm) <- c("A","C","G","T")
+motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+pfm <- pcm2pfm(motif)
+df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1), 
+                 fontfamily=c("Helvetica", "mono,Courier"), fontface=c(2, 1))
+df$motif <- list(pfm, pfm)
+
+library(ggplot2)
+
+ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif, 
+               fontfamily=fontfamily, fontface=fontface)) + 
+geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
+```
+
 
 # Session Info
 ```{r sessionInfo}

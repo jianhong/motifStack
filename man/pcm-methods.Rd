@@ -15,6 +15,8 @@
 \alias{plot,pcm,ANY-method}
 \alias{$,pcm-method}
 \alias{$<-,pcm-method}
+\alias{as.data.frame,pcm-method}
+\alias{format,pcm-method}
 
 \title{"pcm" methods}
 \description{
@@ -32,6 +34,8 @@
 	\S4method{pcm2pfm}{data.frame,ANY}(x,background="missing")
 	\S4method{pcm2pfm}{data.frame,numeric}(x,background)
 	\S4method{trimMotif}{pcm,numeric}(x,t)
+	\S4method{as.data.frame}{pcm}(x, row.names = NULL, optional = FALSE,\dots)
+	\S4method{format}{pcm}(x,\dots)
 }
 
 \arguments{
@@ -46,6 +50,7 @@
 	\item{background}{a \code{"numeric"} vector. The background frequency.}
 	\item{t}{numeric value of information content threshold for trimming.}
 	\item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
+	\item{row.names,optional}{see as.data.frame}
 }
 
 \section{Methods}{
@@ -69,6 +74,9 @@
     \item{trimMotif}{\code{signature(x = "pcm", t= "numeric")} trim motif by information content. }
     
     \item{$, $<-}{Get or set the slot of \code{\link{pcm-class}}}
+    
+    \item{as.data.frame}{convert \code{\link{pcm-class}} to a data.frame}
+    \item{format}{return the name_pcm of \code{\link{pcm-class}}}
  } 
 }
 \examples{
@@ -80,5 +88,7 @@ getIC(motif)
 matrixReverseComplement(motif)
 as(motif,"matrix")
 pcm2pfm(motif)
+as.data.frame(motif)
+format(motif)
 }
 \keyword{classes}

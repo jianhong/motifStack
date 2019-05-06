@@ -5,17 +5,18 @@
 plot amino acid or DNA sequence logo
 }
 \usage{
-plotMotifLogo(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", 
+plotMotifLogo(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", fontface="bold", 
 colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
 xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
 xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE, newpage=TRUE,
-margins=c(4.1, 4.1, 2.1, .1))
+margins=c(4.1, 4.1, 2.1, .1), draw=TRUE)
 }
 \arguments{
 \item{pfm}{a position frequency matrices}
 \item{motifName}{motif name}
 \item{p}{background possibility}
 \item{font}{font of logo}
+\item{fontface}{fontface of logo}
 \item{colset}{color setting for each logo letter}
 \item{xaxis}{draw x-axis or not}
 \item{yaxis}{draw y-axis or not}
@@ -27,6 +28,7 @@ margins=c(4.1, 4.1, 2.1, .1))
 \item{ic.scale}{logical If TRUE, the height of each column is proportional to its information content. Otherwise, all columns have the same height.}
 \item{newpage}{logical If TRUE, plot it in a new page.}
 \item{margins}{A numeric vector interpreted in the same way as par(mar) in base graphics.}
+\item{draw}{Vector (logical(1)). TRUE to plot. FALSE, return a gList}
 }
 \value{
  none

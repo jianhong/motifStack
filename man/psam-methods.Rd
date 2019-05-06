@@ -6,6 +6,8 @@
 \alias{plot,psam,ANY-method}
 \alias{$,psam-method}
 \alias{$<-,psam-method}
+\alias{as.data.frame,psam-method}
+\alias{format,psam-method}
 
 \title{"psam" methods}
 \description{
@@ -16,6 +18,8 @@
 	\S4method{addBlank}{psam,numeric,logical}(x,n,b)
 	\S4method{matrixReverseComplement}{psam}(x)
 	\S4method{plot}{psam,ANY}(x,y="missing",\dots)
+	\S4method{as.data.frame}{psam}(x, row.names = NULL, optional = FALSE,\dots)
+	\S4method{format}{psam}(x,\dots)
 }
 
 \arguments{
@@ -24,6 +28,7 @@
 	\item{n}{how many spaces should be added.}
 	\item{b}{logical value to indicate where the space should be added.}
 	\item{\dots}{Further potential arguments passed to \code{plotAffinityLogo}.}
+	\item{row.names,optional}{see as.data.frame}
 }
 
 \section{Methods}{
@@ -40,6 +45,8 @@
     affinity logo of the position specific affinity matrix. }
   
   \item{$, $<-}{Get or set the slot of \code{\link{psam-class}}}
+    \item{as.data.frame}{convert \code{\link{psam-class}} to a data.frame}
+    \item{format}{return the name_pfm of \code{\link{psam-class}}}
  } 
 }
 \examples{
@@ -49,5 +56,7 @@ matrixReverseComplement(motif)
 addBlank(motif, 1, FALSE)
 addBlank(motif, 3, TRUE)
 as(motif,"matrix")
+as.data.frame(motif)
+format(motif)
 }
 \keyword{classes}

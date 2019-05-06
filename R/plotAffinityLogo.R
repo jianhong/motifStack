@@ -1,6 +1,6 @@
-plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
+plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="bold",
                              colset=c("#00811B","#2000C7","#FFB32C","#D00001"),
-                             alpha=0.5, newpage=TRUE){
+                             alpha=0.5, newpage=TRUE, draw=TRUE){
   if(class(psam)=="data.frame"){
     psam <- as.matrix(psam)
   }else{
@@ -22,12 +22,13 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
   ncha<-nrow(psam)
   key<-paste("x", ncha, font, paste(colset, collapse=""), paste(rname, collapse=""), sep="_")
   symbolsCache <- if(exists("tmp_motifStack_symbolsCache", envir=.globals)) get("tmp_motifStack_symbolsCache", envir=.globals) else list()
-  symbols<-coloredSymbols(ncha, font, colset, rname, alpha)
+  symbols<-coloredSymbols(ncha, font, colset, rname, alpha, fontface=fontface)
   symbolsCache[[key]]<-symbols
   assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
   
   #calculate postion of each symbol and plot
-  if(newpage) grid.newpage()
+  plot <- gList()
+  
   
   ddG <- log(psam+1e-2)
   ddG.mu<-colMeans(ddG)
@@ -39,7 +40,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
   ddG.height <- ddG.height/(2*ie)
   dw<-1/npos
   x.pos<-0
-  grid.lines(y=unit(c(.5, .5), "npc"), gp=gpar(lty=3))
+  plot <- gList(plot, linesGrob(y=unit(c(.5, .5), "npc"), gp=gpar(lty=3)))
   for(j in seq.int(npos)){
     heights<-ddG.height[,j]
     ## less than 0
@@ -49,7 +50,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
       h<-heights[id[i]]
       if(h<0) {
         y.pos<-y.pos+h
-        grid.draw(pictureGrob(symbols[[paste0(id[i], "_", alpha)]],x.pos,y.pos,dw,-h,just=c(0,0),distort=TRUE))
+        plot <- gList(plot, pictureGrob(symbols[[paste0(id[i], "_", alpha)]],x.pos,y.pos,dw,-h,just=c(0,0),distort=TRUE))
       }
     }
     ## greater than 0
@@ -58,11 +59,18 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold",
     for(i in seq.int(ncha)){
       h<-heights[id[i]]
       if(h>0) {
-        grid.draw(pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
+        plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
         y.pos<-y.pos+h
       }
     }
     x.pos<-x.pos+dw
+  }
+  
+  if(draw){
+    if(newpage) grid.newpage()
+    suppressWarnings(grid.draw(plot))
+  }else{
+    plot
   }
 }
 

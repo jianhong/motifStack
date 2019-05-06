@@ -5,17 +5,19 @@
 plot affinity logo
 }
 \usage{
-plotAffinityLogo(psam, motifName, font="Helvetica-Bold",
+plotAffinityLogo(psam, motifName, font="Helvetica-Bold", fontface="bold",
                              colset=c("#00811B","#2000C7","#FFB32C","#D00001"),
-                             alpha=0.5, newpage=TRUE)
+                             alpha=0.5, newpage=TRUE, draw=TRUE)
 }
 \arguments{
 \item{psam}{a position-specific affinity matrix}
 \item{motifName}{motif name}
 \item{font}{font of logo}
+\item{fontface}{fontface of logo}
 \item{colset}{color setting for each logo letter}
 \item{alpha}{Alpha channel for transparency of low affinity letters.}
 \item{newpage}{plot in a new canvas or not.}
+\item{draw}{Vector (logical(1)). TRUE to plot. FALSE, return a gList}
 }
 \references{
 Barrett C. Foat, Alexandre V. Morozov, Harmen J. Bussemaker; Statistical mechanical modeling of genome-wide transcription factor occupancy data by MatrixREDUCE, Bioinformatics, Volume 22, Issue 14, 15 July 2006, Pages e141-e149, https://doi.org/10.1093/bioinformatics/btl223

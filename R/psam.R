@@ -89,3 +89,12 @@ setMethod("addBlank", signature(x="psam", n="numeric", b="logical"), function(x,
   x@mat<-N
   x
 })
+
+## for data.frame
+setMethod("as.data.frame", signature(x="psam"), function(x, row.names = NULL, optional = FALSE, ...){
+  as.data.frame(x@mat, ...)
+})
+
+setMethod("format", signature(x="psam"), function(x, ...){
+  paste0(x@name, "_psam")
+})

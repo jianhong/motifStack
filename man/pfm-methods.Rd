@@ -13,6 +13,8 @@
 \alias{plot,pfm,ANY-method}
 \alias{$,pfm-method}
 \alias{$<-,pfm-method}
+\alias{as.data.frame,pfm-method}
+\alias{format,pfm-method}
 
 \title{"pfm" methods}
 \description{
@@ -26,6 +28,8 @@
 	\S4method{matrixReverseComplement}{pfm}(x)
 	\S4method{plot}{pfm,ANY}(x,y="missing",\dots)
 	\S4method{trimMotif}{pfm,numeric}(x,t)
+	\S4method{as.data.frame}{pfm}(x, row.names = NULL, optional = FALSE,\dots)
+	\S4method{format}{pfm}(x,\dots)
 }
 
 \arguments{
@@ -37,6 +41,7 @@
 	\item{b}{logical value to indicate where the space should be added.}
 	\item{t}{numeric value of information content threshold for trimming.}
 	\item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
+	\item{row.names,optional}{see as.data.frame}
 }
 
 \section{Methods}{
@@ -61,6 +66,8 @@
   \item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by information content. }
   
   \item{$, $<-}{Get or set the slot of \code{\link{pfm-class}}}
+    \item{as.data.frame}{convert \code{\link{pfm-class}} to a data.frame}
+    \item{format}{return the name_pfm of \code{\link{pfm-class}}}
  } 
 }
 \examples{
@@ -74,5 +81,7 @@ matrixReverseComplement(motif)
 addBlank(motif, 1, FALSE)
 addBlank(motif, 3, TRUE)
 as(motif,"matrix")
+as.data.frame(motif)
+format(motif)
 }
 \keyword{classes}

@@ -3,6 +3,7 @@ import(stats)
 import(utils)
 import(methods)
 import(grid)
+import(ggplot2)
 import(ade4)
 import(XML)
 importFrom(scales, rescale)
@@ -24,6 +25,9 @@ export(
     importMatrix,
     mergeMotifs,
     motifStack,
+    motifGrob,
+    geom_motif,
+    GeomMotif,
     plotMotifOverMotif,
     plotMotifLogoStack, plotMotifLogoStackWithTree, DNAmotifAlignment, 
     plotMotifStackWithPhylog, plotMotifStackWithRadialPhylog,
@@ -46,5 +50,7 @@ exportMethods(
         plot,
         sigColor,
         trimMotif,
-        "$", "$<-"
+        "$", "$<-",
+        format,
+        as.data.frame
 )
