@@ -221,7 +221,7 @@ plotMarkers <- function(markers, dw, h, lo=NULL){
              textGrob(label=label,
                       x = (pos-.5)*dw, 
                       y = h[pos],
-                      vjust = 0,
+                      vjust = -0.1,
                       gp = m@gp)
              },
            "line"={
