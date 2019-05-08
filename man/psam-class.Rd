@@ -21,6 +21,8 @@
     \item{\code{alphabet}}{\code{"character"} The sequence
       alphabet. "DNA", "RNA", "AA" or "others".}
     \item{\code{color}}{a \code{"character"} vector. The color setting for each symbol}
+    \item{\code{tags}}{a list to save metadata of motif.}
+    \item{\code{markers}}{a list of marker object.}
   }
 }
 \section{Methods}{

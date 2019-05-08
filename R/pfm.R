@@ -1,5 +1,7 @@
 setClass("pfm", 
-        representation(mat="matrix", name="character", alphabet="character", color="character", background="numeric"),
+        representation(mat="matrix", name="character", alphabet="character", 
+                       color="character", background="numeric", tags="list",
+                       markers="list"),
         validity=function(object){
             re<-TRUE
             if (any(abs(1 - apply(object@mat, 2, sum)) > 0.01)) re<-"Columns of PFM must add up to 1.0"
@@ -12,6 +14,7 @@ setClass("pfm",
             if (object@alphabet=="DNA" & !all(rownames(object@mat) %in% c("A","C","G","T"))) re<-"rownames of PFM for DNA motifs must be capital A, C, G and T"
             if (object@alphabet=="RNA" & !all(rownames(object@mat) %in% c("A","C","G","U"))) re<-"rownames of PFM for RNA motifs must be capital A, C, G and U"
             if (object@alphabet=="AA" & !all(rownames(object@mat) %in% LETTERS[1:26])) re<-"rownames of PFM for AA motifs must be capital letters"
+            if (any(!is(object@markers, "marker"))) re<- "markers must be a list of marker object"
             re
         }
 )
@@ -23,7 +26,7 @@ setReplaceMethod("$", "pfm",
                      x
                  })
 
-setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, background){
+setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, background, tags, markers){
     if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
     if(is.null(rownames(mat))) stop("rownames of PFM is empty")
     rownames(mat)<-toupper(rownames(mat))
@@ -56,21 +59,19 @@ setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, backg
         background <- rep(background, nrow(mat))[1:nrow(mat)]
         names(background) <- rname
     }
-    .Object@mat            =    mat;
-    .Object@name        =    name;
-    .Object@alphabet    =    alphabet;
-    .Object@color        =    color;
-    .Object@background    =    background;
+    .Object@mat            =    mat
+    .Object@name        =    name
+    .Object@alphabet    =    alphabet
+    .Object@color        =    color
+    .Object@background    =    background
+    if(!missing(tags)) .Object@tags = tags
+    if(!missing(markers)) .Object@markers = markers
     .Object
 })
 
 setMethod("plot", signature(x="pfm", y="ANY"), 
     function(x, y="missing", ...){
-        plotMotifLogo(pfm=x@mat, 
-                      motifName=x@name, 
-                      p=x@background[rownames(x@mat)], 
-                      colset=x@color[rownames(x@mat)], 
-                      ...)
+        plotMotifLogo(pfm=x, ...)
     }
 )
 

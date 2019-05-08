@@ -22,6 +22,8 @@
       alphabet. "DNA", "RNA", "AA" or "others".}
     \item{\code{color}}{a \code{"character"} vector. The color setting for each symbol}
     \item{\code{background}}{a \code{"numeric"} vector. The background frequency.}
+    \item{\code{tags}}{a list to save metadata of motif.}
+    \item{\code{markers}}{a list of marker object.}
   }
 }
 \section{Methods}{

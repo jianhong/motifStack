@@ -1,5 +1,7 @@
 setClass("psam", 
-         representation(mat="matrix", name="character", alphabet="character", color="character"),
+         representation(mat="matrix", name="character", alphabet="character", 
+                        color="character", tags="list",
+                        markers="list"),
          validity=function(object){
            re<-TRUE
            if (abs(1-max(object@mat)) > 0.01) re<-"PSAM matrix should be normalized with respect to the value of the highest affinity oligonucleotied."
@@ -11,6 +13,7 @@ setClass("psam",
            if (object@alphabet=="DNA" & !all(rownames(object@mat) %in% c("A","C","G","T"))) re<-"rownames of PSAM for DNA motifs must be capital A, C, G and T"
            if (object@alphabet=="RNA" & !all(rownames(object@mat) %in% c("A","C","G","U"))) re<-"rownames of PSAM for RNA motifs must be capital A, C, G and U"
            if (object@alphabet=="AA" & !all(rownames(object@mat) %in% LETTERS[1:26])) re<-"rownames of PSAM for AA motifs must be capital letters"
+           if (any(!is(object@markers, "marker"))) re<- "markers must be a list of marker object"
            re
          }
 )
@@ -22,7 +25,7 @@ setReplaceMethod("$", "psam",
                    x
                  })
 
-setMethod("initialize","psam",function(.Object, mat, name, alphabet, color){
+setMethod("initialize","psam",function(.Object, mat, name, alphabet, color, tags, markers){
   if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
   if(is.null(rownames(mat))) stop("rownames of PSAM is empty")
   rownames(mat)<-toupper(rownames(mat))
@@ -41,19 +44,18 @@ setMethod("initialize","psam",function(.Object, mat, name, alphabet, color){
   if(missing(color)){
     color<-colorset(alphabet, "auto")
   }
-  .Object@mat            =    mat;
-  .Object@name        =    name;
-  .Object@alphabet    =    alphabet;
-  .Object@color        =    color;
+  .Object@mat            =    mat
+  .Object@name        =    name
+  .Object@alphabet    =    alphabet
+  .Object@color        =    color
+  if(!missing(tags)) .Object@tags = tags
+  if(!missing(markers)) .Object@markers = markers
   .Object
 })
 
 setMethod("plot", signature(x="psam", y="ANY"), 
           function(x, y="missing", ...){
-            plotAffinityLogo(psam=x@mat, 
-                          motifName=x@name, 
-                          colset=x@color[rownames(x@mat)], 
-                          ...)
+            plotAffinityLogo(psam=x, ...)
           }
 )
 

@@ -38,7 +38,7 @@ export(
     reorderUPGMAtree,
     getRankedUniqueMotifs
 )
-exportClasses("pfm", "pcm", "psam", "ouNode", "motifSig")
+exportClasses("pfm", "pcm", "psam", "ouNode", "motifSig", "marker")
 exportMethods(
         getIC,
         matrixReverseComplement,

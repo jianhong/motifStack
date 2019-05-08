@@ -1,5 +1,7 @@
 setClass("pcm", 
-         representation(mat="matrix", name="character", alphabet="character", color="character", background="numeric"),
+         representation(mat="matrix", name="character", alphabet="character", 
+                        color="character", background="numeric", tags="list",
+                        markers="list"),
          validity=function(object){
              re<-TRUE
              if (checkInteger(unlist(object@mat))) re<-"Columns of pcm must be integer"
@@ -12,6 +14,7 @@ setClass("pcm",
              if (object@alphabet=="DNA" & !all(rownames(object@mat) %in% c("A","C","G","T"))) re<-"rownames of pcm for DNA motifs must be capital A, C, G and T"
              if (object@alphabet=="RNA" & !all(rownames(object@mat) %in% c("A","C","G","U"))) re<-"rownames of pcm for RNA motifs must be capital A, C, G and U"
              if (object@alphabet=="AA" & !all(rownames(object@mat) %in% LETTERS[1:26])) re<-"rownames of pcm for AA motifs must be capital letters"
+             if (any(!is(object@markers, "marker"))) re<- "markers must be a list of marker object"
              re
          }
 )
@@ -24,7 +27,8 @@ setReplaceMethod("$", "pcm",
                      x
                  })
 
-setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, background){
+setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, background, 
+                                      tags, markers){
     if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
     if(is.null(rownames(mat))) stop("rownames of pcm is empty")
     rownames(mat)<-toupper(rownames(mat))
@@ -57,21 +61,19 @@ setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, backg
         background <- rep(background, nrow(mat))[1:nrow(mat)]
         names(background) <- rname
     }
-    .Object@mat            =    mat;
-    .Object@name        =    name;
-    .Object@alphabet    =    alphabet;
-    .Object@color        =    color;
-    .Object@background    =    background;
+    .Object@mat            =    mat
+    .Object@name        =    name
+    .Object@alphabet    =    alphabet
+    .Object@color        =    color
+    .Object@background    =    background
+    if(!missing(tags)) .Object@tags = tags
+    if(!missing(markers)) .Object@markers = markers
     .Object
 })
 
 setMethod("plot", signature(x="pcm"), 
           function(x, y="missing", ...){
-              plotMotifLogo(pfm=pcm2pfm(x@mat), 
-                            motifName=x@name, 
-                            p=x@background[rownames(x@mat)], 
-                            colset=x@color[rownames(x@mat)], 
-                            ...)
+              plot(pcm2pfm(x), ...)
           }
 )
 
@@ -169,7 +171,9 @@ setMethod("pcm2pfm", signature(x="data.frame"), function(x, background="missing"
 ## pcm to pfm from pcm object
 setMethod("pcm2pfm", signature(x="pcm"), function(x, background="missing"){
     .mat <- pcm2pfm(x@mat, x@background)
-    new("pfm", mat=.mat, name=x@name, alphabet=x@alphabet, color=x@color, background=x@background)
+    new("pfm", mat=.mat, name=x@name, alphabet=x@alphabet, 
+        color=x@color, background=x@background, tags=x@tags,
+        markers=x@markers)
 })
 
 ## for data.frame

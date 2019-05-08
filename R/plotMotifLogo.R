@@ -3,6 +3,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
                         xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
                         xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE,
                         newpage=TRUE, margins=c(4.1, 4.1, 2.1, .1), draw=TRUE){
+  markers <- NULL
   if (class(pfm) == "data.frame"){
     pfm <- as.matrix(pfm)
   }else{
@@ -10,6 +11,10 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
       pfm <- pcm2pfm(pfm)
     }
     if(class(pfm) == "pfm"){
+      markers <- pfm@markers
+      if(missing(motifName)) motifName = pfm@name
+      p=pfm@background[rownames(pfm@mat)]
+      colset=pfm@color[rownames(pfm@mat)]
       pfm <- pfm@mat
     }
   } 
@@ -51,6 +56,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
   }
   dw<-1/npos
   x.pos<-0
+  y.poss <- numeric(length=npos)
   for(j in 1:npos){
     column<-pfm[,j]
     if(ic.scale){
@@ -66,7 +72,11 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
       if(h>0 && ic[j]>0) plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h, just=c(0,0),distort=TRUE))
       y.pos<-y.pos+h
     }
+    y.poss[j] <- y.pos
     x.pos<-x.pos+dw
+  }
+  if(length(markers)>0){
+    plot <- gList(plot, plotMarkers(markers, dw, y.poss))
   }
   if(xaxis) plot <- gList(plot, plotXaxis(pfm, p))
   if(yaxis) plot <- gList(plot, plotYaxis(ie))
@@ -156,6 +166,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=T
   ie <- max(c(ie, ic))
   dw<-1/npos
   x.pos<-0
+  y.poss <- numeric(length=npos)
   for(j in 1:npos){
     column<-pfm@mat[,j]
     if(ic.scale){
@@ -171,13 +182,56 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=T
       if(h>0 && ic[j]>0) plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
       y.pos<-y.pos+h
     }
+    y.poss[j] <- y.pos
     x.pos<-x.pos+dw
+  }
+  markers <- pfm@markers
+  if(length(markers)>0){
+    plot <- gList(plot, plotMarkers(markers, dw, y.poss))
   }
   if(draw){
     suppressWarnings(grid.draw(plot))
   }else{
     plot
   }
+}
+
+plotMarkers <- function(markers, dw, h, lo=NULL){
+  do.call(gList, lapply(markers, function(m){
+    switch(m@type,
+           "rect"={
+             pos <- mapply(seq, m@start, m@stop, SIMPLIFY = FALSE)
+             if(length(lo)>0 && length(lo)==length(h)){
+               height <- sapply(pos, function(.ele) max(h[.ele])-min(lo[.ele]))
+               y <- sapply(pos, function(.ele) (min(lo[.ele])+max(h[.ele]))/2)
+             }else{
+               height <- sapply(pos, function(.ele) max(h[.ele]))
+               y <- height/2
+             }
+             rectGrob(x= (m@start + m@stop-1)*dw/2,
+                      y = y,
+                      width = dw*(m@stop - m@start + 1),
+                      height = height, 
+                      gp = m@gp)
+             },
+           "text"={
+             pos <- mapply(seq, m@start, m@stop, SIMPLIFY = FALSE)
+             label <- rep(m@label, lengths(pos))
+             pos <- unlist(pos)
+             textGrob(label=label,
+                      x = (pos-.5)*dw, 
+                      y = h[pos],
+                      vjust = 0,
+                      gp = m@gp)
+             },
+           "line"={
+             pos <- mapply(seq, m@start, m@stop, SIMPLIFY = FALSE)
+             height <- sapply(pos, function(.ele) max(h[.ele]))
+             linesGrob(x = as.numeric(rbind(m@start-1, m@stop)*dw), 
+                       y = height,
+                       gp = m@gp)
+             })
+  }))
 }
 
 ################## for ggplot2 ###################

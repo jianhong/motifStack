@@ -67,6 +67,20 @@ motif@color <- colorset(colorScheme='basepairing')
 plot(motif,font="Times")
 ```
 
+## plot sequence logo with markers
+If you assign markers slot by a list of `marker` object, markers can be plotted in the figure. 
+There are three type of markers, "rect", "line" and "text".
+```{r seqLogoMarkers, fig.cap="Plot a DNA sequence logo with markers", fig.width=8,fig.height=2.5}
+markerRect <- new("marker", type="rect", start=6, stop=7, gp=gpar(lty=2, fill=NA, col="orange"))
+markerLine <- new("marker", type="line", start=2, stop=7, gp=gpar(lwd=2, col="red"))
+markerText <- new("marker", type="text", start=c(1, 5), 
+                  label=c("*", "core"), gp=gpar(cex=2, col="red"))
+motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA", 
+             markers=c(markerRect, markerLine, markerText))
+plot(motif)
+```
+
+
 ## plot a RNA sequence logo
 
 To plot a RNA sequence logo, you only need to change the rowname of the matrix 
@@ -105,7 +119,10 @@ motif<-matrix(
     .701, .513, .658, .000, .000, .247, .542, 1.00, .718, .686, .000, .000, .000, .595, .437, .970
   ), nrow=4, byrow = TRUE)
 rownames(motif) <- c("A", "C", "G", "T")
-motif<-new("psam", mat=motif, name="affinity logo")
+motif<-new("psam", mat=motif, name="affinity logo", 
+           markers=list(new("marker", type="rect",
+                            start=c(4, 11), stop=c(6, 13),
+                            gp=gpar(col="#009E73", fill=NA, lty=2))))
 plot(motif)
 ```
 
@@ -344,7 +361,11 @@ pcm <- read.table(file.path(find.package("motifStack"),
                             "extdata", "bin_SOLEXA.pcm"))
 pcm <- pcm[,3:ncol(pcm)]
 rownames(pcm) <- c("A","C","G","T")
-motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+markerRect <- new("marker", type="rect", start=6, stop=7, gp=gpar(lty=2, fill=NA, col="orange"))
+markerLine <- new("marker", type="line", start=3, stop=5, gp=gpar(lwd=2, col="red"))
+markerText <- new("marker", type="text", start=1, label="*", gp=gpar(cex=2, col="red"))
+motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA", 
+             markers=c(markerRect, markerLine, markerText))
 pfm <- pcm2pfm(motif)
 df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1), 
                  fontfamily=c("Helvetica", "mono,Courier"), fontface=c(2, 1))

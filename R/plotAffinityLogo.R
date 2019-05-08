@@ -1,10 +1,14 @@
 plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="bold",
                              colset=c("#00811B","#2000C7","#FFB32C","#D00001"),
                              alpha=0.5, newpage=TRUE, draw=TRUE){
+  markers <- NULL
   if(class(psam)=="data.frame"){
     psam <- as.matrix(psam)
   }else{
     if(class(psam) == "psam"){
+      markers <- psam@markers 
+      if(missing(motifName)) motifName = psam@name
+      colset=psam@color[rownames(psam@mat)]
       psam <- psam@mat
     }
   }
@@ -40,6 +44,8 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
   ddG.height <- ddG.height/(2*ie)
   dw<-1/npos
   x.pos<-0
+  y.poss <- numeric(length=npos)
+  y.low.poss <- numeric(length=npos)
   plot <- gList(plot, linesGrob(y=unit(c(.5, .5), "npc"), gp=gpar(lty=3)))
   for(j in seq.int(npos)){
     heights<-ddG.height[,j]
@@ -53,6 +59,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
         plot <- gList(plot, pictureGrob(symbols[[paste0(id[i], "_", alpha)]],x.pos,y.pos,dw,-h,just=c(0,0),distort=TRUE))
       }
     }
+    y.low.poss[j] <- y.pos
     ## greater than 0
     id<-order(heights, decreasing = FALSE)
     y.pos<-0.5
@@ -63,7 +70,11 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
         y.pos<-y.pos+h
       }
     }
+    y.poss[j] <- y.pos
     x.pos<-x.pos+dw
+  }
+  if(length(markers)>0){
+    plot <- gList(plot, plotMarkers(markers, dw, y.poss, y.low.poss))
   }
   
   if(draw){
