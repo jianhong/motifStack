@@ -142,7 +142,10 @@ plotYaxis<-function(ymax){
 ######## to be used to create a better view of stack, eg. radial sty,
 ###############################################################################
 plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=TRUE, draw=TRUE){
-  if (class(pfm) != "pfm"){
+  if (is(pfm, "pcm")){
+    pfm <- pcm2pfm(pfm)
+  }
+  if (!is(pfm, "pfm")){
     stop("pfms must be a pfm object")
   }
   rname<-rownames(pfm@mat)
@@ -252,14 +255,14 @@ geom_motif <- function(mapping = NULL, data = NULL,
                        stat = "identity", position = "identity",
                        ...,
                        ic.scale=TRUE,
+                       use.xy=FALSE,
                        show.legend = NA,
                        inherit.aes = TRUE) {
-  
   layer(
     data = data,
     mapping = mapping,
     stat = stat,
-    geom = GeomMotif,
+    geom = if(use.xy) GeomMotifA else GeomMotif,
     position = position,
     show.legend = show.legend,
     inherit.aes = inherit.aes,
@@ -271,7 +274,7 @@ geom_motif <- function(mapping = NULL, data = NULL,
 }
 
 GeomMotif <- 
-  ggproto("GeoMotif", Geom, 
+  ggproto("GeomMotif", Geom, 
           required_aes = c("xmin", "ymin", "xmax", "ymax", "motif"),
           default_aes = aes(angle=0, fontfamily="Helvetica-Bold", 
                             fontface="bold"),
@@ -292,3 +295,34 @@ GeomMotif <-
             }))
           })
 
+GeomMotifA <- 
+  ggproto("GeomMotif", Geom, 
+          required_aes = c("x", "y", "width", "height", "motif"),
+          default_aes = aes(angle=0, fontfamily="Helvetica-Bold", 
+                            fontface="bold"),
+          draw_panel = function(data, panel_params, coord, ic.scale=TRUE){
+            if(is.unit(data$x)) data$x <- convertUnit(data$x, unitTo = "native", valueOnly = TRUE)
+            if(is.unit(data$y)) data$y <- convertUnit(data$x, unitTo = "native", valueOnly = TRUE)
+            if(is.unit(data$width)) data$width <- convertUnit(data$width, unitTo = "native", valueOnly = TRUE)
+            if(is.unit(data$height)) data$height <- convertUnit(data$height, unitTo = "native", valueOnly = TRUE)
+            hw <- data$width/2
+            hh <- data$height/2
+            data$xmin <- data$x - hw
+            data$ymin <- data$y - hh
+            data$xmax <- data$x + hw
+            data$ymax <- data$y + hh
+            coords <- coord$transform(data, panel_params)
+            n <- nrow(coords)
+            do.call(gList, lapply(seq.int(n), function(.id){
+              motifGrob(pfm=coords$motif[[.id]],
+                        x=mean(c(coords$xmin[.id], coords$xmax[.id])),
+                        y=mean(c(coords$ymin[.id], coords$ymax[.id])),
+                        width=coords$xmax[.id] - coords$xmin[.id], 
+                        height=coords$ymax[.id] - coords$ymin[.id],
+                        angle=coords$angle[.id], ic.scale=ic.scale,
+                        default.units = "native",
+                        gp = gpar(fontfamily=coords$fontfamily[.id],
+                                  fontface=coords$fontface[.id]),
+                        name = paste0("geom_motif_", .id))
+            }))
+          })

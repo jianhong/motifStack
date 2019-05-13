@@ -376,6 +376,14 @@ library(ggplot2)
 ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif, 
                fontfamily=fontfamily, fontface=fontface)) + 
 geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
+
+df <- data.frame(x=.5, y=c(.25, .75), width=.5, height=.25, 
+                 fontfamily=c("Helvetica", "mono,Courier"), fontface=c(2, 1))
+df$motif <- list(pfm, pfm)
+
+ggplot(df, aes(x=x, y=y, width=width, height=height, motif=motif, 
+               fontfamily=fontfamily, fontface=fontface)) + 
+geom_motif(use.xy=TRUE) + theme_bw() + ylim(0, 1) + xlim(0, 1)
 ```
 
 

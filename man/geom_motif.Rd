@@ -8,7 +8,7 @@ geom_motif uses the locations of the four corners (xmin, xmax, ymin and ymax) to
 }
 \usage{
 geom_motif(mapping = NULL, data = NULL, stat = "identity", position = "identity", 
-..., ic.scale = TRUE, show.legend = NA, inherit.aes = TRUE)
+..., ic.scale = TRUE, use.xy=FALSE, show.legend = NA, inherit.aes = TRUE)
 }
 \arguments{
   \item{mapping}{
@@ -32,6 +32,10 @@ Other arguments passed on to layer().
 logical If TRUE, the height of each column is proportional to its information content. 
 Otherwise, all columns have the same height.
 }
+  \item{use.xy}{
+logical If TRUE, the required aesthethics will be x, y, width, height, and motif. 
+Otherwise, xmin, ymin, xmax, ymax and motif.
+}
   \item{show.legend}{
 Not used.
 }
@@ -51,6 +55,20 @@ geom_motif() understands the following aesthetics (required aesthetics are in bo
 \item \code{fontfamily}
 \item \code{fontface}
 }
+
+OR 
+
+\itemize{
+\item \strong{\code{x}}
+\item \strong{\code{y}}
+\item \strong{\code{width}}
+\item \strong{\code{height}}
+\item \strong{\code{motif}}
+\item \code{angle}
+\item \code{fontfamily}
+\item \code{fontface}
+}
+
 }
 \value{
 a layer that contains GeomMotif object.
