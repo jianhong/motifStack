@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.29.4
+-----------------------
+
+  o fix a bug that markers shift position when alignment.
+  
 CHANGES IN VERSION 1.29.3
 -----------------------
 

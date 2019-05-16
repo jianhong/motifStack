@@ -86,6 +86,13 @@ setMethod("addBlank", signature(x="psam", n="numeric", b="logical"), function(x,
     N<-cbind(x@mat,N)
   }else{
     N<-cbind(N,x@mat)
+    if(length(x@markers)>0){
+      x@markers <- lapply(x@markers, function(.ele){
+        .ele@start <- .ele@start+n
+        .ele@stop <- .ele@stop+n
+        .ele
+      })
+    }
   }
   rownames(N)<-rownames(x@mat)
   x@mat<-N
