@@ -1,5 +1,6 @@
 # motifStack
 
+[![DOI](https://img.shields.io/badge/DOI-10.1038%2Fnmeth.4555-brightgreen.svg)](https://doi.org/10.1038/nmeth.4555)
 [![platforms](http://bioconductor.org/shields/availability/devel/motifStack.svg)](http://bioconductor.org/packages/devel/bioc/html/motifStack.html)
 [![build](http://bioconductor.org/shields/build/devel/bioc/motifStack.svg)](http://bioconductor.org/packages/devel/bioc/html/motifStack.html)
 
