@@ -248,7 +248,13 @@ importCisBP <- function(fn){
     .ele <- .ele[-1]
     ## remove last column if there is consensus
     .ele <- gsub("[a-zA-Z]*\\s*$", "", .ele)
-    .ele <- matrix(scan(text=.ele, what = double(), quiet=TRUE), ncol = 5, byrow=TRUE)
+    .ele <- tryCatch(matrix(scan(text=.ele, what = double(), quiet=TRUE), ncol = 5, byrow=TRUE),
+             error = function(.e){
+               NULL
+             })
+    if(is.null(.ele)){
+      return(NULL)
+    }
     ## check first column
     if(!all(.ele[, 1]==seq_along(.ele[, 1]))){
       stop("In counts section, rownname should be from 01 to n.")
@@ -258,6 +264,7 @@ importCisBP <- function(fn){
     .ele <- t(.ele)
     list(name=tfName, mat=.ele)
   })
+  m <- m[sapply(m, function(.ele) !is.null(.ele[1]))]
   names(m) <- make.names(sapply(m, function(.ele) .ele$name), unique = TRUE, allow_ = TRUE)
   lapply(m, function(.ele) .ele$mat)
 }

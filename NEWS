@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.29.5
+-----------------------
+
+  o fix a bug that importMatrix can not handle empty matrix.
+  
 CHANGES IN VERSION 1.29.4
 -----------------------
 
