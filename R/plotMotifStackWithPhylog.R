@@ -22,8 +22,8 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   if (length(labels.nodes) != nodes.number) labels.nodes <- names(phylog$nodes)
   leaves.car <- gsub("[_]"," ",labels.leaves)
   nodes.car <- gsub("[_]"," ",labels.nodes)
-  opar <- par(mar = c(0, 0, 0, 0))
-  on.exit(par(opar))
+  #opar <- par(mar = c(0, 0, 0, 0))
+  #on.exit(par(opar))
   
   if (f.phylog < 0.05) f.phylog <- 0.05 
   if (f.phylog > 0.75) f.phylog <- 0.75
