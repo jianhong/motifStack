@@ -349,3 +349,28 @@ getParentNode <- function(nodelist, nodename){
 makeLeaveNames <- function(ch){
     gsub(".", "_", make.names(ch), fixed=TRUE)
 }
+
+grid.eti <- function(x, y, label, clabel, boxes=FALSE, 
+                     coul = rep(1, length(x)), 
+                     bg = "white"){
+  if (length(label) == 0) 
+    return(invisible())
+  if (is.null(label)) 
+    return(invisible())
+  if (any(label == "")) 
+    return(invisible())
+  cex0 <- par("cex") * clabel
+  for (i in 1:(length(x))) {
+    cha <- as.character(label[i])
+    cha <- paste(" ", cha, " ", sep = "")
+    x1 <- x[i]
+    y1 <- y[i]
+    xh <- cex0*stringWidth(cha)
+    yh <- cex0*stringHeight(cha) * 1.66666666667
+    if (boxes) {
+      grid.rect(x=x1, y=y1, width=xh, height=yh, 
+           gp=gpar(fill = bg, col = coul[i]))
+    }
+    grid.text(x=x1, y=y1, label=cha, gp=gpar(cex = cex0, col = coul[i]))
+  }
+} 

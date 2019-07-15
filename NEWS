@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.29.6
+-----------------------
+
+  o fix a bug that 'grid' and 'graphics' output mixed for plotMotifStackWithPhylog
+  
 CHANGES IN VERSION 1.29.5
 -----------------------
 
