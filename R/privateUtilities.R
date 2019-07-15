@@ -369,8 +369,11 @@ grid.eti <- function(x, y, label, clabel, boxes=FALSE,
     yh <- cex0*stringHeight(cha) * 1.66666666667
     if (boxes) {
       grid.rect(x=x1, y=y1, width=xh, height=yh, 
-           gp=gpar(fill = bg, col = coul[i]))
+           gp=gpar(fill = bg, col = coul[i]), 
+           default.units = "native")
     }
-    grid.text(x=x1, y=y1, label=cha, gp=gpar(cex = cex0, col = coul[i]))
+    grid.text(x=x1, y=y1, label=cha, 
+              gp=gpar(cex = cex0, col = coul[i]), 
+              default.units = "native")
   }
 } 
