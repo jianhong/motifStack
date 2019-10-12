@@ -1,4 +1,9 @@
-CHANGES IN VERSION 1.29.6
+CHANGES IN VERSION 1.29.8
+-----------------------
+
+  o remove google scholar from vignette.
+  
+CHANGES IN VERSION 1.29.7
 -----------------------
 
   o Add google scholar in vignette.
