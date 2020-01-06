@@ -9,10 +9,10 @@ motifStack <-function(pfms,
         return(invisible())
     }
     layout <- match.arg(layout)
-    if(all(sapply(pfms, class)=="pcm")) pfms <- lapply(pfms, pcm2pfm)
+    if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) pfms <- lapply(pfms, pcm2pfm)
     if (any(unlist(lapply(pfms, function(.ele) !inherits(.ele, c("pfm", "psam")))))) 
         stop("pfms must be a list of pfm, pcm or psam objects")
-    if(all(sapply(pfms, class)=="psam")){
+    if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
       psam <- TRUE
     }else{
       psam <- FALSE

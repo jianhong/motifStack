@@ -6,8 +6,8 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
         stop("motif must be an object of pcm or pfm")
     if(!inherits(backgroundMotif, c("pcm", "pfm")))
         stop("backgroundMotif must be an object of pcm or pfm")
-    if(class(motif)!="pfm") motif <- pcm2pfm(motif)
-    if(class(backgroundMotif)!="pfm") backgroundMotif <- pcm2pfm(backgroundMotif)
+    if(!is(motif, "pfm")) motif <- pcm2pfm(motif)
+    if(!is(backgroundMotif, "pfm")) backgroundMotif <- pcm2pfm(backgroundMotif)
     
     w1 <- ncol(motif$mat)
     w2 <- ncol(backgroundMotif$mat)

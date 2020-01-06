@@ -1,9 +1,9 @@
 plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ...){
   n<-length(pfms)
   lapply(pfms,function(.ele){
-    if(!inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of class pfm or psam")
+    if(!inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of pfm or psam objects")
   })
-  if(class(hc)!="hclust") stop("hc class must be hclust")
+  if(!is(hc, "hclust")) stop("hc must be hclust object")
   if(treewidth>0.5) stop("treewidth can not greater than 0.5")
   #opar<-par(mar=c(0,0,0,0), mfrow=par("mfrow"))
   #layout(matrix(c(rep(1,n),rep(2:(n+1),ceiling(1/treewidth)-1)),nrow=n,ncol=ceiling(1/treewidth)))
@@ -45,7 +45,7 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   vp <- viewport(x = .5 + treewidth/2, y = .5,
                  width = 1-treewidth, height = 1)
   pushViewport(vp)
-  if(all(sapply(pfms, class)=="psam")){
+  if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
     ht <- 1/n
     y0 <- .5 * ht
     for(i in seq.int(n)){
@@ -61,7 +61,7 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
     }
   }else{
     lapply(pfms,function(.ele){
-      if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+      if(!is(.ele, "pfm")) stop("pfms must be a list of pfm objects.")
     })
     assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
     ht <- 1/n

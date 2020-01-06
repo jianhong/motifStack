@@ -4,13 +4,13 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
                         xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE,
                         newpage=TRUE, margins=c(4.1, 4.1, 2.1, .1), draw=TRUE){
   markers <- NULL
-  if (class(pfm) == "data.frame"){
+  if (is(pfm, "data.frame")){
     pfm <- as.matrix(pfm)
   }else{
-    if(class(pfm) == "pcm"){
+    if(is(pfm, "pcm")){
       pfm <- pcm2pfm(pfm)
     }
-    if(class(pfm) == "pfm"){
+    if(is(pfm, "pfm")){
       markers <- pfm@markers
       if(missing(motifName)) motifName = pfm@name
       p=pfm@background[rownames(pfm@mat)]
@@ -18,8 +18,8 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
       pfm <- pfm@mat
     }
   } 
-  if (class(pfm) != "matrix"){
-    stop("pfm must be of class matrix or data.frame")
+  if (!is(pfm, "matrix")){
+    stop("pfm must be a matrix")
   }
   if(length(p)<nrow(pfm)){
     warning("background length is shorter than number of rows. Will use default background")
@@ -27,8 +27,8 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
   }
   if (any(abs(1 - apply(pfm,2,sum)) > 0.01))
     stop("Columns of pfm must add up to 1.0")
-  if(class(colset)!="character")
-    stop("colset must be of class character")
+  if(!is(colset, "character"))
+    stop("colset must be character")
   if (length(colset)!=nrow(pfm))
     stop(paste("colset length and pfm row numbers different",length(colset),"!=",nrow(pfm)))
   rname<-rownames(pfm)

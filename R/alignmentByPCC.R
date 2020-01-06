@@ -2,8 +2,8 @@ alignmentByPCC <- function(motifs, minimalConsensus=0, rcpostfix="(RC)", revcomp
   if(length(motifs)<2) stop("less than 2 motifs")
   if(length(revcomp)!=length(motifs)) stop("length of revcomp and motifs is not identical")
   lapply(motifs,function(.ele){
-    if(class(.ele)!="pfm" && class(.ele)!="psam") {
-      stop("motifs must be a list of class pfm or psam.")
+    if(!inherits(.ele, c("pfm", "psam"))) {
+      stop("motifs must be a list of pfm or psam objects.")
     }
     if(.ele@alphabet!="DNA") stop("the alphabet of motif must be DNA")
   })
@@ -61,7 +61,7 @@ getAlignedPCCWithoutGap<-function(motif1, motif2, revcomp=TRUE){
 }
 
 getoffsetPosByPCC<-function(query, subject){
-  if(class(query)!="matrix" || class(subject)!="matrix"){
+  if(!is(query, "matrix") || !is(subject, "matrix")){
     stop("query and subject must be numeric matrix")
   }
   score1<-rep(0, ncol(query))

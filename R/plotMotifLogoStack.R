@@ -1,6 +1,6 @@
 plotMotifLogoStack<-function(pfms, ...){
   n<-length(pfms)
-  if(all(sapply(pfms, class)=="psam")){
+  if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
     grid.newpage()
     ht <- 1/n
     y0 <- .5 * ht
@@ -18,7 +18,7 @@ plotMotifLogoStack<-function(pfms, ...){
     return()
   }
   lapply(pfms,function(.ele){
-    if(class(.ele)!="pfm") stop("pfms must be a list of class pfm")
+    if(!is(.ele, "pfm")) stop("pfms must be a list of pfm objects.")
   })
   assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
   grid.newpage()

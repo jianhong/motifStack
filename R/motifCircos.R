@@ -37,7 +37,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         }
     }
     if(length(col.rings)>0){
-        if(class(col.rings)!="list") stop("col.rings must be a object of list")
+        if(!is(col.rings, "list")) stop("col.rings must be a object of list")
         for(i in 1:length(col.rings)){
             if(checkLength(col.rings[[i]])) stop(paste("the length of col.rings[[", i, "]]should be same as the length of leaves"))
             if(checkNA(col.rings[[i]])) stop(paste("contain NA in col.rings[[", i, "]]"))
@@ -88,7 +88,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
     ycar <- (r.tree + r.rayon) * sin(alpha)
     
     r.rings.tot <- sum(r.rings)
-    if(!class(r.leaves) %in% c("numeric", "integer")) 
+    if(!inherits(r.leaves, c("numeric", "integer"))) 
         r.leaves <- max(unlist(lapply(leaves.names, strwidth, units="user", cex=clabel.leaves)))
     ##for logos position
     w.pfms <- r.tree + r.rayon + r.leaves + r.rings.tot + inner.label.circle.width
@@ -99,7 +99,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         vpheight <- vpheight * asp[2L]
         xm <- w.pfms * cos(alpha) * asp[1L] / twoR + 0.5
         ym <- w.pfms * sin(alpha) * asp[2L] / twoR + 0.5
-        if(!class(r.pfms) %in% c("numeric", "integer")){
+        if(!inherits(r.pfms, c("numeric", "integer"))){
             r.pfms <- 0
             pfmNamesLen <- sapply(pfms, function(.ele) 
                 length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
@@ -115,7 +115,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             r.pfms <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
         }
     }
-    if(!class(r.pfms) %in% c("numeric", "integer")) r.pfms <- 0
+    if(!inherits(r.pfms, c("numeric", "integer"))) r.pfms <- 0
     
     w.pfms2 <- w.pfms + r.pfms + outer.label.circle.width
     if(!is.null(pfms2)){
@@ -123,7 +123,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         vpheight2 <- vpheight2 * asp[2L]
         xm2 <- w.pfms2 * cos(alpha) * asp[1L] / twoR + 0.5
         ym2 <- w.pfms2 * sin(alpha) * asp[2L] / twoR + 0.5
-        if(!class(r.pfms2) %in% c("numeric", "integer")){
+        if(!inherits(r.pfms2, c("numeric", "integer"))){
             r.pfms2 <- 0
             pfmNamesLen <- sapply(pfms2, function(.ele) 
                 length(strsplit(.ele@name, pfmNameSpliter)[[1]]))
@@ -139,7 +139,7 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             r.pfms2 <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms2, vph))
         }
     }
-    if(!class(r.pfms2) %in% c("numeric", "integer")) r.pfms2 <- 0
+    if(!inherits(r.pfms2, c("numeric", "integer"))) r.pfms2 <- 0
     
     ratio <- R/(w.pfms2+r.pfms2)
     

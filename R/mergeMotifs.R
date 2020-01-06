@@ -8,7 +8,11 @@ mergeMotifs <- function(..., bgNoise=NA){
     if(n<2){
         stop("The number of input motifs should more than 1")
     }
-    classes <- sapply(mL, class)
+    classes <- sapply(mL, function(.ele) {
+      if(is(.ele, "pcm")) return("pcm")
+      if(is(.ele, "pfm")) return("pfm")
+      return("others")
+    })
     if(any(!classes %in% c("pcm", "pfm"))){
         stop("Not all of the motifs are pcm or pfm object")
     }

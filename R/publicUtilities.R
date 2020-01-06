@@ -168,34 +168,41 @@ highlightCol <- function (col, alpha=0.5){
     col
 }
 
-pfm2pwm <- function(x){
+pfm2pwm <- function(x, N=10000){
     if(!inherits(x, c("pfm", "pcm", "matrix")))
         stop("x must be an object of matrix or pcm or pfm")
-    if(class(x)=="pcm"){
-        x <- pcm2pfm(x)
-    }
-    if(class(x)=="pfm"){
-        x <- x@mat*10000
+  if(inherits(x, c("pcm", "pfm"))){
+    prior.params=x@background
+  }else{
+    prior.params=rep(1/nrow(x), nrow(x))
+    names(prior.params) <- rownames(x)
+  }
+  if(is(x, "pcm")){
+    x <- x@mat
+  }else{
+    if(is(x, "pfm")){
+      x <- x@mat*N
     }else{
-        x <- x*10000
+      x <- x*N
     }
     x <- round(x)
-    x[nrow(x),] <- 10000 - colSums(x[-nrow(x),])
+    x[nrow(x),] <- N - colSums(x[-nrow(x),])
     id <- which(x[nrow(x),] < 0)
     if(length(id)>0){
-        max.id <- apply(x, 2, function(.e) which(.e==max(.e))[1])
-        for(i in 1:length(id)){
-            x[max.id[id[i]], id[i]] <- x[max.id[id[i]], id[i]] + x[nrow(x), id[i]]
-        }
-        x[nrow(x), id] <- 0
+      max.id <- apply(x, 2, function(.e) which(.e==max(.e))[1])
+      for(i in 1:length(id)){
+        x[max.id[id[i]], id[i]] <- x[max.id[id[i]], id[i]] + x[nrow(x), id[i]]
+      }
+      x[nrow(x), id] <- 0
     }
-    mode(x) <- "integer"
-    PWM(x)
+  }
+  mode(x) <- "integer"
+  PWM(x, prior.params=prior.params)
 }
 
 isHomoDimer <- function(x, t=0.001){
     if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
-    if(class(x)=="pcm") x <- pcm2pfm(x)
+    if(is(x, "pcm")) x <- pcm2pfm(x)
     ic <- getIC(x)
     if(length(ic)<11) return(FALSE)
     x.loess <- loess(y ~ x, span=.75, data.frame(x=1:length(ic), y=ic))
@@ -215,7 +222,7 @@ isHomoDimer <- function(x, t=0.001){
 
 getHomoDimerCenter <- function(x){
     if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
-    if(class(x)=="pcm") x <- pcm2pfm(x)
+    if(is(x, "pcm")) x <- pcm2pfm(x)
     len <- ncol(x@mat)
     if(len < 6) return(NA)
     ra <- 3:(len-3) ## minimal monomer 3mer

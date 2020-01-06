@@ -2,21 +2,21 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
                              colset=c("#00811B","#2000C7","#FFB32C","#D00001"),
                              alpha=0.5, newpage=TRUE, draw=TRUE){
   markers <- NULL
-  if(class(psam)=="data.frame"){
+  if(is(psam, "data.frame")){
     psam <- as.matrix(psam)
   }else{
-    if(class(psam) == "psam"){
+    if(is(psam, "psam")){
       markers <- psam@markers 
       if(missing(motifName)) motifName = psam@name
       colset=psam@color[rownames(psam@mat)]
       psam <- psam@mat
     }
   }
-  if (class(psam) != "matrix"){
-    stop("psam must be of class matrix or data.frame")
+  if (!is(psam, "matrix")){
+    stop("psam must be a matrix.")
   }
-  if(class(colset)!="character")
-    stop("colset must be of class character")
+  if(!is(colset, "character"))
+    stop("colset must be a character")
   if (length(colset)!=nrow(psam))
     stop(paste("colset length and psam row numbers different",length(colset),"!=",nrow(psam)))
   rname<-rownames(psam)

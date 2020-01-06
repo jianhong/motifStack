@@ -31,7 +31,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         }
     }
     if(length(col.anno)>0){
-        if(class(col.anno)!="list") stop("col.anno must be a object of list")
+        if(!is(col.anno, "list")) stop("col.anno must be a object of list")
         for(i in 1:length(col.anno)){
             if(checkLength(col.anno[[i]])) stop(paste("the length of col.anno[[", i, "]]should be same as the length of leaves"))
             if(checkNA(col.anno[[i]])) stop(paste("contain NA in col.anno[[", i, "]]"))

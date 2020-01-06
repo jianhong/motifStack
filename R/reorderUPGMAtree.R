@@ -14,7 +14,7 @@ reorderUPGMAtree <- function(phylog, motifs, rcpostfix = "(RC)"){
     names(motifs) <- lnames
     motifs <- motifs[names(phylog$leaves)]
     motifs <- lapply(motifs, function(.ele){
-        if(class(.ele)=="pcm") .ele <- pcm2pfm(.ele)
+        if(is(.ele, "pcm")) .ele <- pcm2pfm(.ele)
         .ele
     })
     

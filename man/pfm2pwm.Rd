@@ -7,12 +7,15 @@ convert pfm object to PWM
 convert pfm object to PWM
 }
 \usage{
-pfm2pwm(x)
+pfm2pwm(x, N=10000)
 }
 \arguments{
   \item{x}{
  an object of \code{\link{pfm}} or \code{\link{pcm}} or matrix
 }
+  \item{N}{
+  Total number of event counts used for pfm generation.
+  }
 }
 \value{
 A numeric matrix representing the Position Weight Matrix for PWM.

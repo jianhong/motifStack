@@ -44,8 +44,8 @@ browseMotifs <- function(pfms, phylog,
     pfms <- list(pfms)
   }
   layout <- match.arg(layout)
-  if(all(sapply(pfms, class)=="pcm")) pfms <- lapply(pfms, pcm2pfm)
-  if (any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm"))))) 
+  if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) pfms <- lapply(pfms, pcm2pfm)
+  if (any(unlist(lapply(pfms, function(.ele) !is(.ele, "pfm"))))) 
     stop("pfms must be a list of pfm objects")
   pfmList2matrixList <- function(pfms){
     m <- lapply(pfms, pfm2pwm)

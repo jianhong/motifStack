@@ -50,7 +50,7 @@ getIE<-function(x){
 }
 
 UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0, rcpostfix="(RC)", revcomp=TRUE){
-    if(class(pfms[[i]])!="pfm"){
+    if(!is(pfms[[i]], "pfm")){
         pcms <- pfms
         pfms <- lapply(pfms, pcm2pfm)
     }else{
@@ -74,7 +74,7 @@ UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0, rcpostfix="(
     pfms
 }
 getAlignedICWithoutGap<-function(pfm1, pfm2, threshold, revcomp=TRUE){
-    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
+    if(!is(pfm1, "pfm") | !is(pfm2, "pfm")) stop("class of pfm1 and pfm2 must be pfm")
     offset1<-getoffsetPosByIC(pfm1, pfm2, threshold)
     if(revcomp){
         pfm3<-matrixReverseComplement(pfm2)
@@ -109,7 +109,7 @@ checkALLR <- function(...){
 }
 SWU <- function(pattern, subject, b, 
                 match=1, mismatch=-1, gap=-1000){## motif length will never longer than 1000
-    if(class(pattern)!="matrix" || class(subject)!="matrix"){
+    if(!is(pattern, "matrix") || !is(subject, "matrix")){
         stop("pattern and subject must be numeric matrix")
     }
     m <- ncol(pattern)
@@ -211,7 +211,7 @@ SWU <- function(pattern, subject, b,
     list(k=k, max=max_score)
 }
 ungappedScore <- function(query, subject, b, threshold){
-    if(class(query)!="matrix" || class(subject)!="matrix"){
+    if(!is(query, "matrix") || !is(subject, "matrix")){
         stop("query and subject must be numeric matrix")
     }
     m <- ncol(query)
@@ -246,12 +246,12 @@ ungappedScore <- function(query, subject, b, threshold){
     list(k=as.numeric(k), max=max_score)
 }
 getoffsetPosByIC<-function(pfm1, pfm2, threshold){
-    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
+    if(!is(pfm1, "pfm") | !is(pfm2, "pfm")) stop("class of pfm1 and pfm2 must be pfm")
     res <- ungappedScore(pfm1$mat, pfm2$mat, b=pfm1$background, threshold)
     res
 }
 getoffsetPosByIC_old<-function(pfm1, pfm2, threshold){
-    if(class(pfm1)!="pfm" | class(pfm2)!="pfm") stop("class of pfm1 and pfm2 must be pfm")
+    if(!is(pfm1, "pfm") | !is(pfm2, "pfm")) stop("class of pfm1 and pfm2 must be pfm")
     score1<-rep(0, ncol(pfm1@mat))
     score2<-rep(0, ncol(pfm2@mat))
     value1<-rep(0, ncol(pfm1@mat))
