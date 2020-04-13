@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.31.2
+-----------------------
+
+  o reduce the compiling time for vignettes.
+  
 CHANGES IN VERSION 1.31.1
 -----------------------
 

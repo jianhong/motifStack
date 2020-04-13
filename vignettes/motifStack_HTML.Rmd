@@ -170,7 +170,7 @@ names(motifs2) <- gsub("Dmelanogaster_FlyFactorSurvey_", "",
                             gsub("[^a-zA-Z0-9]","_",
                                  gsub("(_\\d+)+$", "", names(motifs2)))))
 motifs2 <- motifs2[unique(names(motifs2))]
-pfms <- sample(motifs2, 50)
+pfms <- sample(motifs2, 30)
 ## creat a list of object of pfm 
 motifs2 <- lapply(names(pfms), 
                   function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)}
@@ -179,16 +179,16 @@ motifs2 <- lapply(names(pfms),
 motifs2 <- lapply(motifs2, trimMotif, t=0.4)
 ## setting colors
 library(RColorBrewer)
-color <- brewer.pal(12, "Set3")
+color <- brewer.pal(10, "Set3")
 ## plot logo stack with radial style
 motifStack(motifs2, layout="radialPhylog", 
            circle=0.3, cleaves = 0.2, 
            clabel.leaves = 0.5, 
-           col.bg=rep(color, each=5), col.bg.alpha=0.3, 
-           col.leaves=rep(color, each=5),
-           col.inner.label.circle=rep(color, each=5), 
+           col.bg=rep(color, each=3), col.bg.alpha=0.3, 
+           col.leaves=rep(color, each=3),
+           col.inner.label.circle=rep(color, each=3), 
            inner.label.circle.width=0.05,
-           col.outer.label.circle=rep(color, each=5), 
+           col.outer.label.circle=rep(color, each=3), 
            outer.label.circle.width=0.02, 
            circle.motif=1.2,
            angle=350)
@@ -244,8 +244,8 @@ gpCol <- sigColor(motifSig)
 plotMotifStackWithRadialPhylog(phylog=phylog, pfms=sig, 
                               circle=0.4, cleaves = 0.3, 
                               clabel.leaves = 0.5, 
-                              col.bg=rep(color, each=5), col.bg.alpha=0.3, 
-                              col.leaves=rep(rev(color), each=5),
+                              col.bg=rep(color, each=3), col.bg.alpha=0.3, 
+                              col.leaves=rep(rev(color), each=3),
                               col.inner.label.circle=gpCol, 
                               inner.label.circle.width=0.03,
                               angle=350, circle.motif=1.2, 
@@ -266,9 +266,9 @@ motifCircos(phylog=phylog, pfms=pfms, pfms2=sig,
             col.outer.label.circle=gpCol, 
             outer.label.circle.width=0.03,
             r.rings=c(0.02, 0.03, 0.04), 
-            col.rings=list(sample(colors(), 50), 
-                           sample(colors(), 50), 
-                           sample(colors(), 50)),
+            col.rings=list(sample(colors(), 30), 
+                           sample(colors(), 30), 
+                           sample(colors(), 30)),
             angle=350, motifScale="logarithmic")
 ```
 
@@ -276,27 +276,12 @@ motifCircos(phylog=phylog, pfms=pfms, pfms2=sig,
 ## motifPiles
 
 We can also plot the motifs in pile style. In pile style, 
-we can plot two group of motifs with multiple types of annotation.
+we can plot two group of motifs with multiple types of annotation, for example heatmap.
+The _col.anno_ parameter should be set as a named list.
 
-```{r motifPiles,fig.cap="Grouped sequence logo with piles style layout",fig.width=6,fig.height=6}
-## plot the logo stack with pile style.
-motifPiles(phylog=phylog, pfms=pfms, pfms2=sig, 
-            col.tree=rep(color, each=5),
-            col.leaves=rep(rev(color), each=5),
-            col.pfms2=gpCol, 
-            r.anno=c(0.02, 0.03, 0.04), 
-            col.anno=list(sample(colors(), 50), 
-                          sample(colors(), 50), 
-                          sample(colors(), 50)),
-            motifScale="logarithmic",
-            plotIndex=TRUE,
-            groupDistance=0.01)
-```
-
-We can also use motifPiles to plot motifs with a heatmap.
 ```{r motifPilesHeatmap,fig.cap="Grouped sequence logo with a heatmap",fig.width=6,fig.height=6}
 ## plot the logo stack with heatmap.
-df <- data.frame(A=runif(n = 50), B=runif(n = 50), C=runif(n = 50), D=runif(n = 50))
+df <- data.frame(A=runif(n = 30), B=runif(n = 30), C=runif(n = 30), D=runif(n = 30))
 map2col <- function(x, pal){
   rg <- range(x)
   pal[findInterval(x, seq(rg[1], rg[2], length.out = length(pal)+1), 
@@ -375,7 +360,7 @@ library(ggplot2)
 
 ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif, 
                fontfamily=fontfamily, fontface=fontface)) + 
-geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
+    geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
 
 df <- data.frame(x=.5, y=c(.25, .75), width=.5, height=.25, 
                  fontfamily=c("Helvetica", "mono,Courier"), fontface=c(2, 1))
@@ -383,7 +368,7 @@ df$motif <- list(pfm, pfm)
 
 ggplot(df, aes(x=x, y=y, width=width, height=height, motif=motif, 
                fontfamily=fontfamily, fontface=fontface)) + 
-geom_motif(use.xy=TRUE) + theme_bw() + ylim(0, 1) + xlim(0, 1)
+    geom_motif(use.xy=TRUE) + theme_bw() + ylim(0, 1) + xlim(0, 1)
 ```
 
 
