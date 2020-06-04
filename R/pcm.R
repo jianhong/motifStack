@@ -1,25 +1,108 @@
-setClass("pcm", 
-         representation(mat="matrix", name="character", alphabet="character", 
-                        color="character", background="numeric", tags="list",
-                        markers="list"),
-         validity=function(object){
-             re<-TRUE
-             if (checkInteger(unlist(object@mat))) re<-"Columns of pcm must be integer"
-             if (is.null(rownames(object@mat))) re<-"rownames of pcm is empty"
-             if (is.null(names(object@color))) re<-"names of color is empty"
-             if (length(setdif(rownames(object@mat), names(object@color)))>0) re<-"not every alphabet in pcm has a corresponding color"
-             if (is.null(names(object@background))) re<-"names of background is empty"
-             if (length(setdif(rownames(object@mat), names(object@background)))>0) re<-"not every alphabet in pcm has a background"
-             if (!object@alphabet %in% c("DNA", "RNA", "AA", "others")) re<-"alphabet must be either DNA, RNA, AA or others"
-             if (object@alphabet=="DNA" & !all(rownames(object@mat) %in% c("A","C","G","T"))) re<-"rownames of pcm for DNA motifs must be capital A, C, G and T"
-             if (object@alphabet=="RNA" & !all(rownames(object@mat) %in% c("A","C","G","U"))) re<-"rownames of pcm for RNA motifs must be capital A, C, G and U"
-             if (object@alphabet=="AA" & !all(rownames(object@mat) %in% LETTERS[1:26])) re<-"rownames of pcm for AA motifs must be capital letters"
-             if (any(!is(object@markers, "marker"))) re<- "markers must be a list of marker object"
-             re
-         }
+#' Class \code{"pcm"}
+#' 
+#' An object of class \code{"pcm"} represents the position count matrix of a
+#' DNA/RNA/amino-acid sequence motif. The entry stores a matrix, which in row
+#' i, column j gives the counts of observing nucleotide/or amino acid i in
+#' position j of the motif.
+#' 
+#' 
+#' @name pcm-class
+#' @aliases pcm
+#' @docType class
+#' @section Objects from the Class: Objects can be created by calls of the form
+#' \code{new("pcm", mat, name, alphabet, color, background)}.
+#' @keywords classes
+#' @export
+#' @examples
+#' 
+#' pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
+#' pcm <- pcm[,3:ncol(pcm)]
+#' rownames(pcm) <- c("A","C","G","T")
+#' motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+#' plot(motif)
+#' 
+setClass(
+  "pcm", 
+  representation(mat="matrix", name="character", alphabet="character", 
+                 color="character", background="numeric", tags="list",
+                 markers="list"),
+  validity=function(object){
+    re<-TRUE
+    if (checkInteger(unlist(object@mat))) re<-"Columns of pcm must be integer"
+    if (is.null(rownames(object@mat))) re<-"rownames of pcm is empty"
+    if (is.null(names(object@color))) re<-"names of color is empty"
+    if (length(setdif(rownames(object@mat), names(object@color)))>0) re<-"not every alphabet in pcm has a corresponding color"
+    if (is.null(names(object@background))) re<-"names of background is empty"
+    if (length(setdif(rownames(object@mat), names(object@background)))>0) re<-"not every alphabet in pcm has a background"
+    if (!object@alphabet %in% c("DNA", "RNA", "AA", "others")) re<-"alphabet must be either DNA, RNA, AA or others"
+    if (object@alphabet=="DNA" & !all(rownames(object@mat) %in% c("A","C","G","T"))) re<-"rownames of pcm for DNA motifs must be capital A, C, G and T"
+    if (object@alphabet=="RNA" & !all(rownames(object@mat) %in% c("A","C","G","U"))) re<-"rownames of pcm for RNA motifs must be capital A, C, G and U"
+    if (object@alphabet=="AA" & !all(rownames(object@mat) %in% LETTERS[1:26])) re<-"rownames of pcm for AA motifs must be capital letters"
+    if (any(!is(object@markers, "marker"))) re<- "markers must be a list of marker object"
+    re
+  }
 )
 
 
+#' "pcm" methods
+#' 
+#' methods for pcm objects.
+#' 
+#' 
+#' @rdname pcm-class
+#' @aliases $,pcm-method $<-,pcm-method 
+#' @docType methods
+#' @param x An object of class \code{pcm}. For \code{getIC}, if parameter p is
+#' followed, x should be an object of matrix.  For \code{pcm2pfm}, x also could
+#' be an object of matrix.
+#' @param y Not use.
+#' @param p p is the background frequency.
+#' @param n how many spaces should be added.
+#' @param b logical value to indicate where the space should be added.
+#' @param background a \code{"numeric"} vector. The background frequency.
+#' @param t numeric value of information content threshold for trimming.
+#' @param \dots Further potential arguments passed to \code{plotMotifLogo}.
+#' @param row.names,optional see as.data.frame
+#' @param name slot name of pcm object.
+#' @section Methods: \describe{ \item{addBlank}{\code{signature(x="pcm",
+#' n="numeric", b="logical")} add space into the position count matrix for
+#' alignment. b is a bool value, if TRUE, add space to the 3' end, else add
+#' space to the 5' end. n indicates how many spaces should be added.}
+#' 
+#' \item{coerce}{\code{signature(from = "pcm", to = "matrix")}: convert object
+#' pcm to matrix }
+#' 
+#' \item{getIC}{\code{signature(x = "pcm",)} Calculate information content
+#' profile for position frequency matrix. }
+#' 
+#' \item{matrixReverseComplement}{\code{signature(x = "pcm")} get the reverse
+#' complement of position frequency matrix.}
+#' 
+#' \item{plot}{\code{signature(x = "pcm")} Plots the sequence logo of the
+#' position count matrix. }
+#' 
+#' \item{trimMotif}{\code{signature(x = "pcm", t= "numeric")} trim motif by
+#' information content. }
+#' 
+#' \item{$, $<-}{Get or set the slot of \code{\link{pcm-class}}}
+#' 
+#' \item{as.data.frame}{convert \code{\link{pcm-class}} to a data.frame}
+#' \item{format}{return the name_pcm of \code{\link{pcm-class}}} }
+#' @keywords classes
+#' @examples
+#' 
+#' pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
+#' pcm <- pcm[,3:ncol(pcm)]
+#' rownames(pcm) <- c("A","C","G","T")
+#' motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+#' getIC(motif)
+#' matrixReverseComplement(motif)
+#' as(motif,"matrix")
+#' pcm2pfm(motif)
+#' as.data.frame(motif)
+#' format(motif)
+#' 
+#' @exportMethod `$` `$<-`
 setMethod("$", "pcm", function(x, name) slot(x, name))
 setReplaceMethod("$", "pcm",
                  function(x, name, value){
@@ -27,6 +110,7 @@ setReplaceMethod("$", "pcm",
                      x
                  })
 
+#' @importFrom grDevices rainbow
 setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, background, 
                                       tags, markers){
     if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
@@ -71,22 +155,31 @@ setMethod("initialize","pcm",function(.Object, mat, name, alphabet, color, backg
     .Object
 })
 
+#' @name plot
+#' @rdname pcm-class
+#' @aliases plot plot,pcm,ANY-method
+#' @importFrom stats4 plot
+#' @exportMethod plot
 setMethod("plot", signature(x="pcm"), 
           function(x, y="missing", ...){
               plot(pcm2pfm(x), ...)
           }
 )
 
+#' @name as
+#' @rdname pcm-class
+#' @aliases coerce,pcm,matrix-method
+#' @exportMethod coerce
 setAs(from="pcm", to="matrix", function(from){
     from@mat
 })
 
 
-setGeneric("addBlank", function(x, n, b) standardGeneric("addBlank"))
-setGeneric("getIC", function(x, p) standardGeneric("getIC"))
-setGeneric("matrixReverseComplement", function(x) standardGeneric("matrixReverseComplement"))
-setGeneric("trimMotif", function(x, t) standardGeneric("trimMotif"))
 
+#' @rdname pcm-class
+#' @exportMethod trimMotif
+#' @aliases trimMotif trimMotif,pcm,numeric-method
+setGeneric("trimMotif", function(x, t) standardGeneric("trimMotif"))
 setMethod("trimMotif", signature(x="pcm", t="numeric"), function(x, t){
     .sw <- c(0, 0)
     ic <- getIC(x)
@@ -110,6 +203,11 @@ setMethod("trimMotif", signature(x="pcm", t="numeric"), function(x, t){
     x
 })
 
+#' @rdname pcm-class
+#' @exportMethod matrixReverseComplement
+#' @aliases matrixReverseComplement matrixReverseComplement,pcm-method
+setGeneric("matrixReverseComplement", 
+           function(x) standardGeneric("matrixReverseComplement"))
 setMethod("matrixReverseComplement", "pcm", function(x){
     if(x@alphabet!="DNA") stop("alphabet of pcm must be DNA")
     mat<-x@mat
@@ -125,6 +223,10 @@ setMethod("matrixReverseComplement", "pcm", function(x){
     x
 })
 
+#' @rdname pcm-class
+#' @exportMethod addBlank
+#' @aliases addBlank addBlank,pcm,numeric,logical-method
+setGeneric("addBlank", function(x, n, b) standardGeneric("addBlank"))
 setMethod("addBlank", signature(x="pcm", n="numeric", b="logical"), function(x, n, b){
     if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
     N<-matrix(rep(rep(0,4), n), nrow=4)
@@ -145,15 +247,21 @@ setMethod("addBlank", signature(x="pcm", n="numeric", b="logical"), function(x, 
     x
 })
 
-## get information content profile from pcm
+#' @rdname pcm-class
+#' @exportMethod getIC
+#' @aliases getIC getIC,pcm,ANY-method
+setGeneric("getIC", function(x, p) standardGeneric("getIC"))
 setMethod("getIC", signature(x="pcm"), function(x, p="missing"){
     mat<-pcm2pfm(x@mat)
     colSums(mat * (addPseudolog2(mat) - addPseudolog2(x@background)))
 })
 
+#' @rdname pcm-class
+#' @exportMethod pcm2pfm
+#' @aliases pcm2pfm pcm2pfm,pcm,ANY-method pcm2pfm,matrix,ANY-method
+#' pcm2pfm,matrix,numeric-method pcm2pfm,data.frame,ANY-method
+#' pcm2pfm,data.frame,numeric-method 
 setGeneric("pcm2pfm", function(x, background) standardGeneric("pcm2pfm"))
-
-## pcm to pfm from matrix
 setMethod("pcm2pfm", signature(x="matrix", background="numeric"), function(x, background){
     s<-apply(x,2,sum)
     s[s==0] <- NA
@@ -183,10 +291,16 @@ setMethod("pcm2pfm", signature(x="pcm"), function(x, background="missing"){
         markers=x@markers)
 })
 
-## for data.frame
+#' @rdname pcm-class
+#' @exportMethod as.data.frame
+#' @aliases as.data.frame,pcm-method 
 setMethod("as.data.frame", signature(x="pcm"), function(x, row.names = NULL, optional = FALSE, ...){
   as.data.frame(x@mat, ...)
 })
+
+#' @rdname pcm-class
+#' @exportMethod format
+#' @aliases format,pcm-method
 setMethod("format", signature(x="pcm"), function(x, ...){
   paste0(x@name, "_pcm")
 })

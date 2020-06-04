@@ -1,3 +1,24 @@
+#' Class \code{"psam"}
+#' 
+#' An object of class \code{"psam"} represents the position specific affinity
+#' matrix (PSAM) of a DNA/RNA/amino-acid sequence motif. The entry stores a
+#' matrix, which in row i, column j gives the affinity of observing
+#' nucleotide/or amino acid i in position j of the motif.
+#' 
+#' 
+#' @name psam-class
+#' @aliases psam
+#' @docType class
+#' @section Objects from the Class: Objects can be created by calls of the form
+#' \code{new("psam", mat, name, alphabet, color)}.
+#' @keywords classes
+#' @export
+#' @examples
+#' 
+#' motif <- importMatrix(file.path(find.package("motifStack"), "extdata", "PSAM.mxr"), 
+#'          format="psam")[[1]]
+#' plot(motif)
+#' 
 setClass("psam", 
          representation(mat="matrix", name="character", alphabet="character", 
                         color="character", tags="list",
@@ -18,6 +39,48 @@ setClass("psam",
          }
 )
 
+#' "psam" methods
+#' 
+#' methods for psam objects.
+#' 
+#' 
+#' @name psam-class
+#' @aliases $,psam-method $<-,psam-method
+#' @docType methods
+#' @param x An object of class \code{psam}.
+#' @param name Slot name.
+#' @param y Not use.
+#' @param n how many spaces should be added.
+#' @param b logical value to indicate where the space should be added.
+#' @param \dots Further potential arguments passed to \code{plotAffinityLogo}.
+#' @param row.names,optional see as.data.frame
+#' @section Methods: \describe{ \item{addBlank}{\code{signature(x="psam",
+#' n="numeric", b="logical")} add space into the position specific affinity
+#' matrix for alignment. b is a bool value, if TRUE, add space to the 3' end,
+#' else add space to the 5' end. n indicates how many spaces should be added.}
+#' 
+#' \item{matrixReverseComplement}{\code{signature(x = "psam")} get the reverse
+#' complement of position specific affinity matrix.}
+#' 
+#' \item{plot}{\code{signature(x = "psam")} Plots the affinity logo of the
+#' position specific affinity matrix. }
+#' 
+#' \item{$, $<-}{Get or set the slot of \code{\link{psam-class}}}
+#' \item{as.data.frame}{convert \code{\link{psam-class}} to a data.frame}
+#' \item{format}{return the name_pfm of \code{\link{psam-class}}} }
+#' @keywords classes
+#' @examples
+#' 
+#' motif <- importMatrix(file.path(find.package("motifStack"), "extdata", "PSAM.mxr"), 
+#'                       format="psam")[[1]]
+#' matrixReverseComplement(motif)
+#' addBlank(motif, 1, FALSE)
+#' addBlank(motif, 3, TRUE)
+#' as(motif,"matrix")
+#' as.data.frame(motif)
+#' format(motif)
+#' 
+#' @exportMethod `$` `$<-`
 setMethod("$", "psam", function(x, name) slot(x, name))
 setReplaceMethod("$", "psam",
                  function(x, name, value){
@@ -53,17 +116,26 @@ setMethod("initialize","psam",function(.Object, mat, name, alphabet, color, tags
   .Object
 })
 
-setMethod("plot", signature(x="psam", y="ANY"), 
+#' @rdname psam-class
+#' @aliases plot,psam,ANY-method
+#' @exportMethod plot
+setMethod("plot", signature(x="psam"), 
           function(x, y="missing", ...){
             plotAffinityLogo(psam=x, ...)
           }
 )
 
+#' @name as()
+#' @rdname psam-class
+#' @aliases coerce,psam,matrix-method
+#' @exportMethod coerce
 setAs(from="psam", to="matrix", function(from){
   from@mat
 })
 
-
+#' @rdname psam-class
+#' @exportMethod matrixReverseComplement
+#' @aliases matrixReverseComplement,psam-method
 setMethod("matrixReverseComplement", "psam", function(x){
   if(x@alphabet!="DNA") stop("alphabet of psam must be DNA")
   mat<-x@mat
@@ -79,6 +151,9 @@ setMethod("matrixReverseComplement", "psam", function(x){
   x
 })
 
+#' @rdname psam-class
+#' @exportMethod addBlank
+#' @aliases addBlank,psam,numeric,logical-method
 setMethod("addBlank", signature(x="psam", n="numeric", b="logical"), function(x, n, b){
   if(x@alphabet!="DNA") stop("alphabet of psam must be DNA")
   N<-matrix(rep(0, n*4), nrow=4)
@@ -100,10 +175,16 @@ setMethod("addBlank", signature(x="psam", n="numeric", b="logical"), function(x,
 })
 
 ## for data.frame
+#' @rdname psam-class
+#' @exportMethod as.data.frame
+#' @aliases as.data.frame,psam-method
 setMethod("as.data.frame", signature(x="psam"), function(x, row.names = NULL, optional = FALSE, ...){
   as.data.frame(x@mat, ...)
 })
 
+#' @rdname psam-class
+#' @exportMethod format
+#' @aliases format,psam-method
 setMethod("format", signature(x="psam"), function(x, ...){
   paste0(x@name, "_psam")
 })

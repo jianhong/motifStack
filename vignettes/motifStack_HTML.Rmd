@@ -26,6 +26,11 @@ output:
 
 ```{r checkplatform, include=FALSE}
 library(knitr)
+library(motifStack)
+library(MotifDb)
+library(MotIV)
+library(ade4)
+library(ggplot2)
 if(.Platform$OS.type=="windows"){
   opts_chunk$set(eval=FALSE)
 }
@@ -48,7 +53,7 @@ multiple sequence motifs.
 ## plot a DNA sequence logo with different fonts and colors
 Users can select different fonts and colors to draw the sequence logo.
 ```{r DNAseqLogo,fig.cap="Plot a DNA sequence logo with different fonts and colors",fig.width=8,fig.height=2.5}
-suppressPackageStartupMessages(library(motifStack))
+library(motifStack)
 pcm <- read.table(file.path(find.package("motifStack"), 
                             "extdata", "bin_SOLEXA.pcm"))
 pcm <- pcm[,3:ncol(pcm)]
@@ -134,7 +139,7 @@ To show multiple motifs on the same canvas as a sequence logo stack, the distanc
 
 
 ```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
-suppressPackageStartupMessages(library(motifStack))
+library(motifStack)
 #####Input#####
 motifs<-importMatrix(dir(file.path(find.package("motifStack"), "extdata"),"pcm$", full.names = TRUE))
 
@@ -206,13 +211,15 @@ names(groups) <- names(pfms)
 group.col <- brewer.pal(5, "Set3")
 names(group.col)<-paste("group",1:5,sep="")
 ## use MotIV to calculate the distances of motifs
+library(MotIV)
 jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
                                                "extdata", 
                                                "jaspar2010_PCC_SWU.scores"))
 d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
 hc <- MotIV::motifHclust(d, method="average")
 ## convert the hclust to phylog object
-phylog <- hclust2phylog(hc)
+library(ade4)
+phylog <- ade4::hclust2phylog(hc)
 ## reorder the pfms by the order of hclust
 leaves <- names(phylog$leaves)
 pfms <- pfms[leaves]

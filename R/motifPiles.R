@@ -1,10 +1,106 @@
+#' plot sequence logo stacks with a linear phylogenic tree and multiple color
+#' sets
+#' 
+#' plot sequence logo stacks with a linear phylogenic tree and multiple color
+#' sets.
+#' 
+#' 
+#' @param phylog an object of class phylog
+#' @param pfms a list of objects of class pfm
+#' @param pfms2 a list of objects of class pfm
+#' @param r.tree width of the tree
+#' @param col.tree a vector of colors for tree
+#' @param cnodes a character size for plotting the points that represent the
+#' nodes, used with par("cex")*cnodes. If zero, no points are drawn
+#' @param labels.nodes a vector of strings of characters for the nodes labels
+#' @param clabel.nodes a character size for the nodes labels, used with
+#' par("cex")*clabel.nodes. If zero, no nodes labels are drawn
+#' @param cleaves a character size for plotting the points that represent the
+#' leaves, used with par("cex")*cleaves. If zero, no points are drawn
+#' @param labels.leaves a vector of strings of characters for the leaves labels
+#' @param clabel.leaves a character size for the leaves labels, used with
+#' par("cex")*clavel.leaves
+#' @param col.leaves a vector of colors for leaves labels
+#' @param col.leaves.bg a vector of colors for background of leaves labels
+#' @param col.leaves.bg.alpha alpha value [0, 1] for the colors of backgroud of
+#' leaves labels
+#' @param r.pfms width of the pfms
+#' @param r.pfms2 width of the pfms2
+#' @param motifScale the scale of logo size
+#' @param col.pfms a vector of colors for inner pile of pfms
+#' @param col.pfms.width width for inner pile of pfms
+#' @param col.pfms2 a vector of colors for outer pile of pfms
+#' @param col.pfms2.width width for outer pile of pfms
+#' @param r.anno a vector of width of color sets
+#' @param col.anno a list of color sets
+#' @param pfmNameSpliter spliter when name of pfms/pfms2 contain multiple node
+#' of labels.leaves
+#' @param rcpostfix the postfix for reverse complements
+#' @param ic.scale logical. If TRUE, the height of each column is proportional
+#' to its information content. Otherwise, all columns have the same height.
+#' @param plotIndex logical. If TRUE, will plot index number in the motifLogo
+#' which can help user to describe the motifLogo
+#' @param IndexCol The color of the index number when plotIndex is TRUE.
+#' @param IndexCex The cex of the index number when plotIndex is TRUE.
+#' @param groupDistance show groupDistance on the draw
+#' @param groupDistanceLineCol groupDistance line color, default: red
+#' @return none
+#' @export
+#' @importFrom graphics par plot.default strwidth points segments 
+#' abline rect text 
+#' @importFrom grDevices grey col2rgb rgb dev.size
+#' @importFrom ade4 scatterutil.eti
+#' @importFrom grid pushViewport viewport popViewport grid.text gpar
+#' @author Jianhong Ou
+#' @seealso \code{\link{motifCircos}}
+#' @keywords misc
+#' @examples
+#' 
+#' if(interactive()){
+#'     library("MotifDb")
+#'     matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'     motifs <- as.list(matrix.fly)
+#'     motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", 
+#'                            names(motifs), fixed=TRUE)]
+#'     names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                 gsub("_FBgn[0-9]+$", "", 
+#'                   gsub("[^a-zA-Z0-9]","_", 
+#'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'     motifs <- motifs[unique(names(motifs))]
+#'     pfms <- sample(motifs, 50)
+#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+#'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
+#'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
+#'     hc <- MotIV::motifHclust(d, method="average")
+#'     library(ade4)
+#'     phylog <- ade4::hclust2phylog(hc)
+#'     leaves <- names(phylog$leaves)
+#'     pfms <- pfms[leaves]
+#'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                  new("pfm",mat=.ele, name=.name)})
+#'     pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
+#'     library(RColorBrewer)
+#'     color <- brewer.pal(12, "Set3")
+#'     motifPiles(phylog, pfms, cleaves = 0.5, clabel.leaves = 0.7, 
+#'              col.leaves=rep(color, each=5), 
+#'              col.leaves.bg = sample(colors(), 50),
+#'              col.tree=rep(color, each=5),
+#'              r.anno=c(0.02, 0.03, 0.04), 
+#'              col.anno=list(sample(colors(), 50), 
+#'                             sample(colors(), 50), 
+#'                             sample(colors(), 50)))
+#'   }
+#' 
 motifPiles <- function (phylog, pfms=NULL, pfms2=NULL, 
                         r.tree=.45, col.tree=NULL,
-                        cnodes=0, labels.nodes=names(phylog$nodes), clabel.nodes=0,
-                        cleaves=.2, labels.leaves=names(phylog$leaves), clabel.leaves=1,
+                        cnodes=0, labels.nodes=names(phylog$nodes), 
+                        clabel.nodes=0,
+                        cleaves=.2, labels.leaves=names(phylog$leaves),
+                        clabel.leaves=1,
                         col.leaves=rep("black", length(labels.leaves)),
                         col.leaves.bg=NULL, col.leaves.bg.alpha=1,
-                        r.pfms=NA, r.pfms2=NA, motifScale=c("logarithmic", "linear", "none"),
+                        r.pfms=NA, r.pfms2=NA, 
+                        motifScale=c("logarithmic", "linear", "none"),
                         col.pfms=NULL, col.pfms.width=0.02,
                         col.pfms2=NULL, col.pfms2.width=0.02,
                         r.anno=0, col.anno=list(),
@@ -22,8 +118,13 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         return(any(is.na(tobechecked)))
     }
     for(tobechecked in c("col.leaves", "col.leaves.bg", "col.tree")){
-        if(checkLength(eval(as.symbol(tobechecked)))) stop(paste("the length of", tobechecked, "should be same as the length of leaves"))
-        if(checkNA(eval(as.symbol(tobechecked)))) stop(paste("contain NA in", tobechecked))
+        if(checkLength(eval(as.symbol(tobechecked)))) {
+            stop(paste("the length of", tobechecked, 
+                       "should be same as the length of leaves"))
+        }
+        if(checkNA(eval(as.symbol(tobechecked)))) {
+            stop(paste("contain NA in", tobechecked))
+            }
     }
     if(length(r.anno)>length(col.anno)){
         if(r.anno!=0 & length(r.anno)!=1){
@@ -33,8 +134,13 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     if(length(col.anno)>0){
         if(!is(col.anno, "list")) stop("col.anno must be a object of list")
         for(i in 1:length(col.anno)){
-            if(checkLength(col.anno[[i]])) stop(paste("the length of col.anno[[", i, "]]should be same as the length of leaves"))
-            if(checkNA(col.anno[[i]])) stop(paste("contain NA in col.anno[[", i, "]]"))
+            if(checkLength(col.anno[[i]])) {
+                stop(paste("the length of col.anno[[", i, 
+                           "]]should be same as the length of leaves"))
+            }
+            if(checkNA(col.anno[[i]])) {
+                stop(paste("contain NA in col.anno[[", i, "]]"))
+            }
         }
     }
     motifScale <- match.arg(motifScale)
@@ -72,7 +178,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     leftMar <- .01
     
     vpheight <- 1/(leaves.number+1)
-    leaves.width <- lapply(leaves.car, strwidth, units="user", cex=clabel.leaves)
+    leaves.width <- lapply(leaves.car, strwidth, 
+                           units="user", cex=clabel.leaves)
     string.width <- strwidth("M", units="figure", cex=IndexCex)
     r.leaves <- max(unlist(leaves.width))
     r.leaves <- r.leaves + xcar
@@ -82,7 +189,9 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         if(is.na(r.pfms)){
             r.pfms <- r.total
         }
-        pfmsLen <- sapply(pfms, function(.ele) length(unlist(strsplit(.ele@name, pfmNameSpliter))))
+        pfmsLen <- sapply(pfms, function(.ele) {
+            length(unlist(strsplit(.ele@name, pfmNameSpliter)))
+            })
         if(motifScale=="linear"){
             vph <- vpheight * pfmsLen
         }else{
@@ -92,7 +201,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
             vph <- rep(vpheight, length(pfmsLen))
           }
         }
-        vpwidth <- mapply(function(.ele, vpht) vpht * ncol(.ele@mat) / 2 * asp, pfms, vph)
+        vpwidth <- mapply(function(.ele, vpht) 
+            vpht * ncol(.ele@mat) / 2 * asp, pfms, vph)
         r.total <- r.pfms + max(vpwidth) + col.pfms2.width + 2*string.width
         lenPFM[1] <- TRUE
     }
@@ -100,7 +210,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         if(is.na(r.pfms2)){
             r.pfms2 <- r.total
         }
-        pfmsLen2 <- sapply(pfms2, function(.ele) length(unlist(strsplit(.ele@name, pfmNameSpliter))))
+        pfmsLen2 <- sapply(pfms2, function(.ele) 
+            length(unlist(strsplit(.ele@name, pfmNameSpliter))))
         if(motifScale=="linear"){
             vph2 <- vpheight * pfmsLen2
         }else{
@@ -110,7 +221,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
             vph2 <- rep(vpheight, length(pfmsLen2))
           }
         }
-        vpwidth2 <- mapply(function(.ele, vpht) vpht * ncol(.ele@mat) / 2 * asp, pfms2, vph2)
+        vpwidth2 <- mapply(function(.ele, vpht) 
+            vpht * ncol(.ele@mat) / 2 * asp, pfms2, vph2)
         r.total <- r.pfms2 + max(vpwidth2) + 2*string.width
         lenPFM[2] <- TRUE
     }
@@ -119,7 +231,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         plotIndex <- rep(plotIndex, 2)[lenPFM]
         IndexCol <- rep(IndexCol, 2)[lenPFM]
         IndexCex <- rep(IndexCex, 2)[lenPFM]
-        names(plotIndex) <- names(IndexCol) <- names(IndexCex) <- c("pfm", "pfm2")[lenPFM]
+        names(plotIndex) <- names(IndexCol) <- 
+            names(IndexCex) <- c("pfm", "pfm2")[lenPFM]
     }
     
     xx <- c(dist.leaves, dist.nodes)
@@ -160,7 +273,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     
     if (cleaves > 0) {
         for (i in 1:leaves.number) {
-            points(xx[i], y[i], pch = 21, bg=1, cex = par("cex") * cleaves, col=col.tree[i])
+            points(xx[i], y[i], pch = 21, bg=1, 
+                   cex = par("cex") * cleaves, col=col.tree[i])
         }
     }
     
@@ -174,7 +288,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         but <- names(phylog$parts)[i]
         yy[but] <- mean(yy[w])
         colour <- floor(rowMeans(col2rgb(col.tree.lines[w])))
-        col.tree.lines[but] <- rgb(colour[1], colour[2], colour[3], maxColorValue=255)
+        col.tree.lines[but] <- rgb(colour[1], colour[2], 
+                                   colour[3], maxColorValue=255)
         b <- range(yy[w])
         segments(xx[but], b[1], xx[but], b[2], col=col.tree.lines[but])
         x1 <- xx[w]
@@ -184,7 +299,11 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     }
     if(!is.na(groupDistance)){
         if(length(groupDistanceLineCol)!=length(groupDistance)){
-            groupDistanceLineCol <- rep(groupDistanceLineCol, ceiling(length(groupDistance)/length(groupDistanceLineCol)))[1:length(groupDistance)]
+            groupDistanceLineCol <- 
+                rep(groupDistanceLineCol, 
+                    ceiling(length(groupDistance)/
+                                length(groupDistanceLineCol)))[
+                                    seq_along(groupDistance)]
         }
         for(i in 1:length(groupDistance)){
             if(groupDistance[i] > 0)
@@ -202,7 +321,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     }
     
     for (i in 1:leaves.number) {
-        rect(xcar, y[i]-1/leaves.number/2, r.leaves, y[i]+1/leaves.number/2, col=highlightCol(col.leaves.bg[i], col.leaves.bg.alpha), border=NA)
+        rect(xcar, y[i]-1/leaves.number/2, r.leaves, y[i]+1/leaves.number/2, 
+             col=highlightCol(col.leaves.bg[i], col.leaves.bg.alpha), border=NA)
         if(clabel.leaves>0) 
             text(xcar, y[i], leaves.car[i], adj = 0, cex = par("cex") * 
                      clabel.leaves, col=col.leaves[i])
@@ -211,7 +331,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     
     for(metaChar in c("\\","$","*","+",".","?","[","]","^","{","}","|","(",")"))
     {
-        rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),rcpostfix,fixed=TRUE)
+        rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),
+                          rcpostfix,fixed=TRUE)
     }
     drawPFMcir <- function(pfms, r.x, ym, vpwid, vphei, col.pfms.wid, idx){
         assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
@@ -229,29 +350,35 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         for(i in 1:length(pfmNames)){
             pfmname <- unlist(strsplit(pfmNames[[i]], pfmNameSpliter))
             pfmname <- gsub(paste(rcpostfix,"$",sep=""),"",pfmname)
-            pfmIdx <- which(makeLeaveNames(labels.leaves) %in% makeLeaveNames(pfmname))
+            pfmIdx <- which(makeLeaveNames(labels.leaves) %in% 
+                                makeLeaveNames(pfmname))
             if(length(pfmIdx)==0) 
                 pfmIdx <- which(makeLeaveNames(names(phylog$leaves)) 
                                 %in% makeLeaveNames(pfmname))
             if(length(pfmIdx)>0){
                 vpy <- mean(ym[pfmIdx])
-                pushViewport(viewport(x=r.x, y=vpy, width=vpwid[i], height=vphei[i], just=c(0, .5)))
+                pushViewport(viewport(x=r.x, y=vpy, width=vpwid[i], 
+                                      height=vphei[i], just=c(0, .5)))
                 plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
                 popViewport()
                 if(plotIndex[idx]&length(pfms)<leaves.number) {
                     grid.text(label=i, x=r.x-col.pfms.wid, 
                               y=vpy, 
-                              gp=gpar(col=IndexCol[idx], cex=IndexCex[idx]), just="right")
+                              gp=gpar(col=IndexCol[idx], 
+                                      cex=IndexCex[idx]), 
+                              just="right")
                 }
             }else{
-                warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
+                warning(paste("No leave named as ",
+                              paste(pfmname, collapse=", ")), sep="")
             }
         }
         rm(list="tmp_motifStack_symbolsCache", envir=.globals)
     }
     
     if(!is.null(col.pfms)){
-        rect((r.pfms-col.pfms.width)*xlim[2], y-vpheight/2, r.pfms*xlim[2], y+vpheight/2, col=col.pfms, border=NA)
+        rect((r.pfms-col.pfms.width)*xlim[2], y-vpheight/2, r.pfms*xlim[2],
+             y+vpheight/2, col=col.pfms, border=NA)
     }
     
     if(!is.null(pfms) && r.pfms < .95){
@@ -259,7 +386,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     }
     
     if(!is.null(col.pfms2)){
-        rect((r.pfms2-col.pfms2.width)*xlim[2], y-vpheight/2, r.pfms2*xlim[2], y+vpheight/2, col=col.pfms2, border=NA)
+        rect((r.pfms2-col.pfms2.width)*xlim[2], y-vpheight/2, r.pfms2*xlim[2], 
+             y+vpheight/2, col=col.pfms2, border=NA)
     }
     
     if(!is.null(pfms2) && r.pfms2 < .95){
@@ -270,7 +398,8 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         r.anno.diff <- c(0, 0, cumsum(r.anno[-length(r.anno)]))
         r.anno <- r.total - sum(r.anno, na.rm=TRUE) + c(0, r.anno) + r.anno.diff
         for(i in 2:length(r.anno)){
-            rect(r.anno[i-1]*xlim[2], y-vpheight/2, r.anno[i]*xlim[2], y+vpheight/2, col=col.anno[[i-1]], border=NA)
+            rect(r.anno[i-1]*xlim[2], y-vpheight/2, r.anno[i]*xlim[2], 
+                 y+vpheight/2, col=col.anno[[i-1]], border=NA)
         }
     }
     

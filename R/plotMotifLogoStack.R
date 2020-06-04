@@ -1,3 +1,37 @@
+#' plot sequence logos stack
+#' 
+#' plot sequence logos stack
+#' 
+#' 
+#' @param pfms a list of position frequency matrices, pfms must be a list of
+#' class pfm
+#' @param ... other parameters can be passed to plotMotifLogo function
+#' @return none
+#' @export
+#' @importFrom grid grid.newpage pushViewport viewport convertUnit unit
+#' grid.text popViewport
+#' @examples
+#' 
+#'   pcm1<-matrix(c(0,50,0,50,
+#'            100,0,0,0,
+#'            0,100,0,0,
+#'            0,0,100,0,
+#'            0,0,0,100,
+#'            50,50,0,0,
+#'            0,0,50,50), nrow=4)
+#'   pcm2<-matrix(c(50,50,0,0,
+#'            0,100,0,0,
+#'            0,50,50,0,
+#'            0,0,0,100,
+#'            50,50,0,0,
+#'            0,0,50,50), nrow=4)
+#'   rownames(pcm1)<-c("A","C","G","T")
+#'   rownames(pcm2)<-c("A","C","G","T")
+#'   pfms<-list(p1=new("pfm",mat=pcm2pfm(pcm1),name="m1"),
+#'          p2=new("pfm",mat=pcm2pfm(pcm2),name="m2"))
+#'   pfms<-DNAmotifAlignment(pfms)
+#'   plotMotifLogoStack(pfms)
+#' 
 plotMotifLogoStack<-function(pfms, ...){
   n<-length(pfms)
   if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){

@@ -1,4 +1,43 @@
+#' re-order UPGMA tree
+#' 
+#' re-order the UPGMA tree by adjacent motif distance
+#' 
+#' 
+#' @param phylog an object of phylog
+#' @param motifs a list of objects of pfm
+#' @param rcpostfix the postfix for reverse complements
+#' @return an object of phylog
+#' @author Jianhong Ou
+#' @keywords misc
+#' @export
+#' @examples
+#' 
+#'   if(interactive()){
+#'     library("MotifDb")
+#'     matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'     motifs <- as.list(matrix.fly)
+#'     motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
+#'     names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                 gsub("_FBgn[0-9]+$", "", 
+#'                   gsub("[^a-zA-Z0-9]","_", 
+#'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'     motifs <- motifs[unique(names(motifs))]
+#'     pfms <- sample(motifs, 50)
+#'     library(MotIV)
+#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+#'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
+#'     d <- MotIV::motifDistances(pfms)
+#'     hc <- MotIV::motifHclust(d, method="average")
+#'     phylog <- hclust2phylog(hc)
+#'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                  new("pfm",mat=.ele, name=.name)})
+#'     reorderUPGMAtree(phylog, pfms)
+#'   }
+#' 
 reorderUPGMAtree <- function(phylog, motifs, rcpostfix = "(RC)"){
+    if(!requireNamespace("MotIV", quietly = TRUE)){
+        stop("MotIV package is required.")
+    }
     if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
     if(!all(sapply(motifs, function(.ele) inherits(.ele, c("pfm", "pcm")))))
         stop("motifs must be a list of pfm or pcm object")
@@ -18,8 +57,10 @@ reorderUPGMAtree <- function(phylog, motifs, rcpostfix = "(RC)"){
         .ele
     })
     
-    jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-    d <- motifDistances(lapply(motifs, pfm2pwm), DBscores=jaspar.scores)
+    jaspar.scores <- 
+        MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                      "extdata", "jaspar2010_PCC_SWU.scores"))
+    d <- MotIV::motifDistances(lapply(motifs, pfm2pwm), DBscores=jaspar.scores)
     d <- as.matrix(d)
     
     paths <- phylog$paths

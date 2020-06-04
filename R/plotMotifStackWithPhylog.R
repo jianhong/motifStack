@@ -3,10 +3,73 @@
 ######## 
 ###############################################################################
 
+
+
+#' plot sequence logo stacks with a ape4-style phylogenic tree
+#' 
+#' plot sequence logo stacks with a ape4-style phylogenic tree
+#' 
+#' 
+#' @param phylog an object of class phylog
+#' @param pfms a list of objects of class pfm
+#' @param f.phylog a size coefficient for tree size (a parameter to draw the
+#' tree in proportion to leaves label)
+#' @param f.logo a size coefficient for the motif
+#' @param cleaves a character size for plotting the points that represent the
+#' leaves, used with par("cex")*cleaves. If zero, no points are drawn
+#' @param cnodes a character size for plotting the points that represent the
+#' nodes, used with par("cex")*cnodes. If zero, no points are drawn
+#' @param labels.leaves a vector of strings of characters for the leaves labels
+#' @param clabel.leaves a character size for the leaves labels, used with
+#' par("cex")*clavel.leaves
+#' @param labels.nodes a vector of strings of characters for the nodes labels
+#' @param clabel.nodes a character size for the nodes labels, used with
+#' par("cex")*clabel.nodes. If zero, no nodes labels are drawn
+#' @param font font of logo
+#' @param ic.scale logical If TRUE, the height of each column is proportional
+#' to its information content. Otherwise, all columns have the same height.
+#' @return none
+#' @seealso \link[ade4:plot.phylog]{plot.phylog}
+#' @export
+#' @importFrom grid grid.newpage pushViewport viewport grid.text gpar
+#' grid.segments popViewport grid.points
+#' @importFrom graphics par
+#' @importFrom grDevices grey
+#' @examples
+#' 
+#'   if(interactive()){
+#'     library("MotifDb")
+#'     matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'     motifs <- as.list(matrix.fly)
+#'     motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", names(motifs), fixed=TRUE)]
+#'     names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                 gsub("_FBgn[0-9]+$", "", 
+#'                   gsub("[^a-zA-Z0-9]","_", 
+#'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'     motifs <- motifs[unique(names(motifs))]
+#'     pfms <- sample(motifs, 50)
+#'     library(MotIV)
+#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+#'                                     "extdata", "jaspar2010_PCC_SWU.scores"))
+#'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
+#'     hc <- MotIV::motifHclust(d, method="average")
+#'     phylog <- hclust2phylog(hc)
+#'     leaves <- names(phylog$leaves)
+#'     pfms <- pfms[leaves]
+#'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                  new("pfm",mat=.ele, name=.name)})
+#'     pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
+#'     plotMotifStackWithPhylog(phylog, pfms, f.phylog=0.3, 
+#'                              cleaves = 0.5, clabel.leaves = 0.7)
+#'   }
+#' 
 plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
-                                     f.phylog = 0.3, f.logo = NULL, cleaves =1, cnodes =0,
-                                     labels.leaves = names(phylog$leaves), clabel.leaves=1,
-                                     labels.nodes = names(phylog$nodes), clabel.nodes = 0, 
+                                     f.phylog = 0.3, f.logo = NULL, 
+                                     cleaves =1, cnodes =0,
+                                     labels.leaves = names(phylog$leaves), 
+                                     clabel.leaves=1,
+                                     labels.nodes = names(phylog$nodes), 
+                                     clabel.nodes = 0, 
                                      font="Helvetica-Bold", ic.scale=TRUE
 ){
   if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")

@@ -1,3 +1,21 @@
+#' import motifs from local files
+#' 
+#' Import the motifs into \link{pcm-class} or \link{pfm-class} from files
+#' exported from Transfac, CisBP, and JASPAR.
+#' 
+#' 
+#' @param filenames filename to be imported.
+#' @param format file format
+#' @param to import to \link{pcm-class} or \link{pfm-class}
+#' @return a list of object \link{pcm-class} or \link{pfm-class}
+#' @author Jianhong Ou
+#' @keywords misc
+#' @export
+#' @examples
+#' 
+#'   path <- system.file("extdata", package = "motifStack")
+#'   importMatrix(dir(path, "*.pcm", full.names = TRUE))
+#' 
 importMatrix <- function(filenames, 
                          format=c("auto", "pfm", "cm", "pcm", "meme", 
                                   "transfac", "jaspar", "scpd", "cisbp",
@@ -423,6 +441,8 @@ importM_meme <- function(fns){
   m
 }
 
+#' @importFrom XML xmlToList xmlParse
+#' @importFrom utils read.delim
 importM_psam <- function(fns){
   m <- lapply(fns, function(fn){
     lines <- xmlToList(xmlParse(fn))

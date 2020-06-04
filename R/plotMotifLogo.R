@@ -1,4 +1,40 @@
-plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", fontface="bold", 
+#' plot sequence logo
+#' 
+#' plot amino acid or DNA sequence logo
+#' 
+#' 
+#' @param pfm a position frequency matrices
+#' @param motifName motif name
+#' @param p background possibility
+#' @param font font of logo
+#' @param fontface fontface of logo
+#' @param colset color setting for each logo letter
+#' @param xaxis draw x-axis or not
+#' @param yaxis draw y-axis or not
+#' @param xlab x-label, do nothing if set xlab as NA
+#' @param ylab y-label, do nothing if set ylab as NA
+#' @param xlcex cex value for x-label
+#' @param ylcex cex value for y-label
+#' @param ncex cex value for motif name
+#' @param ic.scale logical If TRUE, the height of each column is proportional
+#' to its information content. Otherwise, all columns have the same height.
+#' @param newpage logical If TRUE, plot it in a new page.
+#' @param margins A numeric vector interpreted in the same way as par(mar) in
+#' base graphics.
+#' @param draw Vector (logical(1)). TRUE to plot. FALSE, return a gList
+#' @return none
+#' @export
+#' @importFrom grid gList gTree plotViewport textGrob unit gpar grid.newpage
+#' grid.draw gList grid.draw
+#' @examples
+#' 
+#' pcm<-matrix(runif(40,0,100),nrow=4,ncol=10)
+#' pfm<-pcm2pfm(pcm)
+#' rownames(pfm)<-c("A","C","G","T")
+#' plotMotifLogo(pfm)
+#' 
+plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), 
+                        font="Helvetica-Bold", fontface="bold", 
                         colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
                         xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
                         xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE,
@@ -45,6 +81,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
     symbolsCache[[key]]<-symbols
     assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
   }
+  pictureGrob <- get("pictureGrob", envir = .globals)
   #calculate postion of each symbol and plot
   plot <- gList()
   ic<-getIC(pfm, p)
@@ -69,7 +106,15 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
     y.pos<-0
     for(i in 1:ncha){
       h<-heights[id[i]]
-      if(h>0 && ic[j]>0) plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h, just=c(0,0),distort=TRUE))
+      if(h>0 && ic[j]>0) plot <- 
+          gList(plot, 
+                pictureGrob(picture=symbols[[id[i]]],
+                            x=x.pos,
+                            y=y.pos,
+                            width = dw,
+                            height = h, 
+                            just=c(0,0),
+                            distort=TRUE))
       y.pos<-y.pos+h
     }
     y.poss[j] <- y.pos
@@ -92,6 +137,17 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), font="Helvetica-Bold", f
   }
 }
 
+
+
+#' plot x-axis
+#' 
+#' plot x-axis for the sequence logo
+#' 
+#' 
+#' @param pfm position frequency matrices
+#' @param p background possibility
+#' @return none
+#' @importFrom grid xaxisGrob gpar unit 
 plotXaxis<-function(pfm, p=rep(0.25, 4)){
   npos<-ncol(pfm)
   ic<-getIC(pfm,p)
@@ -112,6 +168,16 @@ plotXaxis<-function(pfm, p=rep(0.25, 4)){
 }
 
 
+
+
+#' plot y-axis
+#' 
+#' plot y-axis for the sequence logo
+#' 
+#' 
+#' @param ymax max value of y axix
+#' @return none
+#' @importFrom grid yaxisGrob gpar unit gList convertUnit
 plotYaxis<-function(ymax){
   ie <- ymax
   majorat<-seq(0,floor(ie),length.out = 5)
@@ -141,6 +207,29 @@ plotYaxis<-function(ymax){
 ######## plot motif logo without plot.new
 ######## to be used to create a better view of stack, eg. radial sty,
 ###############################################################################
+
+
+#' plot sequence logo without plot.new
+#' 
+#' plot amino acid or DNA sequence logo in a given canvas
+#' 
+#' 
+#' @param pfm an object of pfm
+#' @param font font of logo
+#' @param fontface fontface of logo
+#' @param ic.scale logical If TRUE, the height of each column is proportional
+#' to its information content. Otherwise, all columns have the same height.
+#' @param draw Vector (logical(1)). TRUE to plot. FALSE, return a gList
+#' @return none
+#' @export
+#' @examples
+#' 
+#' pcm<-matrix(runif(40,0,100),nrow=4,ncol=10)
+#' pfm<-pcm2pfm(pcm)
+#' rownames(pfm)<-c("A","C","G","T")
+#' motif <- new("pfm", mat=pfm, name="bin_SOLEXA")
+#' plotMotifLogoA(motif)
+#' 
 plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=TRUE, draw=TRUE){
   if (is(pfm, "pcm")){
     pfm <- pcm2pfm(pfm)
@@ -161,7 +250,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=T
     symbolsCache[[key]]<-symbols
     assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
   }
-  
+  pictureGrob <- get("pictureGrob", envir = .globals)
   #calculate postion of each symbol and plot   
   plot <- gList()
   ic<-getIC(pfm)
@@ -182,7 +271,15 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=T
     y.pos<-0
     for(i in 1:ncha){
       h<-heights[id[i]]
-      if(h>0 && ic[j]>0) plot <- gList(plot, pictureGrob(symbols[[id[i]]],x.pos,y.pos,dw,h,just=c(0,0),distort=TRUE))
+      if(h>0 && ic[j]>0) plot <- 
+          gList(plot, 
+                pictureGrob(picture = symbols[[id[i]]],
+                            x = x.pos,
+                            y = y.pos,
+                            width = dw,
+                            height = h,
+                            just=c(0,0),
+                            distort=TRUE))
       y.pos<-y.pos+h
     }
     y.poss[j] <- y.pos
@@ -199,6 +296,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=T
   }
 }
 
+#' @importFrom grid gList rectGrob textGrob linesGrob
 plotMarkers <- function(markers, dw, h, lo=NULL){
   do.call(gList, lapply(markers, function(m){
     switch(m@type,
@@ -238,6 +336,41 @@ plotMarkers <- function(markers, dw, h, lo=NULL){
 }
 
 ################## for ggplot2 ###################
+
+
+#' Motif Grob
+#' 
+#' This function create a motif grob.
+#' 
+#' 
+#' @param pfm an object of pfm
+#' @param x A numeric vector or unit object specifying x-values.
+#' @param y A numeric vector or unit object specifying y-values.
+#' @param width A numeric vector or unit object specifying width.
+#' @param height A numeric vector or unit object specifying height.
+#' @param angle A numeric value indicating the angle of rotation of the motif.
+#' Positive values indicate the amount of rotation, in degrees, anticlockwise
+#' from the positive x-axis.
+#' @param ic.scale logical If TRUE, the height of each column is proportional
+#' to its information content. Otherwise, all columns have the same height.
+#' @param default.units A string indicating the default units to use if x, y,
+#' width, or height are only given as numeric vectors.
+#' @param name A character value to uniquely identify the motifGrob once it has
+#' been pushed onto the grob tree.
+#' @param gp A gpar object, typically the output from a call to the function
+#' gpar. The list will be used as parameter of plotMotifLogoA.
+#' @return An gTree object.
+#' @author Jianhong Ou
+#' @export
+#' @importFrom grid unit gpar viewport gTree
+#' @examples
+#' 
+#' pcm<-matrix(runif(40,0,100),nrow=4,ncol=10)
+#' pfm<-pcm2pfm(pcm)
+#' rownames(pfm)<-c("A","C","G","T")
+#' motif <- new("pfm", mat=pfm, name="bin_SOLEXA")
+#' motifGrob(motif)
+#' 
 motifGrob <- function(pfm, x = unit(0.5, "npc"), y = unit(0.5, "npc"),
                       width = unit(1, "npc"), height = unit(1, "npc"),
                       angle = 0, ic.scale=TRUE, default.units = "native", name=NULL, 
@@ -251,6 +384,62 @@ motifGrob <- function(pfm, x = unit(0.5, "npc"), y = unit(0.5, "npc"),
         name=name, vp=vp, cl="motif")
 }
 
+
+
+#' geom_motif
+#' 
+#' geom_motif uses the locations of the four corners (xmin, xmax, ymin and
+#' ymax) to plot motifs.
+#' 
+#' 
+#' @param mapping Set of aesthetic mappings created by aes() or aes_(). If
+#' specified and inherit.aes = TRUE (the default), it is combined with the
+#' default mapping at the top level of the plot.  You must supply mapping if
+#' there is no plot mapping.
+#' @param data The data to be displayed in this layer.
+#' @param stat The statistical transformation to use on the data for this
+#' layer, as a string.
+#' @param position Position adjustment, either as a string, or the result of a
+#' call to a position adjustment function.
+#' @param \dots Other arguments passed on to layer().
+#' @param ic.scale logical If TRUE, the height of each column is proportional
+#' to its information content.  Otherwise, all columns have the same height.
+#' @param use.xy logical If TRUE, the required aesthethics will be x, y, width,
+#' height, and motif.  Otherwise, xmin, ymin, xmax, ymax and motif.
+#' @param show.legend Not used.
+#' @param inherit.aes If FALSE, overrides the default aesthetics, rather than
+#' combining with them.
+#' @return a layer that contains GeomMotif object.
+#' @section Aesthetics: geom_motif() understands the following aesthetics
+#' (required aesthetics are in bold): \itemize{ \item \strong{\code{xmin}}
+#' \item \strong{\code{xmax}} \item \strong{\code{ymin}} \item
+#' \strong{\code{ymax}} \item \strong{\code{motif}} \item \code{angle} \item
+#' \code{fontfamily} \item \code{fontface} }
+#' 
+#' OR
+#' 
+#' \itemize{ \item \strong{\code{x}} \item \strong{\code{y}} \item
+#' \strong{\code{width}} \item \strong{\code{height}} \item
+#' \strong{\code{motif}} \item \code{angle} \item \code{fontfamily} \item
+#' \code{fontface} }
+#' @author Jianhong Ou
+#' @export
+#' @importFrom ggplot2 layer
+#' @examples
+#' 
+#' pcm <- read.table(file.path(find.package("motifStack"), 
+#'                             "extdata", "bin_SOLEXA.pcm"))
+#' pcm <- pcm[,3:ncol(pcm)]
+#' rownames(pcm) <- c("A","C","G","T")
+#' motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+#' 
+#' df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1))
+#' df$motif <- list(pcm2pfm(motif), pcm2pfm(motif))
+#' 
+#' library(ggplot2)
+#' ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif)) + 
+#' geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
+#' 
 geom_motif <- function(mapping = NULL, data = NULL,
                        stat = "identity", position = "identity",
                        ...,
@@ -272,6 +461,40 @@ geom_motif <- function(mapping = NULL, data = NULL,
     )
   )
 }
+
+#' GeomMotif object
+#' 
+#' GeomMotif object is a ggproto object.
+#' 
+#' 
+#' @name GeomMotif
+#' @format The format is: Classes 'GeoMotif', 'Geom', 'ggproto', 'gg' <ggproto
+#' object: Class GeoMotif, Geom, gg> aesthetics: function default_aes: uneval
+#' draw_group: function draw_key: function draw_layer: function draw_panel:
+#' function extra_params: na.rm handle_na: function non_missing_aes:
+#' optional_aes: parameters: function required_aes: xmin ymin xmax ymax motif
+#' setup_data: function use_defaults: function super: <ggproto object: Class
+#' Geom, gg>
+#' @seealso geom_motif
+#' @export
+#' @importFrom ggplot2 ggproto aes Geom
+#' @examples
+#' 
+#' pcm <- read.table(file.path(find.package("motifStack"), 
+#'                             "extdata", "bin_SOLEXA.pcm"))
+#' pcm <- pcm[,3:ncol(pcm)]
+#' rownames(pcm) <- c("A","C","G","T")
+#' motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
+#' 
+#' df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1))
+#' df$motif <- list(pcm2pfm(motif), pcm2pfm(motif))
+#' 
+#' library(ggplot2)
+#' 
+#' ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif)) + 
+#' geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
+#' 
+#' 
 
 GeomMotif <- 
   ggproto("GeomMotif", Geom, 

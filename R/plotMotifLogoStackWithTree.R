@@ -1,3 +1,39 @@
+#' plot sequence logos stack with hierarchical cluster tree
+#' 
+#' plot sequence logos stack with hierarchical cluster tree
+#' 
+#' 
+#' @param pfms a list of position frequency matrices, pfms must be a list of
+#' class pfm
+#' @param hc an object of the type produced by stats::hclust
+#' @param treewidth the width to show tree
+#' @param trueDist logical flags to use hclust height or not.
+#' @param ... other parameters can be passed to plotMotifLogo function
+#' @return none
+#' @export
+#' @importFrom grid grid.newpage grid.lines viewport pushViewport convertUnit 
+#' unit grid.text popViewport
+#' @examples
+#' 
+#'   #####Input#####
+#'   pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
+#'   motifs<-lapply(pcms,pcm2pfm)
+#' 
+#'   #####Clustering#####
+#'   library(MotIV)
+#'   jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+#'                                  "extdata", "jaspar2010_PCC_SWU.scores"))
+#'   d <- MotIV::motifDistances(lapply(motifs, pfm2pwm))
+#'   hc <- MotIV::motifHclust(d, method="average")
+#' 
+#'   ##reorder the motifs for plotMotifLogoStack
+#'   motifs<-motifs[hc$order]
+#'   ##do alignment
+#'   motifs<-DNAmotifAlignment(motifs)
+#'   ##plot stacks
+#'   plotMotifLogoStack(motifs, ncex=1.0)
+#'   plotMotifLogoStackWithTree(motifs, hc=hc)
+#' 
 plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ...){
   n<-length(pfms)
   lapply(pfms,function(.ele){

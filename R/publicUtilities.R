@@ -1,3 +1,17 @@
+#' read pcm from a path
+#' 
+#' read position count matrix from a path
+#' 
+#' 
+#' @param path a character vector of full path names
+#' @param pattern an optional regular expression
+#' @return A list of \code{\link{pcm}} objects
+#' @export
+#' @importFrom utils read.table
+#' @examples
+#' 
+#' pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
+#' 
 readPCM <- function(path=".", pattern=NULL){
     pcms <- dir(path,pattern)
     pcml <- lapply(pcms, function(.ele){
@@ -41,6 +55,23 @@ readPWM <- function(path=".", pattern=NULL, to=c("pfm", "pcm")){
     pwm
 }
 
+
+
+#' retrieve color setting for logo
+#' 
+#' retrieve color setting for logo
+#' 
+#' 
+#' @param alphabet character, 'DNA', 'RNA' or 'AA'
+#' @param colorScheme 'auto', 'charge', 'chemistry', 'classic' or
+#' 'hydrophobicity' for AA, 'auto', 'basepairing', or 'blindnessSafe' for DNA
+#' ro RNA
+#' @return A character vector of color scheme
+#' @export
+#' @examples
+#' 
+#' col <- colorset("AA", "hydrophobicity")
+#' 
 colorset<-function(alphabet="DNA", colorScheme='auto'){
     if(!alphabet %in% c("DNA","RNA","AA")) stop("alphabet must be one of 'DNA', 'RNA' or 'AA'")
     if(alphabet=='PROTEIN' & !(colorScheme %in% c('auto', 'charge', 'chemistry', 'classic', 'hydrophobicity')))
@@ -153,6 +184,29 @@ colorset<-function(alphabet="DNA", colorScheme='auto'){
 }
 
 
+
+
+#' add alpha transparency value to a color
+#' 
+#' An alpha transparency value can be specified to a color, in order to get
+#' better color for background.
+#' 
+#' 
+#' @param col vector of any of the three kinds of R color specifications, i.e.,
+#' either a color name (as listed by \link[grDevices]{colors}()), a hexadecimal
+#' string of the form "#rrggbb" or "#rrggbbaa" (see \link[grDevices]{rgb}), or
+#' a positive integer i meaning \link[grDevices]{palette}()[i].
+#' @param alpha a value in [0, 1]
+#' @return a vector of colors in hexadecimal string of the form "#rrggbbaa".
+#' @author Jianhong Ou
+#' @keywords misc
+#' @export
+#' @importFrom grDevices col2rgb rgb
+#' @examples
+#' 
+#'     highlightCol(1:5, 0.3)
+#'     highlightCol(c("red", "green", "blue"), 0.3)
+#' 
 highlightCol <- function (col, alpha=0.5){
   if(alpha==1){
     return(col)
@@ -168,6 +222,27 @@ highlightCol <- function (col, alpha=0.5){
     col
 }
 
+
+
+#' convert pfm object to PWM
+#' 
+#' convert pfm object to PWM
+#' 
+#' 
+#' @param x an object of \code{\link{pfm}} or \code{\link{pcm}} or matrix
+#' @param N Total number of event counts used for pfm generation.
+#' @return A numeric matrix representing the Position Weight Matrix for PWM.
+#' @author Jianhong Ou
+#' @seealso \code{\link[Biostrings:matchPWM]{PWM}}
+#' @keywords misc
+#' @export
+#' @importFrom Biostrings PWM
+#' @examples
+#' 
+#' library("MotifDb")
+#' matrix.fly <- query(MotifDb, "Dmelanogaster")
+#' pfm2pwm(matrix.fly[[1]])
+#' 
 pfm2pwm <- function(x, N=10000){
     if(!inherits(x, c("pfm", "pcm", "matrix")))
         stop("x must be an object of matrix or pcm or pfm")
@@ -200,7 +275,11 @@ pfm2pwm <- function(x, N=10000){
   PWM(x, prior.params=prior.params)
 }
 
+#' @importFrom stats loess predict
 isHomoDimer <- function(x, t=0.001){
+  if(!requireNamespace("MotIV", quietly = TRUE)){
+    stop("MotIV is required")
+  }
     if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
     if(is(x, "pcm")) x <- pcm2pfm(x)
     ic <- getIC(x)
@@ -215,18 +294,26 @@ isHomoDimer <- function(x, t=0.001){
     x <- pfm2pwm(x)
     y <- pfm2pwm(y)
     pfms <- list(x=x, y=y)
-    jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-    d <- motifDistances(pfms, DBscores = jaspar.scores)
+    jaspar.scores <- 
+      MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", 
+                                    "jaspar2010_PCC_SWU.scores"))
+    d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
     ifelse(d[1]<t, TRUE, FALSE)
 }
 
+
 getHomoDimerCenter <- function(x){
+  if(!requireNamespace("MotIV", quietly = TRUE)){
+    stop("MotIV is required")
+  }
     if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
     if(is(x, "pcm")) x <- pcm2pfm(x)
     len <- ncol(x@mat)
     if(len < 6) return(NA)
     ra <- 3:(len-3) ## minimal monomer 3mer
-    jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
+    jaspar.scores <- 
+      MotIV::readDBScores(file.path(find.package("MotIV"), 
+                                    "extdata", "jaspar2010_PCC_SWU.scores"))
     dist <- sapply(ra, function(pos){
         a <- b <- c <- x
         a@mat <- a@mat[, 1:pos]
@@ -238,9 +325,9 @@ getHomoDimerCenter <- function(x){
         b <- pfm2pwm(b)
         c <- pfm2pwm(c)
         pfms <- list(a=a, b=b)
-        d <- motifDistances(pfms, DBscores = jaspar.scores)
+        d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
         pfms2 <- list(a=a, c=c)
-        d2 <- motifDistances(pfms2, DBscores = jaspar.scores)
+        d2 <- MotIV::motifDistances(pfms2, DBscores = jaspar.scores)
         c(d1=d[1], d2=d2[1])
     })
     colnames(dist) <- ra

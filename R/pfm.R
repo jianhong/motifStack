@@ -1,3 +1,27 @@
+#' Class \code{"pfm"}
+#' 
+#' An object of class \code{"pfm"} represents the position frequency matrix of
+#' a DNA/RNA/amino-acid sequence motif. The entry stores a matrix, which in row
+#' i, column j gives the frequency of observing nucleotide/or amino acid i in
+#' position j of the motif.
+#' 
+#' 
+#' @name pfm-class
+#' @aliases pfm
+#' @docType class
+#' @section Objects from the Class: Objects can be created by calls of the form
+#' \code{new("pfm", mat, name, alphabet, color, background)}.
+#' @keywords classes
+#' @export
+#' @examples
+#' 
+#' pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
+#' pcm <- pcm[,3:ncol(pcm)]
+#' rownames(pcm) <- c("A","C","G","T")
+#' motif <- pcm2pfm(pcm)
+#' motif <- new("pfm", mat=motif, name="bin_SOLEXA")
+#' plot(motif)
+#' 
 setClass("pfm", 
         representation(mat="matrix", name="character", alphabet="character", 
                        color="character", background="numeric", tags="list",
@@ -19,13 +43,71 @@ setClass("pfm",
         }
 )
 
+#' "pfm" methods
+#' 
+#' methods for pfm objects.
+#' 
+#' 
+#' @rdname pfm-class
+#' @aliases $,pfm-method $<-,pfm-method
+#' @docType methods
+#' @param x An object of class \code{pfm}. For \code{getIC}, if parameter p is
+#' followed, x should be an object of matrix.
+#' @param name Slot name.
+#' @param y Not use.
+#' @param p p is the background frequency.
+#' @param n how many spaces should be added.
+#' @param b logical value to indicate where the space should be added.
+#' @param t numeric value of information content threshold for trimming.
+#' @param \dots Further potential arguments passed to \code{plotMotifLogo}.
+#' @param row.names,optional see as.data.frame
+#' @section Methods: \describe{ \item{addBlank}{\code{signature(x="pfm",
+#' n="numeric", b="logical")} add space into the position frequency matrix for
+#' alignment. b is a bool value, if TRUE, add space to the 3' end, else add
+#' space to the 5' end. n indicates how many spaces should be added.}
+#' 
+#' \item{getIC}{\code{signature(x = "pfm",)} Calculate information content
+#' profile for position frequency matrix. }
+#' 
+#' \item{getIC}{\code{signature(x = "matrix", p = "numeric")} Calculate
+#' information content profile for matrix. p is the background frequency}
+#' 
+#' \item{matrixReverseComplement}{\code{signature(x = "pfm")} get the reverse
+#' complement of position frequency matrix.}
+#' 
+#' \item{plot}{\code{signature(x = "pfm")} Plots the sequence logo of the
+#' position frequency matrix. }
+#' 
+#' \item{trimMotif}{\code{signature(x = "pfm", t= "numeric")} trim motif by
+#' information content. }
+#' 
+#' \item{$, $<-}{Get or set the slot of \code{\link{pfm-class}}}
+#' \item{as.data.frame}{convert \code{\link{pfm-class}} to a data.frame}
+#' \item{format}{return the name_pfm of \code{\link{pfm-class}}} }
+#' @keywords classes
+#' @examples
+#' 
+#' pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
+#' pcm <- pcm[,3:ncol(pcm)]
+#' rownames(pcm) <- c("A","C","G","T")
+#' motif <- pcm2pfm(pcm)
+#' motif <- new("pfm", mat=motif, name="bin_SOLEXA")
+#' getIC(motif)
+#' matrixReverseComplement(motif)
+#' addBlank(motif, 1, FALSE)
+#' addBlank(motif, 3, TRUE)
+#' as(motif,"matrix")
+#' as.data.frame(motif)
+#' format(motif)
+#' 
+#' @exportMethod `$` `$<-`
 setMethod("$", "pfm", function(x, name) slot(x, name))
 setReplaceMethod("$", "pfm",
                  function(x, name, value){
                      slot(x, name, check = TRUE) <- value
                      x
                  })
-
+#' @importFrom grDevices rainbow
 setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, background, tags, markers){
     if(mode(mat)!="numeric") stop("mat must be a numeric matrix")
     if(is.null(rownames(mat))) stop("rownames of PFM is empty")
@@ -69,17 +151,28 @@ setMethod("initialize","pfm",function(.Object, mat, name, alphabet, color, backg
     .Object
 })
 
-setMethod("plot", signature(x="pfm", y="ANY"), 
+#' @rdname pfm-class 
+#' @aliases plot,pfm,ANY-method
+#' @exportMethod plot
+setMethod("plot", signature(x="pfm"), 
     function(x, y="missing", ...){
         plotMotifLogo(pfm=x, ...)
     }
 )
 
+#' @name coerce
+#' @rdname pfm-class
+#' @aliases coerce,pfm,matrix-method
+#' @exportMethod coerce
 setAs(from="pfm", to="matrix", function(from){
     from@mat
 })
 
 ## get information content profile from PFM
+#' @rdname pfm-class
+#' @exportMethod getIC
+#' @aliases getIC,pfm,ANY-method getIC,matrix,numeric-method 
+#' getIC,matrix,matrix-method
 setMethod("getIC", signature(x="pfm"), function(x, p="missing"){
     colSums(x@mat * (addPseudolog2(x@mat) - addPseudolog2(x@background)))
 })
@@ -93,6 +186,9 @@ setMethod("getIC", signature(x="matrix", p="matrix"), function(x, p){
     colSums(x * (addPseudolog2(x) - addPseudolog2(p)))
 })
 
+#' @rdname pfm-class
+#' @exportMethod trimMotif
+#' @aliases trimMotif,pfm,numeric-method
 setMethod("trimMotif", signature(x="pfm", t="numeric"), function(x, t){
     .sw <- c(0, 0)
     ic <- getIC(x)
@@ -116,6 +212,9 @@ setMethod("trimMotif", signature(x="pfm", t="numeric"), function(x, t){
     x
 })
 
+#' @rdname pfm-class
+#' @exportMethod matrixReverseComplement
+#' @aliases matrixReverseComplement,pfm-method
 setMethod("matrixReverseComplement", "pfm", function(x){
     if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
     mat<-x@mat
@@ -131,6 +230,9 @@ setMethod("matrixReverseComplement", "pfm", function(x){
     x
 })
 
+#' @rdname pfm-class
+#' @exportMethod addBlank
+#' @aliases addBlank,pfm,numeric,logical-method
 setMethod("addBlank", signature(x="pfm", n="numeric", b="logical"), function(x, n, b){
     if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
     N<-matrix(rep(x@background, n), nrow=4)
@@ -152,10 +254,16 @@ setMethod("addBlank", signature(x="pfm", n="numeric", b="logical"), function(x, 
 })
 
 ## for data.frame
+#' @rdname pfm-class
+#' @exportMethod as.data.frame
+#' @aliases as.data.frame,pfm-method
 setMethod("as.data.frame", signature(x="pfm"), function(x, row.names = NULL, optional = FALSE, ...){
   as.data.frame(x@mat, ...)
 })
 
+#' @rdname pfm-class
+#' @exportMethod format
+#' @aliases format,pfm-method
 setMethod("format", signature(x="pfm"), function(x, ...){
   paste0(x@name, "_pfm")
 })

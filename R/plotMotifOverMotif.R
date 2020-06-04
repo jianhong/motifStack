@@ -1,5 +1,32 @@
 ## compare two motifs
 ## require two motifs must be exact same width and aligned
+
+
+#' plot motif over another motif
+#' 
+#' plot motif over another motif to emphesize the difference.
+#' 
+#' 
+#' @param motif an object of \code{\link{pcm}} or \code{\link{pfm}}
+#' @param backgroundMotif an object of \code{\link{pcm}} or \code{\link{pfm}}
+#' @param bgNoise if it is not NA, test will using a background by
+#' Dirichlet(1)-distributed random frequencies with weight bg.noise.  The value
+#' of bgNoise should be a number in the range of 0 to 1, eg. 0.05
+#' @param font font for logo symbol
+#' @param textgp text parameter
+#' @return none
+#' @export
+#' @importFrom grid gpar convertUnit unit grid.text grid.lines arrow grid.draw
+#' @importFrom stats rgamma
+#' @importFrom graphics plot.new
+#' @importFrom grDevices dev.size
+#' @examples
+#' 
+#' pcms <- readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
+#' len <- sapply(pcms, function(.ele) ncol(.ele$mat))
+#' pcms <- pcms[len==7]
+#' plotMotifOverMotif(pcms[[1]], pcms[[2]], bgNoise=0.05)
+#' 
 plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA, 
                                font="Helvetica-Bold", textgp=gpar()){
     if(!inherits(motif, c("pcm", "pfm")))
@@ -52,6 +79,7 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
         symbolsCache[[key]]<-symbols
         assign("tmp_motifStack_symbolsCache", symbolsCache, envir=.globals)
     }
+    pictureGrob <- get("pictureGrob", envir = .globals)
     
     ##check font height to fix the number size
     plot.new()
@@ -73,7 +101,8 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
     ##set ylim
     datN <- apply(dat, 2, function(.col) sum(.col[.col<0]))
     datP <- apply(dat, 2, function(.col) sum(.col[.col>0]))
-    ylim <- c((as.integer(min(datN)/0.05)-1)*0.05, (as.integer(max(datP)/0.05)+1)*0.05)
+    ylim <- c((as.integer(min(datN)/0.05)-1)*0.05,
+              (as.integer(max(datP)/0.05)+1)*0.05)
     remap <- function(x){
         (ylim[1] - x)/(ylim[1] - ylim[2])/(1+dw)
     }
@@ -84,14 +113,19 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
     ##draw axis
     x.pos <- 0
     grid.text(0, x0, remap(0)+dw/2, just=c(.5, .5), gp=textgp)
-    grid.lines(x=x0, y=c(remap(0)+dw, 1), arrow=arrow(length=unit(0.02, "npc")), gp=gpar(lwd=tickgp$cex))
-    grid.lines(x=x0, y=c(remap(0), 0), arrow=arrow(length=unit(0.02, "npc")), gp=gpar(lwd=tickgp$cex))
+    grid.lines(x=x0, y=c(remap(0)+dw, 1), 
+               arrow=arrow(length=unit(0.02, "npc")),
+               gp=gpar(lwd=tickgp$cex))
+    grid.lines(x=x0, y=c(remap(0), 0), 
+               arrow=arrow(length=unit(0.02, "npc")), 
+               gp=gpar(lwd=tickgp$cex))
     ##draw tick
     tick <- 0.1
     times <- 100
     for(i in c(as.integer(min(datN)/tick):(-1), 1:as.integer(max(datP)/tick))){
         grid.lines(x=c(x2, x0), y=remap(i*tick)+dw/2, gp=gpar(lwd=tickgp$cex))
-        grid.text(times*tick*i, x=x1, remap(i*tick)+dw/2, just=c(1, .5), gp=tickgp)
+        grid.text(times*tick*i, x=x1, remap(i*tick)+dw/2, 
+                  just=c(1, .5), gp=tickgp)
     }
     
     x.pos <- x0 + dw/2
@@ -106,20 +140,23 @@ plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA,
                 h <- reheight(heights[id1[i]])
                 if(heights[id1[i]]>0) flag <- flag+1
                 if(flag==1) {
-                        grid.text(j, x.pos+dw/2, y.pos+dw/2, just=c(.5, .5), gp=textgp)
+                        grid.text(j, x.pos+dw/2, y.pos+dw/2,
+                                  just=c(.5, .5), gp=textgp)
                     y.pos <- y.pos + dw
                     flag <- flag+1
                 }
                 if(h>0) {
-                    grid.draw(pictureGrob(symbols[[id[i]]],
-                                                    x.pos,y.pos,dw,h,
-                                                    just=c(0,0),distort=TRUE))
+                    grid.draw(pictureGrob(picture = symbols[[id[i]]],
+                                          x = x.pos, y = y.pos,
+                                          width = dw, height = h,
+                                          just=c(0,0),distort=TRUE))
                     y.pos<-y.pos+h
                 }
             }
             
         }
-        if(flag==0) grid.text(j, x.pos+dw/2, y.pos+dw/2, just=c(.5, .5), gp=textgp)
+        if(flag==0) grid.text(j, x.pos+dw/2, y.pos+dw/2, 
+                              just=c(.5, .5), gp=textgp)
         x.pos<-x.pos+dw
     }
     return(invisible(dat))

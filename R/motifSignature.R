@@ -1,3 +1,45 @@
+#' get signatures from motifs
+#' 
+#' extract signatures from multiple motifs by distance calculated from STAMP
+#' 
+#' 
+#' @param pfms a list of objects of class pfm
+#' @param phylog an object of class phylog
+#' @param groupDistance maxmal distance of motifs in the same group
+#' @param rcpostfix postfix for reverse-complement motif names, default: (RC)
+#' @param min.freq signatures with frequency below min.freq will not be plotted
+#' @param trim minimal information content for each position of signature
+#' @param families for each family, the motif number in one signature should
+#' only count as 1
+#' @param sort sort the signatures by frequency or not.
+#' @return an Object of class \linkS4class{motifSig}
+#' @export
+#' @examples
+#' 
+#'   if(interactive()){
+#'     library("MotifDb")
+#'     matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'     motifs <- as.list(matrix.fly)
+#'     motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", 
+#'                             names(motifs), fixed=TRUE)]
+#'     names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                 gsub("_FBgn[0-9]+$", "", 
+#'                   gsub("[^a-zA-Z0-9]","_", 
+#'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'     motifs <- motifs[unique(names(motifs))]
+#'     pfms <- sample(motifs, 50)
+#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+#'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
+#'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
+#'     hc <- MotIV::motifHclust(d, method="average")
+#'     phylog <- hclust2phylog(hc)
+#'     leaves <- names(phylog$leaves)
+#'     pfms <- pfms[leaves]
+#'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                  new("pfm",mat=.ele, name=.name)})
+#'     motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
+#'   }
+#' 
 motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)", 
                            min.freq=2, trim=0.2, families=list(), sort=TRUE){
   if (!inherits(phylog, "phylog")) 
@@ -19,12 +61,15 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
   
   getSignature <- function(pfms, pfmnames, rcpostfix, pfms.class){
     .pfmnames <- unlist(strsplit(pfmnames, ";"))
-    .pfms <- lapply(.pfmnames, function(.name, pfms) pfms[[getPFMid(pfms, .name, rcpostfix=rcpostfix)]], pfms)
+    .pfms <- lapply(.pfmnames, function(.name, pfms) {
+      pfms[[getPFMid(pfms, .name, rcpostfix=rcpostfix)]]
+      }, pfms)
     if(length(.pfms)>1){
       .pfms <- DNAmotifAlignment(.pfms, rcpostfix="")
       .rown <- rownames(.pfms[[1]]@mat)
       .mats <- lapply(.rown, function(i, .pfms){
-        do.call(rbind,lapply(.pfms, function(.ele, i) .ele@mat[i, , drop=FALSE], i))
+        do.call(rbind,lapply(.pfms, function(.ele, i) 
+          .ele@mat[i, , drop=FALSE], i))
       }, .pfms)
       if(pfms.class=="pfms"){
         .mats <- do.call(rbind, lapply(.mats, colMeans))
@@ -39,13 +84,18 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
       if(pfms.class=="pfms") .mats <- .pfms[[1]]@mat
       else .mats <- pcm2pfm(.pfms[[1]]@mat)
     }
-    new("pfm", mat=.mats, name=pfmnames, alphabet=.pfms[[1]]@alphabet, color=.pfms[[1]]@color, background=.pfms[[1]]@background)
+    new("pfm", mat=.mats, name=pfmnames, alphabet=.pfms[[1]]@alphabet,
+        color=.pfms[[1]]@color, background=.pfms[[1]]@background)
   }
   
   if(groupDistance > max(phylog$droot)){
-    signatures <- list(getSignature(pfms, names(phylog$leaves), rcpostfix, pfms.class=pfms.class))
+    signatures <- list(getSignature(pfms, names(phylog$leaves), 
+                                    rcpostfix, pfms.class=pfms.class))
     signatures <- lapply(signatures, trimMotif, trim)
-    nodelist <- list(Root=new("ouNode", left=paste(names(phylog$leaves),sep=";"), parent="Root", distl=max(phylog$droot), sizel=length(pfms), sizer=0))
+    nodelist <- list(Root=new("ouNode", 
+                              left=paste(names(phylog$leaves),sep=";"), 
+                              parent="Root", distl=max(phylog$droot), 
+                              sizel=length(pfms), sizer=0))
     return(new("motifSig", signatures=signatures, 
                freq=length(pfms), 
                nodelist=nodelist, 
@@ -55,7 +105,8 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
   tree <- phylog$tre
   droot <- phylog$droot
   tree <- gsub(";$","",tree)
-  str <- unlist(strsplit(gsub("^\\((.*?)\\)([^\\)\\(;,]+)$","\\1///\\2",tree),"///",fixed=TRUE))[1]
+  str <- unlist(strsplit(gsub("^\\((.*?)\\)([^\\)\\(;,]+)$",
+                              "\\1///\\2",tree),"///",fixed=TRUE))[1]
   nodelist <- list()
   getNodelist <- function(str, nodelist=list(), pid=0){
     ge <- gregexpr("\\(([^\\(\\),]+),([^\\(\\),]+)\\)([^\\(\\),]+)", str)
@@ -67,7 +118,9 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
         trec<- c(trec,substr(str, start[i],start[i]+stop[i]-1))
       }
       nodes <- do.call(rbind,strsplit(trec,"\\)|\\(|,"))[,2:4,drop=FALSE]
-      newnodes <- apply(nodes, 1, function(.ele) new("ouNode",left=.ele[1], right=.ele[2], parent=.ele[3], sizel=0, sizer=0))
+      newnodes <- apply(nodes, 1, function(.ele) 
+        new("ouNode",left=.ele[1], right=.ele[2], 
+            parent=.ele[3], sizel=0, sizer=0))
       names(newnodes) <- nodes[,3]
       nodelist <- c(newnodes,nodelist)
       for(i in 1:length(trec)){
@@ -75,7 +128,8 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
       }
       Recall(str=str, nodelist=nodelist, pid=pid)
     }else{
-      ge <- gregexpr("\\((([^\\(\\),]+,){2,})([^\\(\\),]+)\\)([^\\(\\),]+)", str)
+      ge <- gregexpr("\\((([^\\(\\),]+,){2,})([^\\(\\),]+)\\)([^\\(\\),]+)", 
+                     str)
       if(ge[[1]][1]!=-1){ ##(A,B,C,...)N
         start <- ge[[1]]
         stop <- attr(ge[[1]],"match.length")
@@ -90,13 +144,16 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
           curNode <- nodes[length(nodes)]
           for(j in (length(nodes)-1):2){
             parNode <- paste("MSP", pid, sep="")
-            newnodes <- new("ouNode", left=nodes[i], right=curNode, parent=parNode, distl=0, distr=0, sizel=0, sizer=0)
+            newnodes <- new("ouNode", left=nodes[i], right=curNode,
+                            parent=parNode, distl=0, distr=0,
+                            sizel=0, sizer=0)
             curNode <- parNode
             pid <- pid + 1
             nodelist <- c(newnodes, nodelist)
             names(nodelist)[1] <- parNode
           }
-          newnodes <- new("ouNode", left=nodes[1], right=curNode, parent=pnodes, sizel=0, sizer=0)
+          newnodes <- new("ouNode", left=nodes[1], right=curNode, 
+                          parent=pnodes, sizel=0, sizer=0)
           nodelist <- c(newnodes, nodelist)
           names(nodelist)[1] <- pnodes
           str<-gsub(trec[i],gsub(".*?\\)(.*?)$","\\1",trec[i]),str,fixed=TRUE)
@@ -108,17 +165,20 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
           curNode <- nodes[length(nodes)]
           for(i in (length(nodes)-1):2){
             parNode <- paste("MSP", pid, sep="")
-            newnodes <- new("ouNode", left=nodes[i], right=curNode, parent=parNode, distl=0, distr=0, sizel=0, sizer=0)
+            newnodes <- new("ouNode", left=nodes[i], right=curNode,
+                            parent=parNode, distl=0, distr=0, sizel=0, sizer=0)
             curNode <- parNode
             pid <- pid + 1
             nodelist <- c(newnodes, nodelist)
             names(nodelist)[1] <- parNode
           }
-          Root <- new("ouNode", left=nodes[1], right=curNode, parent="Root", sizel=0, sizer=0)
+          Root <- new("ouNode", left=nodes[1], right=curNode, 
+                      parent="Root", sizel=0, sizer=0)
           nodelist <- c(Root=Root, nodelist)
           return(nodelist)
         }else{
-          Root <- new("ouNode", left=nodes[1], right=nodes[2], parent="Root", sizel=0, sizer=0)
+          Root <- new("ouNode", left=nodes[1], right=nodes[2], 
+                      parent="Root", sizel=0, sizer=0)
           nodelist <- c(Root=Root, nodelist)
           return(nodelist)
         }
@@ -133,10 +193,12 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
     if(nodelist[[nodename]]@left %in% leaves) nodelist[[nodename]]@sizel <<- 1
     if(nodelist[[nodename]]@right %in% leaves) nodelist[[nodename]]@sizer <<- 1
     if(!is.null(nodelist[[nodelist[[nodename]]@left]])){
-      buildTree(nodelist, nodelist[[nodename]]@left, droot, droot[nodelist[[nodename]]@left])
+      buildTree(nodelist, nodelist[[nodename]]@left, droot, 
+                droot[nodelist[[nodename]]@left])
     }
     if(!is.null(nodelist[[nodelist[[nodename]]@right]])){
-      buildTree(nodelist, nodelist[[nodename]]@right, droot, droot[nodelist[[nodename]]@right])
+      buildTree(nodelist, nodelist[[nodename]]@right, droot,
+                droot[nodelist[[nodename]]@right])
     }
   }
   buildTree(nodelist, "Root", droot, dpar=0)
@@ -151,18 +213,35 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
           parNodeInfo <- getParentNode(nodelist, nodename)
           if(!is.null(parNodeInfo)[1]){
             if(parNodeInfo[2]=="left") {
-              nodelist[[parNodeInfo[1]]]@sizel <- nodelist[[parNodeInfo[1]]]@sizel + max(currNode@sizel, 1) + max(currNode@sizer, 1)
-              nodelist[[parNodeInfo[1]]]@distl <- nodelist[[parNodeInfo[1]]]@distl + (currNode@distl + currNode@distr)/2
-              nodelist[[parNodeInfo[1]]]@left <- paste(currNode@left, currNode@right, sep=";")
-              leaves <- c(leaves[!leaves %in% c(currNode@left, currNode@right)], paste(currNode@left, currNode@right, sep=";"))
-              nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", parent="NULL", sizel=0, sizer=0)
+              nodelist[[parNodeInfo[1]]]@sizel <- 
+                nodelist[[parNodeInfo[1]]]@sizel + max(currNode@sizel, 1) +
+                max(currNode@sizer, 1)
+              nodelist[[parNodeInfo[1]]]@distl <- 
+                nodelist[[parNodeInfo[1]]]@distl + 
+                (currNode@distl + currNode@distr)/2
+              nodelist[[parNodeInfo[1]]]@left <- 
+                paste(currNode@left, currNode@right, sep=";")
+              leaves <- c(leaves[!leaves %in% c(currNode@left,
+                                                currNode@right)], 
+                          paste(currNode@left, currNode@right, sep=";"))
+              nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", 
+                                          parent="NULL", sizel=0, sizer=0)
             }
             else if(parNodeInfo[2]=="right") {
-              nodelist[[parNodeInfo[1]]]@sizer <- nodelist[[parNodeInfo[1]]]@sizer + max(currNode@sizel, 1) + max(currNode@sizer, 1)
-              nodelist[[parNodeInfo[1]]]@distr <- nodelist[[parNodeInfo[1]]]@distr + (currNode@distl + currNode@distr)/2
-              nodelist[[parNodeInfo[1]]]@right <- paste(currNode@left, currNode@right, sep=";")
-              leaves <- c(leaves[!leaves %in% c(currNode@left, currNode@right)], paste(currNode@left, currNode@right, sep=";"))
-              nodelist[[nodename]] <- new("ouNode",left="NULL", right="NULL", parent="NULL", sizel=0, sizer=0)
+              nodelist[[parNodeInfo[1]]]@sizer <- 
+                nodelist[[parNodeInfo[1]]]@sizer + max(currNode@sizel, 1) + 
+                max(currNode@sizer, 1)
+              nodelist[[parNodeInfo[1]]]@distr <- 
+                nodelist[[parNodeInfo[1]]]@distr + 
+                (currNode@distl + currNode@distr)/2
+              nodelist[[parNodeInfo[1]]]@right <- 
+                paste(currNode@left, currNode@right, sep=";")
+              leaves <- c(leaves[!leaves %in% 
+                                   c(currNode@left, currNode@right)], 
+                          paste(currNode@left, currNode@right, sep=";"))
+              nodelist[[nodename]] <- 
+                new("ouNode",left="NULL", right="NULL",
+                    parent="NULL", sizel=0, sizer=0)
             }
           }
         }
@@ -176,7 +255,7 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
   }
   
   mergeNodes(nodelist, leaves, groupDistance)
-  #get signatures and frequences (count of frequences should greater than min.freq)
+  #get signatures and frequences (count of frequences should > min.freq)
   filterFamilies <- function(pfmnames, size, families){
     if(length(families)>0){
       pfmnames <- unlist(strsplit(pfmnames, ";"))
@@ -200,7 +279,9 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
       nodelist[[i]]@left <- ftmp[["name"]]
       nodelist[[i]]@sizel <- ftmp[["size"]]
       if(ftmp[["size"]]>=min.freq){
-        signatures <- c(signatures, getSignature(pfms, nodelist[[i]]@left, rcpostfix, pfms.class=pfms.class))
+        signatures <- 
+          c(signatures, getSignature(pfms, nodelist[[i]]@left,
+                                     rcpostfix, pfms.class=pfms.class))
         freq <- c(freq, nodelist[[i]]@sizel)
       }
     }
@@ -209,7 +290,9 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
       nodelist[[i]]@right <- ftmp[["name"]]
       nodelist[[i]]@sizer <- ftmp[["size"]]
       if(ftmp[["size"]]>=min.freq){
-        signatures <- c(signatures, getSignature(pfms, nodelist[[i]]@right, rcpostfix, pfms.class=pfms.class))
+        signatures <- c(signatures, 
+                        getSignature(pfms, nodelist[[i]]@right,
+                                     rcpostfix, pfms.class=pfms.class))
         freq <- c(freq, nodelist[[i]]@sizer)
       }
     }
@@ -240,10 +323,13 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
     pfmNames <- pfmNames[match(names(phylog$leaves), pfmNames[,1]),]
     bd.color <- c("gray80","gray30")
     in.color <- rle(pfmNames[,2])
-    in.color$values <- bd.color[rep(1:2, length(in.color$lengths))[1:length(in.color$lengths)]]
+    in.color$values <- bd.color[rep(1:2, 
+                                    length(in.color$lengths))[
+                                      seq_along(in.color$lengths)]]
     return(inverse.rle(in.color))
   }
   gpcol <- getGpCol(signatures, phylog)
   
-  return(new("motifSig", signatures=signatures, freq=freq, nodelist=nodelist, gpcol=gpcol))
+  return(new("motifSig", signatures=signatures, freq=freq, 
+             nodelist=nodelist, gpcol=gpcol))
 }

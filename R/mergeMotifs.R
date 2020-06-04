@@ -1,3 +1,22 @@
+#' merge multiple motifs
+#' 
+#' merge multiple motifs by calculate mean of each position
+#' 
+#' 
+#' @param ... \link{pcm} or \link{pfm} objects
+#' @param bgNoise if it is not NA, test will using a background by
+#' Dirichlet(1)-distributed random frequencies with weight bg.noise.  The value
+#' of bgNoise should be a number in the range of 0 to 1, eg. 0.05
+#' @return a \link{pfm} object
+#' @author Jianhong Ou
+#' @keywords misc
+#' @export
+#' @importFrom stats rgamma
+#' @examples
+#' 
+#'     pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
+#'     mergeMotifs(pcms)
+#' 
 mergeMotifs <- function(..., bgNoise=NA){
     mL <- list(...)
     n <- length(mL)

@@ -1,5 +1,39 @@
 ###############################################################################
 ####### motifstack
+
+
+#' plot a DNA sequence logo stack
+#' 
+#' Plot a DNA sequence logo stack
+#' 
+#' 
+#' @param pfms a list of objects of class \link{pfm}
+#' @param layout layout of the logo stack, stack, treeview or radialPhylog
+#' @param \dots any parameters could to pass to \link{plotMotifLogoStack},
+#' \link{plotMotifLogoStackWithTree}, \link{plotMotifStackWithPhylog} or
+#' \link{plotMotifStackWithRadialPhylog}
+#' @return return a list contains pfms and phylog
+#' @export
+#' @importFrom ade4 hclust2phylog
+#' @examples
+#' 
+#'   if(interactive()){
+#'     library("MotifDb")
+#'     matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'     motifs <- as.list(matrix.fly)
+#'     motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", 
+#'                             names(motifs), fixed=TRUE)]
+#'     names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                 gsub("_FBgn[0-9]+$", "", 
+#'                   gsub("[^a-zA-Z0-9]","_", 
+#'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'     motifs <- motifs[unique(names(motifs))]
+#'     pfms <- sample(motifs, 50)
+#'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                  new("pfm",mat=.ele, name=.name)})
+#'     motifStack(pfms, "radialPhylog")
+#'   }
+#' 
 motifStack <-function(pfms, 
                       layout=c("stack", "treeview", "phylog", "radialPhylog"), 
                       ...){
@@ -9,8 +43,11 @@ motifStack <-function(pfms,
         return(invisible())
     }
     layout <- match.arg(layout)
-    if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) pfms <- lapply(pfms, pcm2pfm)
-    if (any(unlist(lapply(pfms, function(.ele) !inherits(.ele, c("pfm", "psam")))))) 
+    if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
+      pfms <- lapply(pfms, pcm2pfm)
+    }
+    if (any(unlist(lapply(pfms, function(.ele) 
+      !inherits(.ele, c("pfm", "psam")))))) 
         stop("pfms must be a list of pfm, pcm or psam objects")
     if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
       psam <- TRUE
@@ -24,19 +61,12 @@ motifStack <-function(pfms,
         plotMotifLogoStack(pfms)
         return(invisible(list(phylog=NULL, pfms=pfms)))
     }
-    pfmList2matrixList <- function(pfms){
-        m <- lapply(pfms, pfm2pwm)
-        names(m) <- unlist(lapply(pfms, function(.ele) .ele@name))
-        m
-    }
     
     ##calculate the distances
     dots <- list(...)
     if(!"phylog" %in% names(dots)){
       if(!psam){
-        jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
-        hc <- motifHclust(d, method="average")
+        hc <- clusterMotifs(pfms)
         pfms <- pfms[hc$order]
         pfms <- DNAmotifAlignment(pfms)
         phylog <- hclust2phylog(hc)
@@ -44,9 +74,7 @@ motifStack <-function(pfms,
     }
     if(layout=="treeview" && !exists("hc")){
       if(!psam){
-        jaspar.scores <- readDBScores(file.path(find.package("MotIV"), "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- motifDistances(pfmList2matrixList(pfms), DBscores=jaspar.scores)
-        hc <- motifHclust(d, mothod="average")
+        hc <- clusterMotifs(pfms)
       }
     }
     switch(layout,
@@ -71,7 +99,9 @@ motifStack <-function(pfms,
              }
                args <- list(phylog=phylog, pfms=pfms, ...)
                for(i in names(args)){
-                   if(i %in% c("col.leaves", "col.leaves.bg", "col.bg", "col.inner.label.circle", "col.outer.label.circle")){
+                   if(i %in% c("col.leaves", "col.leaves.bg", "col.bg",
+                               "col.inner.label.circle",
+                               "col.outer.label.circle")){
                        args[[i]] <- args[[i]][hc$order]
                    }
                }

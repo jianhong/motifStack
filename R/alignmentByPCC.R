@@ -60,6 +60,7 @@ getAlignedPCCWithoutGap<-function(motif1, motif2, revcomp=TRUE){
   list(offset=offset,rev=rev,max=max)    
 }
 
+#' @importFrom stats cor.test
 getoffsetPosByPCC<-function(query, subject){
   if(!is(query, "matrix") || !is(subject, "matrix")){
     stop("query and subject must be numeric matrix")

@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.33.1
+-----------------------
+
+  o change grImport, grImport2 and MotIV to Suggests.
+  o use roxygen2 to generate help files.
+  
 CHANGES IN VERSION 1.31.2
 -----------------------
 

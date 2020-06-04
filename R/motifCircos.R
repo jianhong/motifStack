@@ -1,22 +1,133 @@
+#' plot sequence logo stacks with a radial phylogenic tree and multiple color
+#' rings
+#' 
+#' plot sequence logo stacks with a radial phylogenic tree and multiple color
+#' rings. The difference from plotMotifStackWithRadialPhylog is that it has
+#' more color setting and one more group of pfms.
+#' 
+#' 
+#' @param phylog an object of class phylog
+#' @param pfms a list of objects of class pfm
+#' @param pfms2 a list of objects of class pfm
+#' @param R radius of canvas
+#' @param r.tree half width of the tree
+#' @param col.tree.bg a vector of colors for tree background
+#' @param col.tree.bg.alpha a alpha value [0, 1] of colors for tree background
+#' @param cnodes a character size for plotting the points that represent the
+#' nodes, used with par("cex")*cnodes. If zero, no points are drawn
+#' @param labels.nodes a vector of strings of characters for the nodes labels
+#' @param clabel.nodes a character size for the nodes labels, used with
+#' par("cex")*clabel.nodes. If zero, no nodes labels are drawn
+#' @param r.leaves width of the leaves
+#' @param cleaves a character size for plotting the points that represent the
+#' leaves, used with par("cex")*cleaves. If zero, no points are drawn
+#' @param labels.leaves a vector of strings of characters for the leaves labels
+#' @param clabel.leaves a character size for the leaves labels, used with
+#' par("cex")*clavel.leaves
+#' @param col.leaves a vector of colors for leaves labels
+#' @param col.leaves.bg a vector of colors for background of leaves labels
+#' @param col.leaves.bg.alpha alpha value [0, 1] for the colors of backgroud of
+#' leaves labels
+#' @param r.pfms width of the pfms
+#' @param r.pfms2 width of the pfms2
+#' @param r.rings a vector of width of color rings
+#' @param col.rings a list of color rings
+#' @param col.inner.label.circle a vector of colors for inner cirlce of pfms
+#' @param inner.label.circle.width width for inner circle of pfms
+#' @param col.outer.label.circle a vector of colors for outer circle of pfms
+#' @param outer.label.circle.width width for outer circle of pfms
+#' @param draw.box if TRUE draws a box around the current plot with the
+#' function box()
+#' @param clockwise a logical value indicating if slices are drawn clockwise or
+#' counter clockwise
+#' @param init.angle number specifying the starting angle (in degrees) for the
+#' slices. Defaults to 0 (i.e., `3 o'clock`) unless clockwise is true where
+#' init.angle defaults to 90 (degrees), (i.e., `12 o'clock`)
+#' @param angle number specifying the angle (in degrees) for phylogenic tree.
+#' Defaults 360
+#' @param pfmNameSpliter spliter when name of pfms/pfms2 contain multiple node
+#' of labels.leaves
+#' @param rcpostfix the postfix for reverse complements
+#' @param motifScale the scale of logo size
+#' @param ic.scale logical. If TRUE, the height of each column is proportional
+#' to its information content. Otherwise, all columns have the same height.
+#' @param plotIndex logical. If TRUE, will plot index number in the motifLogo
+#' which can help user to describe the motifLogo
+#' @param IndexCol The color of the index number when plotIndex is TRUE.
+#' @param IndexCex The cex of the index number when plotIndex is TRUE.
+#' @param groupDistance show groupDistance on the draw
+#' @param groupDistanceLineCol groupDistance line color, default: red
+#' @param plotAxis logical. If TRUE, will plot distance axis.
+#' @return none
+#' @author Jianhong Ou
+#' @seealso \code{\link{plotMotifStackWithRadialPhylog}}
+#' @keywords misc
+#' @export
+#' @importFrom graphics par plot.default strwidth polygon text segments
+#' points lines symbols box
+#' @importFrom grDevices grey dev.size
+#' @importFrom stats median
+#' @importFrom grid pushViewport viewport popViewport grid.text gpar grid.xaxis
+#' @examples
+#' 
+#' if(interactive()){
+#'     library("MotifDb")
+#'     matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'     motifs <- as.list(matrix.fly)
+#'     motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", 
+#'                             names(motifs), fixed=TRUE)]
+#'     names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                 gsub("_FBgn[0-9]+$", "", 
+#'                   gsub("[^a-zA-Z0-9]","_", 
+#'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'     motifs <- motifs[unique(names(motifs))]
+#'     pfms <- sample(motifs, 50)
+#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
+#'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
+#'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
+#'     hc <- MotIV::motifHclust(d, method="average")
+#'     library(ade4)
+#'     phylog <- ade4::hclust2phylog(hc)
+#'     leaves <- names(phylog$leaves)
+#'     pfms <- pfms[leaves]
+#'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                  new("pfm",mat=.ele, name=.name)})
+#'     pfms <- DNAmotifAlignment(pfms, minimalConsensus=3)
+#'     library(RColorBrewer)
+#'     color <- brewer.pal(12, "Set3")
+#'     motifCircos(phylog, pfms, cleaves = 0.5, clabel.leaves = 0.7, 
+#'                      col.tree.bg=rep(color, each=5), 
+#'                      col.leaves=rep(color, each=5),
+#'                       r.rings=c(0.02, 0.03, 0.04), 
+#'                       col.rings=list(sample(colors(), 50), 
+#'                                      sample(colors(), 50), 
+#'                                      sample(colors(), 50)))
+#'   }
+#' 
 motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                          r.tree=1, col.tree.bg=NULL, col.tree.bg.alpha=1,
-                         cnodes=0, labels.nodes=names(phylog$nodes), clabel.nodes=0,
+                         cnodes=0, labels.nodes=names(phylog$nodes), 
+                         clabel.nodes=0,
                          r.leaves=NA,
-                         cleaves=1, labels.leaves=names(phylog$leaves), clabel.leaves=1,
+                         cleaves=1, labels.leaves=names(phylog$leaves), 
+                         clabel.leaves=1,
                          col.leaves=rep("black", length(labels.leaves)),
                          col.leaves.bg=NULL, col.leaves.bg.alpha=1,
                          r.pfms=NA, r.pfms2=NA,
                          r.rings=0, col.rings=list(),
-                         col.inner.label.circle=NULL, inner.label.circle.width=0.02,
-                         col.outer.label.circle=NULL, outer.label.circle.width=0.02,
+                         col.inner.label.circle=NULL,
+                         inner.label.circle.width=0.02,
+                         col.outer.label.circle=NULL, 
+                         outer.label.circle.width=0.02,
                          draw.box=FALSE,
                          clockwise =FALSE, init.angle=if(clockwise) 90 else 0,
                          angle=360, pfmNameSpliter=";", rcpostfix="(RC)", 
-                         motifScale=c("linear","logarithmic","none"), ic.scale=TRUE,
+                         motifScale=c("linear","logarithmic","none"),
+                         ic.scale=TRUE,
                          plotIndex=FALSE, IndexCol="black", IndexCex=.8,
                          groupDistance=NA, groupDistanceLineCol="red", 
                          plotAxis=FALSE)
-{
+{#TODO: change all graphics function to grid function
     if (!inherits(phylog, "phylog"))
         stop("Non convenient data")
     leaves.number <- length(phylog$leaves)
@@ -27,9 +138,15 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         if(is.null(tobechecked)) return(FALSE)
         return(any(is.na(tobechecked)))
     }
-    for(tobechecked in c("col.leaves", "col.leaves.bg", "col.tree.bg", "col.inner.label.circle", "col.outer.label.circle")){
-        if(checkLength(eval(as.symbol(tobechecked)))) stop(paste("the length of", tobechecked, "should be same as the length of leaves"))
-        if(checkNA(eval(as.symbol(tobechecked)))) stop(paste("contain NA in", tobechecked))
+    for(tobechecked in c("col.leaves", "col.leaves.bg", "col.tree.bg", 
+                         "col.inner.label.circle", "col.outer.label.circle")){
+        if(checkLength(eval(as.symbol(tobechecked)))) {
+            stop(paste("the length of", tobechecked, 
+                       "should be same as the length of leaves"))
+            }
+        if(checkNA(eval(as.symbol(tobechecked)))) {
+            stop(paste("contain NA in", tobechecked))
+            }
     }
     if(length(r.rings)>length(col.rings)){
         if(r.rings!=0 & length(r.rings)!=1){
@@ -39,8 +156,13 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
     if(length(col.rings)>0){
         if(!is(col.rings, "list")) stop("col.rings must be a object of list")
         for(i in 1:length(col.rings)){
-            if(checkLength(col.rings[[i]])) stop(paste("the length of col.rings[[", i, "]]should be same as the length of leaves"))
-            if(checkNA(col.rings[[i]])) stop(paste("contain NA in col.rings[[", i, "]]"))
+            if(checkLength(col.rings[[i]])) {
+                stop(paste("the length of col.rings[[", i,
+                           "]]should be same as the length of leaves"))
+            }
+            if(checkNA(col.rings[[i]])) {
+                stop(paste("contain NA in col.rings[[", i, "]]"))
+            }
         }
     }
     motifScale <- match.arg(motifScale)
@@ -80,7 +202,9 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                  xaxs = "i", yaxs = "i", frame.plot = FALSE)
     r.rayon <- r.tree/(nodes.number - 1)
     twopi <- if (clockwise) -2 * pi else 2 * pi
-    alpha <- twopi * angle * (1:leaves.number)/leaves.number/360 + init.angle * pi/180
+    alpha <-
+        twopi * angle * (1:leaves.number)/leaves.number/360 + 
+        init.angle * pi/180
     names(alpha) <- leaves.names
     x <- dist.leaves * cos(alpha)
     y <- dist.leaves * sin(alpha)
@@ -89,9 +213,11 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
     
     r.rings.tot <- sum(r.rings)
     if(!inherits(r.leaves, c("numeric", "integer"))) 
-        r.leaves <- max(unlist(lapply(leaves.names, strwidth, units="user", cex=clabel.leaves)))
+        r.leaves <- max(unlist(lapply(leaves.names, strwidth, units="user",
+                                      cex=clabel.leaves)))
     ##for logos position
-    w.pfms <- r.tree + r.rayon + r.leaves + r.rings.tot + inner.label.circle.width
+    w.pfms <- r.tree + r.rayon + r.leaves + r.rings.tot + 
+        inner.label.circle.width
     twoR <- 2*R
     beta <- alpha * 180 / pi
     if(!is.null(pfms)){
@@ -112,7 +238,8 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                 vph <- rep(R*vpheight, length(pfmNamesLen))
               }
             }
-            r.pfms <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
+            r.pfms <- 
+                max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms, vph))
         }
     }
     if(!inherits(r.pfms, c("numeric", "integer"))) r.pfms <- 0
@@ -136,7 +263,8 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                 vph <- rep(R*vpheight2, length(pfmNamesLen))
               }
             } 
-            r.pfms2 <- max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms2, vph))
+            r.pfms2 <- 
+                max(mapply(function(.ele, f) ncol(.ele@mat)*f, pfms2, vph))
         }
     }
     if(!inherits(r.pfms2, c("numeric", "integer"))) r.pfms2 <- 0
@@ -179,7 +307,9 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         ratio <- 1
     }
     ##for plot background
-    gamma <- twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 + init.angle * pi/180
+    gamma <- 
+        twopi * angle * ((1:(leaves.number+1))-0.5)/leaves.number/360 +
+        init.angle * pi/180
     n <- max(2, floor(200*360/leaves.number))
     plotBgArc <- function(r,bgcol,inr=0){
         t2xy <- function(rx, t, rx2=0) list(x=c(rx*cos(t), rx2*cos(rev(t))),
@@ -190,7 +320,8 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         for(i in 1:leaves.number){
             oldcol <- bgcol[i]
             if(i==leaves.number || bgcol[i+1]!=oldcol){
-                P <- t2xy(r, seq.int(gamma[start], gamma[start+icnt], length.out=n*icnt), inr)
+                P <- t2xy(r, seq.int(gamma[start], gamma[start+icnt], 
+                                     length.out=n*icnt), inr)
                 polygon(P$x, P$y, border=bgcol[i], col=bgcol[i])
                 start <- i+1
                 icnt <- 1
@@ -200,13 +331,19 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         }
     }
     if(!is.null(col.outer.label.circle)) ##plot outer.label.circle
-        plotBgArc(w.pfms2, col.outer.label.circle, w.pfms2-outer.label.circle.width)
+        plotBgArc(w.pfms2, col.outer.label.circle, 
+                  w.pfms2-outer.label.circle.width)
     if(!is.null(col.inner.label.circle)) #plot inner.label.circle
-        plotBgArc(w.pfms, col.inner.label.circle, w.pfms-inner.label.circle.width)
-    if(!is.null(col.tree.bg)) col.tree.bg <- highlightCol(col.tree.bg, col.tree.bg.alpha)
-    if(!is.null(col.leaves.bg)) col.leaves.bg <- highlightCol(col.leaves.bg, col.leaves.bg.alpha)
+        plotBgArc(w.pfms, col.inner.label.circle, 
+                  w.pfms-inner.label.circle.width)
+    if(!is.null(col.tree.bg)) col.tree.bg <- 
+        highlightCol(col.tree.bg, col.tree.bg.alpha)
+    if(!is.null(col.leaves.bg)) col.leaves.bg <-
+        highlightCol(col.leaves.bg, col.leaves.bg.alpha)
     if(!is.null(col.tree.bg)) ##plot center bg
-        plotBgArc(ifelse(mean(dist.leaves)/max(dis) > .9, mean(dist.leaves), max(dis)-r.rayon), col.tree.bg, 0)
+        plotBgArc(ifelse(mean(dist.leaves)/max(dis) > .9,
+                         mean(dist.leaves), max(dis)-r.rayon), 
+                  col.tree.bg, 0)
     if(!is.null(col.leaves.bg)) ##plot leaves bg
         plotBgArc(r.tree + r.rayon + r.leaves, col.leaves.bg, r.tree + r.rayon)
     if(r.rings.tot>0){
@@ -221,15 +358,18 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
     if (clabel.leaves > 0) {
         for(i in 1:leaves.number) {
             par(srt = alpha[i] * 180/pi)
-            text(xcar[i], ycar[i], leaves.car[i], adj = 0, col=col.leaves[i], cex = par("cex") *
+            text(xcar[i], ycar[i], leaves.car[i], adj = 0,
+                 col=col.leaves[i], cex = par("cex") *
                      clabel.leaves)
             segments(xcar[i], ycar[i], x[i], y[i], col = grey(0.7))
         }
         
         assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
-        for(metaChar in c("\\","$","*","+",".","?","[","]","^","{","}","|","(",")"))
+        for(metaChar in c("\\","$","*","+",".","?",
+                          "[","]","^","{","}","|","(",")"))
         {
-            rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),rcpostfix,fixed=TRUE)
+            rcpostfix <- gsub(metaChar,paste("\\",metaChar,sep=""),
+                              rcpostfix,fixed=TRUE)
         }
         drawPFMcir <- function(pfms, xm, ym, vpheight, .plotIndex){
             ##extract names
@@ -237,7 +377,8 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             for(i in 1:length(pfmNames)){
                 pfmname <- unlist(strsplit(pfmNames[[i]], pfmNameSpliter))
                 pfmname <- gsub(paste(rcpostfix,"$",sep=""),"",pfmname)
-                pfmIdx <- which(makeLeaveNames(labels.leaves) %in% makeLeaveNames(pfmname))
+                pfmIdx <- which(makeLeaveNames(labels.leaves) %in% 
+                                    makeLeaveNames(pfmname))
                 if(length(pfmIdx)==0) 
                     pfmIdx <- which(makeLeaveNames(names(phylog$leaves)) 
                                     %in% makeLeaveNames(pfmname))
@@ -252,27 +393,49 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
                     angle <- median(beta[pfmIdx])
                     if(length(pfmIdx)%%2==1){
                         this.pfmIdx <- which(beta[pfmIdx] == angle)[1]
-                        vpx <- xm[pfmIdx[this.pfmIdx]] + vpd * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L]
-                        vpy <- ym[pfmIdx[this.pfmIdx]] + vpd * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L]
-                        vpx1 <- xm[pfmIdx[this.pfmIdx]] - inner.label.circle.width * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L] *1.1/twoR
-                        vpy1 <- ym[pfmIdx[this.pfmIdx]] - inner.label.circle.width * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L] *1.1/twoR
+                        vpx <- xm[pfmIdx[this.pfmIdx]] + 
+                            vpd * cos(alpha[pfmIdx[this.pfmIdx]]) * asp[1L]
+                        vpy <- ym[pfmIdx[this.pfmIdx]] + 
+                            vpd * sin(alpha[pfmIdx[this.pfmIdx]]) * asp[2L]
+                        vpx1 <- xm[pfmIdx[this.pfmIdx]] - 
+                            inner.label.circle.width * 
+                            cos(alpha[pfmIdx[this.pfmIdx]]) * 
+                            asp[1L] *1.1/twoR
+                        vpy1 <- ym[pfmIdx[this.pfmIdx]] - 
+                            inner.label.circle.width * 
+                            sin(alpha[pfmIdx[this.pfmIdx]]) * 
+                            asp[2L] *1.1/twoR
                     }else{
                         this.pfmIdx <- order(abs(beta[pfmIdx] - angle))[1:2]
-                        vpx <- median(xm[pfmIdx[this.pfmIdx]]) + vpd * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L]
-                        vpy <- median(ym[pfmIdx[this.pfmIdx]]) + vpd * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L]
-                        vpx1 <- median(xm[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * cos(median(alpha[pfmIdx[this.pfmIdx]])) * asp[1L] *1.1/twoR
-                        vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - inner.label.circle.width * sin(median(alpha[pfmIdx[this.pfmIdx]])) * asp[2L] *1.1/twoR
+                        vpx <- median(xm[pfmIdx[this.pfmIdx]]) + 
+                            vpd * cos(median(alpha[pfmIdx[this.pfmIdx]])) * 
+                            asp[1L]
+                        vpy <- median(ym[pfmIdx[this.pfmIdx]]) + 
+                            vpd * sin(median(alpha[pfmIdx[this.pfmIdx]])) *
+                            asp[2L]
+                        vpx1 <- median(xm[pfmIdx[this.pfmIdx]]) - 
+                            inner.label.circle.width * 
+                            cos(median(alpha[pfmIdx[this.pfmIdx]])) * 
+                            asp[1L] *1.1/twoR
+                        vpy1 <- median(ym[pfmIdx[this.pfmIdx]]) - 
+                            inner.label.circle.width * 
+                            sin(median(alpha[pfmIdx[this.pfmIdx]])) * 
+                            asp[2L] *1.1/twoR
                     }
-                    pushViewport(viewport(x=vpx, y=vpy, width=vpw, height=vph, angle=angle))
+                    pushViewport(viewport(x=vpx, y=vpy, width=vpw, 
+                                          height=vph, angle=angle))
                     plotMotifLogoA(pfms[[i]], ic.scale=ic.scale)
                     popViewport()
                     if(.plotIndex) {
                         grid.text(label=i, x=vpx1, 
                                   y=vpy1, 
-                                  gp=gpar(col=IndexCol, cex=IndexCex), rot=angle, just="right")
+                                  gp=gpar(col=IndexCol, cex=IndexCex), 
+                                  rot=angle, just="right")
                     }
                 }else{
-                    warning(paste("No leave named as ", paste(pfmname, collapse=", ")), sep="")
+                    warning(paste("No leave named as ",
+                                  paste(pfmname, collapse=", ")), 
+                            sep="")
                 }
             }
         }
@@ -287,8 +450,10 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         rm(list="tmp_motifStack_symbolsCache", envir=.globals)
     }
     if (cleaves > 0) {
-        for (i in 1:leaves.number) points(x[i], y[i], pch = 21, col=col.leaves[i],
-                                          bg = col.leaves[i], cex = par("cex") * cleaves)
+        for (i in 1:leaves.number) points(x[i], y[i], pch = 21,
+                                          col=col.leaves[i],
+                                          bg = col.leaves[i], 
+                                          cex = par("cex") * cleaves)
     }
     ang <- rep(0, length(dist.nodes))
     names(ang) <- names(dist.nodes)
@@ -299,7 +464,8 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
         ang[but] <- mean(ang[w])
         b <- range(ang[w])
         a.seq <- c(seq(b[1], b[2], by = pi/180), b[2])
-        lines(dis[but] * cos(a.seq), dis[but] * sin(a.seq), col="#222222", lwd=par("cex") * clabel.leaves)
+        lines(dis[but] * cos(a.seq), dis[but] * sin(a.seq), 
+              col="#222222", lwd=par("cex") * clabel.leaves)
         x1 <- dis[w] * cos(ang[w])
         y1 <- dis[w] * sin(ang[w])
         x2 <- dis[but] * cos(ang[w])
@@ -308,11 +474,17 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
     } 
     if(!is.na(groupDistance)){
         if(length(groupDistanceLineCol)!=length(groupDistance)){
-            groupDistanceLineCol <- rep(groupDistanceLineCol, ceiling(length(groupDistance)/length(groupDistanceLineCol)))[1:length(groupDistance)]
+            groupDistanceLineCol <- 
+                rep(groupDistanceLineCol, 
+                    ceiling(length(groupDistance)/
+                                length(groupDistanceLineCol
+                                       )))[seq_along(groupDistance)]
         }
         for(i in 1:length(groupDistance)){
             if(groupDistance[i] > 0)
-                symbols(x=0, y=0, circles=groupDistance[i], fg=groupDistanceLineCol[i], lty=2, inches=FALSE, add=TRUE)
+                symbols(x=0, y=0, circles=groupDistance[i],
+                        fg=groupDistanceLineCol[i], lty=2, 
+                        inches=FALSE, add=TRUE)
         }
     }
     if (cnodes > 0) {
@@ -332,20 +504,23 @@ motifCircos <- function (phylog, pfms=NULL, pfms2=NULL, R=2.5,
             vp <- viewport(x=0.5, y=0.5, width=axis_pos/wd, height=.1, 
                            xscale=c(0, max_Dis), angle=init.angle, just=c(0, 0))
             pushViewport(vp)
-            grid.xaxis(gp=gpar(cex = par("cex") * clabel.leaves, col="lightgray"),
+            grid.xaxis(gp=gpar(cex = par("cex") * clabel.leaves, 
+                               col="lightgray"),
                        main=TRUE)
             popViewport()
         }else{
             vp <- viewport(x=0.5, y=0.5, width=axis_pos/wd, height=.1, 
                            xscale=c(0, max_Dis), angle=init.angle, just=c(0, 1))
             pushViewport(vp)
-            grid.xaxis(gp=gpar(cex = par("cex") * clabel.leaves, col="lightgray"),
+            grid.xaxis(gp=gpar(cex = par("cex") * clabel.leaves, 
+                               col="lightgray"),
                        main=FALSE)
             popViewport()
         }
     }
     
-    points(0, 0, pch = 21, cex = par("cex") * 2 * ratio * clabel.leaves, bg = "red")
+    points(0, 0, pch = 21, cex = par("cex") * 2 * ratio * clabel.leaves, 
+           bg = "red")
     if (clabel.nodes > 0) {
         delta <- strwidth(as.character(length(dist.nodes)), cex = par("cex") *
                               clabel.nodes)
