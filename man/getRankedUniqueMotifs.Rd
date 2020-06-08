@@ -21,7 +21,7 @@ to get the unique motif in a given category, eg by species.
 }
 \examples{
 
-    if(interactive()){
+   if(interactive() || Sys.getenv("USER")=="jianhongou"){
         library("MotifDb")
         matrix.fly <- query(MotifDb, "Dmelanogaster")
         matrix.human <- query(MotifDb, "Hsapiens")

@@ -1,6 +1,11 @@
 CHANGES IN VERSION 1.33.1
 -----------------------
 
+  o add parameter environment for coloredSymbols
+
+CHANGES IN VERSION 1.33.1
+-----------------------
+
   o change grImport, grImport2 and MotIV to Suggests.
   o use roxygen2 to generate help files.
   

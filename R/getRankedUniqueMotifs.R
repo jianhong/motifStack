@@ -13,7 +13,7 @@
 #' @export
 #' @examples
 #' 
-#'     if(interactive()){
+#'    if(interactive() || Sys.getenv("USER")=="jianhongou"){
 #'         library("MotifDb")
 #'         matrix.fly <- query(MotifDb, "Dmelanogaster")
 #'         matrix.human <- query(MotifDb, "Hsapiens")

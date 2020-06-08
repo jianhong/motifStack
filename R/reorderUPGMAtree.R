@@ -12,7 +12,7 @@
 #' @export
 #' @examples
 #' 
-#'   if(interactive()){
+#'   if(interactive() || Sys.getenv("USER")=="jianhongou"){
 #'     library("MotifDb")
 #'     matrix.fly <- query(MotifDb, "Dmelanogaster")
 #'     motifs <- as.list(matrix.fly)
@@ -28,7 +28,8 @@
 #'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
 #'     d <- MotIV::motifDistances(pfms)
 #'     hc <- MotIV::motifHclust(d, method="average")
-#'     phylog <- hclust2phylog(hc)
+#'     library(ade4)
+#'     phylog <- ade4::hclust2phylog(hc)
 #'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
 #'                  new("pfm",mat=.ele, name=.name)})
 #'     reorderUPGMAtree(phylog, pfms)

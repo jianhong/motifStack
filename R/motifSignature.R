@@ -16,7 +16,7 @@
 #' @export
 #' @examples
 #' 
-#'   if(interactive()){
+#'   if(interactive() || Sys.getenv("USER")=="jianhongou"){
 #'     library("MotifDb")
 #'     matrix.fly <- query(MotifDb, "Dmelanogaster")
 #'     motifs <- as.list(matrix.fly)
@@ -28,11 +28,13 @@
 #'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
 #'     motifs <- motifs[unique(names(motifs))]
 #'     pfms <- sample(motifs, 50)
+#'     library(MotIV)
 #'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
 #'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
 #'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
 #'     hc <- MotIV::motifHclust(d, method="average")
-#'     phylog <- hclust2phylog(hc)
+#'     library(ade4)
+#'     phylog <- ade4::hclust2phylog(hc)
 #'     leaves <- names(phylog$leaves)
 #'     pfms <- pfms[leaves]
 #'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){

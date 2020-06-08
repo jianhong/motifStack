@@ -58,7 +58,7 @@ plot sequence logo stacks with a ape4-style phylogenic tree
 }
 \examples{
 
-  if(interactive()){
+  if(interactive() || Sys.getenv("USER")=="jianhongou"){
     library("MotifDb")
     matrix.fly <- query(MotifDb, "Dmelanogaster")
     motifs <- as.list(matrix.fly)
@@ -74,7 +74,8 @@ plot sequence logo stacks with a ape4-style phylogenic tree
                                     "extdata", "jaspar2010_PCC_SWU.scores"))
     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
     hc <- MotIV::motifHclust(d, method="average")
-    phylog <- hclust2phylog(hc)
+    library(ade4)
+    phylog <- ade4::hclust2phylog(hc)
     leaves <- names(phylog$leaves)
     pfms <- pfms[leaves]
     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){

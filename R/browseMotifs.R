@@ -22,20 +22,22 @@
 #' @importFrom htmlwidgets createWidget
 #' @examples
 #' 
-#' library("MotifDb")
-#' matrix.fly <- query(MotifDb, "Dmelanogaster")
-#' motifs <- as.list(matrix.fly)
-#' motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", 
-#'                        names(motifs), fixed=TRUE)]
-#' names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
-#'                      gsub("_FBgn[0-9]+$", "", 
-#'                           gsub("[^a-zA-Z0-9]","_", 
-#'                                gsub("(_[0-9]+)+$", "", names(motifs)))))
-#' motifs <- motifs[unique(names(motifs))]
-#' pfms <- sample(motifs, 10)
-#' pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
-#'                  new("pfm",mat=.ele, name=.name)})
-#' browseMotifs(pfms)
+#' if(interactive() || Sys.getenv("USER")=="jianhongou"){
+#'  library("MotifDb")
+#'  matrix.fly <- query(MotifDb, "Dmelanogaster")
+#'  motifs <- as.list(matrix.fly)
+#'  motifs <- motifs[grepl("Dmelanogaster-FlyFactorSurvey-", 
+#'                         names(motifs), fixed=TRUE)]
+#'  names(motifs) <- gsub("Dmelanogaster_FlyFactorSurvey_", "", 
+#'                       gsub("_FBgn[0-9]+$", "", 
+#'                            gsub("[^a-zA-Z0-9]","_", 
+#'                                 gsub("(_[0-9]+)+$", "", names(motifs)))))
+#'  motifs <- motifs[unique(names(motifs))]
+#'  pfms <- sample(motifs, 10)
+#'  pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+#'                   new("pfm",mat=.ele, name=.name)})
+#'  browseMotifs(pfms)
+#' }
 #' 
 browseMotifs <- function(pfms, phylog,
                       layout=c("tree", "cluster", "radialPhylog"),

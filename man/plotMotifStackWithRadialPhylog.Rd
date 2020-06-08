@@ -132,7 +132,7 @@ plot sequence logo stacks with a radial phylogenic tree
 }
 \examples{
 
-  if(interactive()){
+  if(interactive() || Sys.getenv("USER")=="jianhongou"){
     library("MotifDb")
     matrix.fly <- query(MotifDb, "Dmelanogaster")
     motifs <- as.list(matrix.fly)

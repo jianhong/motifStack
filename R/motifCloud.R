@@ -29,7 +29,7 @@
 #' @importFrom stats runif
 #' @examples
 #' 
-#'   if(interactive()){
+#'   if(interactive() || Sys.getenv("USER")=="jianhongou"){
 #'     library("MotifDb")
 #'     matrix.fly <- query(MotifDb, "Dmelanogaster")
 #'     motifs <- as.list(matrix.fly)
@@ -41,6 +41,7 @@
 #'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
 #'     motifs <- motifs[unique(names(motifs))]
 #'     pfms <- sample(motifs, 50)
+#'     library(MotIV)
 #'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
 #'                                     "extdata", "jaspar2010_PCC_SWU.scores"))
 #'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
