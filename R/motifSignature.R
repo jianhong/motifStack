@@ -5,6 +5,7 @@
 #' 
 #' @param pfms a list of objects of class pfm
 #' @param phylog an object of class phylog
+#' @param cutoffPval pvalue for motifs to merge.
 #' @param groupDistance maxmal distance of motifs in the same group
 #' @param rcpostfix postfix for reverse-complement motif names, default: (RC)
 #' @param min.freq signatures with frequency below min.freq will not be plotted
@@ -28,21 +29,17 @@
 #'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
 #'     motifs <- motifs[unique(names(motifs))]
 #'     pfms <- sample(motifs, 50)
-#'     library(MotIV)
-#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
-#'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
-#'     d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
-#'     hc <- MotIV::motifHclust(d, method="average")
+#'     hc <- clusterMotifs(pfms)
 #'     library(ade4)
 #'     phylog <- ade4::hclust2phylog(hc)
 #'     leaves <- names(phylog$leaves)
 #'     pfms <- pfms[leaves]
 #'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
 #'                  new("pfm",mat=.ele, name=.name)})
-#'     motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
+#'     motifSig <- motifSignature(pfms, phylog, cutoffPval=0.0001)
 #'   }
 #' 
-motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)", 
+motifSignature <- function(pfms, phylog, cutoffPval, groupDistance, rcpostfix="(RC)", 
                            min.freq=2, trim=0.2, families=list(), sort=TRUE){
   if (!inherits(phylog, "phylog")) 
     stop("phylog should be an object of phylog of package ade4")
@@ -58,8 +55,13 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
     if(any(unlist(lapply(pfms, function(.ele) !inherits(.ele, "pfm")))))
       stop("pfms should be a list of objects of pfm or pcm")
   }
+  if(missing(groupDistance) && missing(cutoffPval)){
+    stop("cutoffPval and groupDistance are missing. Please assign at least one of them.")
+  }
   if (missing(groupDistance))
-    groupDistance <- max(phylog$droot)/10
+    groupDistance <- max(phylog$droot)
+  if (missing(cutoffPval))
+    cutoffPval <- 1
   
   getSignature <- function(pfms, pfmnames, rcpostfix, pfms.class){
     .pfmnames <- unlist(strsplit(pfmnames, ";"))
@@ -90,7 +92,7 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
         color=.pfms[[1]]@color, background=.pfms[[1]]@background)
   }
   
-  if(groupDistance > max(phylog$droot)){
+  if(groupDistance >= max(phylog$droot) && cutoffPval>=1){
     signatures <- list(getSignature(pfms, names(phylog$leaves), 
                                     rcpostfix, pfms.class=pfms.class))
     signatures <- lapply(signatures, trimMotif, trim)
@@ -205,13 +207,22 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
   }
   buildTree(nodelist, "Root", droot, dpar=0)
   
-  mergeNodes <- function(nodelist, leaves, groupDistance){
+  mergeNodes <- function(nodelist, leaves, cutoffPval, groupDistance){
     l <- length(nodelist)
     for(i in 1:l){
       nodename <- names(nodelist)[i]
       currNode <- nodelist[[nodename]]
       if(currNode@left %in% leaves && currNode@right %in% leaves){
-        if(currNode@distl < groupDistance && currNode@distr < groupDistance){
+        if(cutoffPval!=1){
+          pval <- 
+            matalign(list(left=getSignature(pfms, currNode@left,
+                                             rcpostfix, pfms.class=pfms.class),
+                          right=getSignature(pfms, currNode@right,
+                                       rcpostfix, pfms.class=pfms.class)))$P_value[1] 
+        } 
+        else pval <- 0
+        if(currNode@distl < groupDistance && currNode@distr < groupDistance &&
+           pval < cutoffPval){
           parNodeInfo <- getParentNode(nodelist, nodename)
           if(!is.null(parNodeInfo)[1]){
             if(parNodeInfo[2]=="left") {
@@ -253,10 +264,10 @@ motifSignature <- function(pfms, phylog, groupDistance, rcpostfix="(RC)",
     nodelist <- nodelist[!sel]
     nodelist <<- nodelist
     leaves <<- leaves
-    if(length(nodelist)<l) mergeNodes(nodelist, leaves, groupDistance)
+    if(length(nodelist)<l) mergeNodes(nodelist, leaves, cutoffPval, groupDistance)
   }
   
-  mergeNodes(nodelist, leaves, groupDistance)
+  mergeNodes(nodelist, leaves, cutoffPval, groupDistance)
   #get signatures and frequences (count of frequences should > min.freq)
   filterFamilies <- function(pfmnames, size, families){
     if(length(families)>0){

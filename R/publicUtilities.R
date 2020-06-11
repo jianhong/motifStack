@@ -277,9 +277,6 @@ pfm2pwm <- function(x, N=10000){
 
 #' @importFrom stats loess predict
 isHomoDimer <- function(x, t=0.001){
-  if(!requireNamespace("MotIV", quietly = TRUE)){
-    stop("MotIV is required")
-  }
     if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
     if(is(x, "pcm")) x <- pcm2pfm(x)
     ic <- getIC(x)
@@ -291,29 +288,18 @@ isHomoDimer <- function(x, t=0.001){
     x.values <- x.sign$values[x.sign$lengths>1]
     if(length(x.values)<3 && !identical(x.values, c(-1,1))) return(FALSE)
     y <- matrixReverseComplement(x)
-    x <- pfm2pwm(x)
-    y <- pfm2pwm(y)
     pfms <- list(x=x, y=y)
-    jaspar.scores <- 
-      MotIV::readDBScores(file.path(find.package("MotIV"), "extdata", 
-                                    "jaspar2010_PCC_SWU.scores"))
-    d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
-    ifelse(d[1]<t, TRUE, FALSE)
+    d <- matalign(pfms, revComp=FALSE)
+    ifelse(d$distance<t, TRUE, FALSE)
 }
 
 
 getHomoDimerCenter <- function(x){
-  if(!requireNamespace("MotIV", quietly = TRUE)){
-    stop("MotIV is required")
-  }
     if(!inherits(x, c("pfm", "pcm"))) stop("x must be an object of pfm or pcm")
     if(is(x, "pcm")) x <- pcm2pfm(x)
     len <- ncol(x@mat)
     if(len < 6) return(NA)
     ra <- 3:(len-3) ## minimal monomer 3mer
-    jaspar.scores <- 
-      MotIV::readDBScores(file.path(find.package("MotIV"), 
-                                    "extdata", "jaspar2010_PCC_SWU.scores"))
     dist <- sapply(ra, function(pos){
         a <- b <- c <- x
         a@mat <- a@mat[, 1:pos]
@@ -321,14 +307,11 @@ getHomoDimerCenter <- function(x){
         c@mat <- c@mat[, (pos+2):len]
         b <- matrixReverseComplement(b)
         c <- matrixReverseComplement(c)
-        a <- pfm2pwm(a)
-        b <- pfm2pwm(b)
-        c <- pfm2pwm(c)
         pfms <- list(a=a, b=b)
-        d <- MotIV::motifDistances(pfms, DBscores = jaspar.scores)
+        d <- matalign(pfms, revComp=FALSE)
         pfms2 <- list(a=a, c=c)
-        d2 <- MotIV::motifDistances(pfms2, DBscores = jaspar.scores)
-        c(d1=d[1], d2=d2[1])
+        d2 <- matalign(pfms2, revComp=FALSE)
+        c(d1=d$distance, d2=d2$distance)
     })
     colnames(dist) <- ra
     n <- which(dist==min(dist))

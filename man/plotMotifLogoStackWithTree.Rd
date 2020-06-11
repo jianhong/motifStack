@@ -28,17 +28,13 @@ plot sequence logos stack with hierarchical cluster tree
 
   #####Input#####
   pcms<-readPCM(file.path(find.package("motifStack"), "extdata"),"pcm$")
-  motifs<-lapply(pcms,pcm2pfm)
 
   #####Clustering#####
-  library(MotIV)
-  jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
-                                 "extdata", "jaspar2010_PCC_SWU.scores"))
-  d <- MotIV::motifDistances(lapply(motifs, pfm2pwm))
-  hc <- MotIV::motifHclust(d, method="average")
+  hc <- clusterMotifs(pcms)
 
   ##reorder the motifs for plotMotifLogoStack
-  motifs<-motifs[hc$order]
+  motifs<-pcms[hc$order]
+  motifs <- lapply(motifs, pcm2pfm)
   ##do alignment
   motifs<-DNAmotifAlignment(motifs)
   ##plot stacks

@@ -28,7 +28,6 @@ output:
 library(knitr)
 library(motifStack)
 library(MotifDb)
-library(MotIV)
 library(ade4)
 library(ggplot2)
 if(.Platform$OS.type=="windows"){
@@ -134,14 +133,16 @@ plot(motif)
 
 ## plot sequence logo stack
 
-To show multiple motifs on the same canvas as a sequence logo stack, the distance of motifs need to be calculated first. By default,  MotIV[@Eloi2010]::`motifDistances` ( R implementation of STAMP[@Mahony2007]) is used to calculate the distance. After alignment, users can use `plotMotifLogoStack`, `plotMotifLogoStackWithTree` or `plotMotifStackWithRadialPhylog` to draw sequence logos  in different layouts. To make it easy to use, we integrated different functionalities into one workflow function named as `motifStack`.
+To show multiple motifs on the same canvas as a sequence logo stack, the distance of motifs need to be calculated first. Previously,  MotIV[@Eloi2010]::`motifDistances` ( R implementation of STAMP[@Mahony2007]) is used to calculate the distance. However, The MotIV package were dropped from Bioconductor 3_12. Currently, by default, R implementation of matalign is used.  After alignment, users can use `plotMotifLogoStack`, `plotMotifLogoStackWithTree` or `plotMotifStackWithRadialPhylog` to draw sequence logos  in different layouts. To make it easy to use, we integrated different functionalities into one workflow function named as `motifStack`.
 
 
 
 ```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
 library(motifStack)
 #####Input#####
-motifs<-importMatrix(dir(file.path(find.package("motifStack"), "extdata"),"pcm$", full.names = TRUE))
+motifs<-importMatrix(dir(file.path(find.package("motifStack"),
+                                   "extdata"),"pcm$", 
+                         full.names = TRUE))
 
 ## plot stacks
 motifStack(motifs, layout="stack", ncex=1.0)
@@ -177,9 +178,8 @@ names(motifs2) <- gsub("Dmelanogaster_FlyFactorSurvey_", "",
 motifs2 <- motifs2[unique(names(motifs2))]
 pfms <- sample(motifs2, 30)
 ## creat a list of object of pfm 
-motifs2 <- lapply(names(pfms), 
-                  function(.ele, pfms){new("pfm",mat=pfms[[.ele]], name=.ele)}
-                  ,pfms)
+motifs2 <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
+  new("pfm",mat=.ele, name=.name)}, SIMPLIFY = FALSE)
 ## trim the motifs
 motifs2 <- lapply(motifs2, trimMotif, t=0.4)
 ## setting colors
@@ -210,25 +210,20 @@ names(groups) <- names(pfms)
 ## assign group colors
 group.col <- brewer.pal(5, "Set3")
 names(group.col)<-paste("group",1:5,sep="")
-## use MotIV to calculate the distances of motifs
-library(MotIV)
-jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
-                                               "extdata", 
-                                               "jaspar2010_PCC_SWU.scores"))
-d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
-hc <- MotIV::motifHclust(d, method="average")
+## create a list of pfm objects
+pfms <- mapply(names(pfms), pfms, FUN=function(.ele, .pfm){
+  new("pfm",mat=.pfm, name=.ele)}
+               ,SIMPLIFY = FALSE)
+## use matalign to calculate the distances of motifs
+hc <- clusterMotifs(pfms)
 ## convert the hclust to phylog object
 library(ade4)
 phylog <- ade4::hclust2phylog(hc)
 ## reorder the pfms by the order of hclust
 leaves <- names(phylog$leaves)
 pfms <- pfms[leaves]
-## create a list of pfm objects
-pfms <- lapply(names(pfms), function(.ele, pfms){
-                                new("pfm",mat=pfms[[.ele]], name=.ele)}
-               ,pfms)
 ## extract the motif signatures
-motifSig <- motifSignature(pfms, phylog, groupDistance=0.01, min.freq=1)
+motifSig <- motifSignature(pfms, phylog, cutoffPval=0.0001, min.freq=1)
 ## draw the motifs with a tag-cloud style.
 motifCloud(motifSig, scale=c(6, .5), 
            layout="rectangles", 
@@ -295,7 +290,11 @@ map2col <- function(x, pal){
                    all.inside = TRUE)]
 }
 dl <- lapply(df, map2col, pal=heat.colors(10))
-motifPiles(phylog=phylog, pfms=pfms, 
+## alignment of the pfms, this step will make the motif logos occupy 
+## more space. Users can skip this alignment to see the difference.
+pfmsAligned <- DNAmotifAlignment(pfms)
+## plot motifs
+motifPiles(phylog=phylog, pfms=pfmsAligned, 
             col.tree=rep(color, each=5),
             col.leaves=rep(rev(color), each=5),
             col.pfms2=gpCol, 
@@ -303,7 +302,7 @@ motifPiles(phylog=phylog, pfms=pfms,
             col.anno=dl,
             motifScale="logarithmic",
             plotIndex=TRUE,
-            groupDistance=0.01)
+            groupDistance=10)
 ```
 
 # plot motifs with d3.js

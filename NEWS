@@ -1,4 +1,10 @@
-CHANGES IN VERSION 1.33.1
+CHANGES IN VERSION 1.33.3
+-----------------------
+
+  o replace MotIV by matalign.
+  o add cutoffPval for motifSignature function.
+  
+CHANGES IN VERSION 1.33.2
 -----------------------
 
   o add parameter environment for coloredSymbols

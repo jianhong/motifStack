@@ -7,6 +7,7 @@
 motifSignature(
   pfms,
   phylog,
+  cutoffPval,
   groupDistance,
   rcpostfix = "(RC)",
   min.freq = 2,
@@ -19,6 +20,8 @@ motifSignature(
 \item{pfms}{a list of objects of class pfm}
 
 \item{phylog}{an object of class phylog}
+
+\item{cutoffPval}{pvalue for motifs to merge.}
 
 \item{groupDistance}{maxmal distance of motifs in the same group}
 
@@ -53,18 +56,14 @@ extract signatures from multiple motifs by distance calculated from STAMP
                      gsub("(_[0-9]+)+$", "", names(motifs)))))
     motifs <- motifs[unique(names(motifs))]
     pfms <- sample(motifs, 50)
-    library(MotIV)
-    jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
-                                   "extdata", "jaspar2010_PCC_SWU.scores"))
-    d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
-    hc <- MotIV::motifHclust(d, method="average")
+    hc <- clusterMotifs(pfms)
     library(ade4)
     phylog <- ade4::hclust2phylog(hc)
     leaves <- names(phylog$leaves)
     pfms <- pfms[leaves]
     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
                  new("pfm",mat=.ele, name=.name)})
-    motifSig <- motifSignature(pfms, phylog, groupDistance=0.1)
+    motifSig <- motifSignature(pfms, phylog, cutoffPval=0.0001)
   }
 
 }

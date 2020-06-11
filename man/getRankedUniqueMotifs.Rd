@@ -26,11 +26,8 @@ to get the unique motif in a given category, eg by species.
         matrix.fly <- query(MotifDb, "Dmelanogaster")
         matrix.human <- query(MotifDb, "Hsapiens")
         pfms <- c(as.list(matrix.fly), as.list(matrix.human))
-        pfms <- pfms[sample(1:length(pfms), 100)]
-        jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
-                                   "extdata", "jaspar2010_PCC_SWU.scores"))
-        d <- MotIV::motifDistances(lapply(pfms, pfm2pwm))
-        hc <- MotIV::motifHclust(d, method="average")
+        pfms <- pfms[sample(seq_along(pfms), 100)]
+        hc <- clusterMotifs(pfms)
         library(ade4)
         phylog <- ade4::hclust2phylog(hc)
         leaves <- names(phylog$leaves)

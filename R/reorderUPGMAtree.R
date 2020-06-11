@@ -23,11 +23,7 @@
 #'                      gsub("(_[0-9]+)+$", "", names(motifs)))))
 #'     motifs <- motifs[unique(names(motifs))]
 #'     pfms <- sample(motifs, 50)
-#'     library(MotIV)
-#'     jaspar.scores <- MotIV::readDBScores(file.path(find.package("MotIV"), 
-#'                                    "extdata", "jaspar2010_PCC_SWU.scores"))
-#'     d <- MotIV::motifDistances(pfms)
-#'     hc <- MotIV::motifHclust(d, method="average")
+#'     hc <- clusterMotifs(pfms)
 #'     library(ade4)
 #'     phylog <- ade4::hclust2phylog(hc)
 #'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
@@ -36,9 +32,6 @@
 #'   }
 #' 
 reorderUPGMAtree <- function(phylog, motifs, rcpostfix = "(RC)"){
-    if(!requireNamespace("MotIV", quietly = TRUE)){
-        stop("MotIV package is required.")
-    }
     if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
     if(!all(sapply(motifs, function(.ele) inherits(.ele, c("pfm", "pcm")))))
         stop("motifs must be a list of pfm or pcm object")
@@ -53,16 +46,12 @@ reorderUPGMAtree <- function(phylog, motifs, rcpostfix = "(RC)"){
     }
     names(motifs) <- lnames
     motifs <- motifs[names(phylog$leaves)]
+    d <- matalign(motifs)
+    d <- matalignOut2dist(d)
     motifs <- lapply(motifs, function(.ele){
         if(is(.ele, "pcm")) .ele <- pcm2pfm(.ele)
         .ele
     })
-    
-    jaspar.scores <- 
-        MotIV::readDBScores(file.path(find.package("MotIV"), 
-                                      "extdata", "jaspar2010_PCC_SWU.scores"))
-    d <- MotIV::motifDistances(lapply(motifs, pfm2pwm), DBscores=jaspar.scores)
-    d <- as.matrix(d)
     
     paths <- phylog$paths
     par <- sapply(paths, function(.ele) .ele[length(.ele)-1])
