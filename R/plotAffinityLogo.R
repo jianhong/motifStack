@@ -31,7 +31,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
   if(is(psam, "data.frame")){
     psam <- as.matrix(psam)
   }else{
-    if(is(psam, "psam")){
+    if(inherits(psam, c("psam", "pssm"))){
       markers <- psam@markers 
       if(missing(motifName)) motifName = psam@name
       colset=psam@color[rownames(psam@mat)]

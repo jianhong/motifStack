@@ -218,6 +218,10 @@ setMethod("trimMotif", signature(x="pfm", t="numeric"), function(x, t){
 setMethod("matrixReverseComplement", "pfm", function(x){
     if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
     mat<-x@mat
+    ## double check the rownames to A, C, G, T.
+    if(!all(toupper(rownames(mat))==c("A", "C", "G", "T"))){
+      mat <- mat[match(c("A", "C", "G", "T"), toupper(rownames(mat))), ]
+    }
     rc<-matrix(nrow=nrow(mat),ncol=ncol(mat))
     complements<-c(4,3,2,1)
     for(i in 1:nrow(mat)){
@@ -235,7 +239,7 @@ setMethod("matrixReverseComplement", "pfm", function(x){
 #' @aliases addBlank,pfm,numeric,logical-method
 setMethod("addBlank", signature(x="pfm", n="numeric", b="logical"), function(x, n, b){
     if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
-    N<-matrix(rep(x@background, n), nrow=4)
+    N<-matrix(rep(x@background[c("A", 'C', "G", "T")], n), nrow=4)
     if(b){
         N<-cbind(x@mat,N)
     }else{

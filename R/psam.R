@@ -139,6 +139,10 @@ setAs(from="psam", to="matrix", function(from){
 setMethod("matrixReverseComplement", "psam", function(x){
   if(x@alphabet!="DNA") stop("alphabet of psam must be DNA")
   mat<-x@mat
+  ## double check the rownames to A, C, G, T.
+  if(!all(toupper(rownames(mat))==c("A", "C", "G", "T"))){
+    mat <- mat[match(c("A", "C", "G", "T"), toupper(rownames(mat))), ]
+  }
   rc<-matrix(nrow=nrow(mat),ncol=ncol(mat))
   complements<-c(4,3,2,1)
   for(i in 1:nrow(mat)){

@@ -20,7 +20,8 @@
 #' rownames(pcm) <- c("A","C","G","T")
 #' motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 #' plot(motif)
-#' 
+#' pcm2pfm(pcm)
+#' pcm2pssm(pcm)
 setClass(
   "pcm", 
   representation(mat="matrix", name="character", alphabet="character", 
@@ -211,6 +212,10 @@ setGeneric("matrixReverseComplement",
 setMethod("matrixReverseComplement", "pcm", function(x){
     if(x@alphabet!="DNA") stop("alphabet of pcm must be DNA")
     mat<-x@mat
+    ## double check the rownames to A, C, G, T.
+    if(!all(toupper(rownames(mat))==c("A", "C", "G", "T"))){
+      mat <- mat[match(c("A", "C", "G", "T"), toupper(rownames(mat))), ]
+    }
     rc<-matrix(nrow=nrow(mat),ncol=ncol(mat))
     complements<-c(4,3,2,1)
     for(i in 1:nrow(mat)){
@@ -290,6 +295,82 @@ setMethod("pcm2pfm", signature(x="pcm"), function(x, background="missing"){
         color=x@color, background=x@background, tags=x@tags,
         markers=x@markers)
 })
+
+#' @rdname pcm-class
+#' @exportMethod pcm2pssm
+#' @aliases pcm2pssm pcm2pssm,pcm,ANY-method pcm2pssm,matrix,ANY-method
+#' pcm2pssm,matrix,numeric-method pcm2pssm,data.frame,ANY-method
+#' pcm2pssm,data.frame,numeric-method 
+setGeneric("pcm2pssm", function(x, background) standardGeneric("pcm2pssm"))
+setMethod("pcm2pssm", signature(x="matrix", background="numeric"), function(x, background){
+  ## check the background order, first order, length=4; second order, length=16
+  ord <- 0
+  if(length(background)==nrow(x)){
+    ord <- 1
+  }
+  if(length(background)==2^nrow(x)+nrow(x)){
+    ord <- 2
+  }
+  if(ord==0){
+    stop("The background dimention is incorrect. For example, if it is DNA motif,
+         4 or 20 (16 (2nd order) + 4(1st order)) named backgrounds are expected.")
+  }
+  m <- pcm2pfm(x, background)
+  stopifnot(all(rownames(m)==rownames(x)))
+  if(ord==1){
+    m1 <- addPseudolog2(background[rownames(m)]) - addPseudolog2(m)
+  }else{
+    ## 2 order background
+    ## 2*log2(sum(p_i*(p_ij/q_ij)))
+    letters <- rownames(m)
+    ## calculate 1 order of the motif
+    total <- sum(x, na.rm = TRUE)
+    P1 <- rowSums(x, na.rm = TRUE)
+    names(P1) <- letters
+    P1 <- addPseudolog2(P1)
+    ## calculate 2 order of the motif
+    P2 <- lapply(letters, function(.ele){
+      mat <- t(t(cbind(background[rownames(m)], m[, -ncol(m)])) *
+                 m[.ele, , drop=TRUE]) 
+      rownames(mat) <- paste0(letters, .ele)
+      mat
+    })
+    names(P2) <- letters
+    ## 2 order matrix
+    bg <- split(background[paste0(rep(letters, length(letters)),
+                                  rep(letters, each=length(letters)))], 
+                rep(letters, each=length(letters)))[letters]
+    Pq <- mapply(FUN=function(p, b){
+      addPseudolog2(p) - addPseudolog2(b)
+    }, P2[letters], bg[letters], SIMPLIFY = FALSE)
+    m1 <- lapply(Pq, function(.ele){## .ele is a matrix, eg 4 X len
+      colSums(.ele + P1)
+    })
+    m1 <- do.call(rbind, m1)
+    rownames(m1) <- letters
+  }
+  return(m1)
+})
+
+setMethod("pcm2pssm", signature(x="matrix"), function(x, background="missing"){
+  pcm2pfm(x, rep(1/nrow(x), nrow(x)))
+})
+
+setMethod("pcm2pssm", signature(x="data.frame", background="numeric"), function(x, background){
+  pcm2pfm(as.matrix(x), background)
+})
+
+setMethod("pcm2pssm", signature(x="data.frame"), function(x, background="missing"){
+  pcm2pfm(as.matrix(x), rep(1/nrow(x), nrow(x)))
+})
+## pcm to pssm from pcm object
+setMethod("pcm2pssm", signature(x="pcm"), function(x, background="missing"){
+  .mat <- pcm2pfm(x@mat, x@background)
+  new("pfm", mat=.mat, name=x@name, alphabet=x@alphabet, 
+      color=x@color, background=x@background, tags=x@tags,
+      markers=x@markers)
+})
+
 
 #' @rdname pcm-class
 #' @exportMethod as.data.frame

@@ -24,6 +24,12 @@
 \alias{pcm2pfm,matrix,numeric-method}
 \alias{pcm2pfm,data.frame,ANY-method}
 \alias{pcm2pfm,data.frame,numeric-method}
+\alias{pcm2pssm}
+\alias{pcm2pssm,pcm,ANY-method}
+\alias{pcm2pssm,matrix,ANY-method}
+\alias{pcm2pssm,matrix,numeric-method}
+\alias{pcm2pssm,data.frame,ANY-method}
+\alias{pcm2pssm,data.frame,numeric-method}
 \alias{as.data.frame,pcm-method}
 \alias{format,pcm-method}
 \title{Class \code{"pcm"}}
@@ -41,6 +47,8 @@ addBlank(x, n, b)
 getIC(x, p)
 
 pcm2pfm(x, background)
+
+pcm2pssm(x, background)
 
 \S4method{as.data.frame}{pcm}(x, row.names = NULL, optional = FALSE, ...)
 
@@ -116,7 +124,8 @@ pcm <- pcm[,3:ncol(pcm)]
 rownames(pcm) <- c("A","C","G","T")
 motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 plot(motif)
-
+pcm2pfm(pcm)
+pcm2pssm(pcm)
 
 pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
 pcm <- pcm[,3:ncol(pcm)]
