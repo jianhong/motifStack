@@ -317,6 +317,9 @@ setMethod("pcm2pssm", signature(x="matrix", background="numeric"), function(x, b
   }
   m <- pcm2pfm(x, background)
   stopifnot(all(rownames(m)==rownames(x)))
+  if(length(names(background))!=length(background)){
+    stop("background must be a named vector.")
+  }
   if(ord==1){
     m1 <- addPseudolog2(background[rownames(m)]) - addPseudolog2(m)
   }else{
@@ -353,20 +356,24 @@ setMethod("pcm2pssm", signature(x="matrix", background="numeric"), function(x, b
 })
 
 setMethod("pcm2pssm", signature(x="matrix"), function(x, background="missing"){
-  pcm2pfm(x, rep(1/nrow(x), nrow(x)))
+  background <- rep(1/nrow(x), nrow(x))
+  names(background) <- rownames(x)
+  pcm2pssm(x, background)
 })
 
 setMethod("pcm2pssm", signature(x="data.frame", background="numeric"), function(x, background){
-  pcm2pfm(as.matrix(x), background)
+  pcm2pssm(as.matrix(x), background)
 })
 
 setMethod("pcm2pssm", signature(x="data.frame"), function(x, background="missing"){
-  pcm2pfm(as.matrix(x), rep(1/nrow(x), nrow(x)))
+  background <- rep(1/nrow(x), nrow(x))
+  names(background) <- rownames(x)
+  pcm2pssm(as.matrix(x), background)
 })
 ## pcm to pssm from pcm object
 setMethod("pcm2pssm", signature(x="pcm"), function(x, background="missing"){
-  .mat <- pcm2pfm(x@mat, x@background)
-  new("pfm", mat=.mat, name=x@name, alphabet=x@alphabet, 
+  .mat <- pcm2pssm(x@mat, x@background)
+  new("pssm", mat=.mat, name=x@name, alphabet=x@alphabet, 
       color=x@color, background=x@background, tags=x@tags,
       markers=x@markers)
 })
