@@ -28,6 +28,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
                              colset=c("#00811B","#2000C7","#FFB32C","#D00001"),
                              alpha=0.5, newpage=TRUE, draw=TRUE){
   markers <- NULL
+  pssm <- FALSE
   if(is(psam, "data.frame")){
     psam <- as.matrix(psam)
   }else{
