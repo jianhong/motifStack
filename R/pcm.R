@@ -321,7 +321,7 @@ setMethod("pcm2pssm", signature(x="matrix", background="numeric"), function(x, b
     stop("background must be a named vector.")
   }
   if(ord==1){
-    m1 <- addPseudolog2(background[rownames(m)]) - addPseudolog2(m)
+    m1 <- addPseudolog2(m) - addPseudolog2(background[rownames(m)])
   }else{
     ## 2 order background
     ## 2*log2(sum(p_i*(p_ij/q_ij)))
