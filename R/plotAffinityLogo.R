@@ -35,6 +35,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
       markers <- psam@markers 
       if(missing(motifName)) motifName = psam@name
       colset=psam@color[rownames(psam@mat)]
+      pssm <- is(psam, "pssm")
       psam <- psam@mat
     }
   }
@@ -60,7 +61,7 @@ plotAffinityLogo <- function(psam, motifName, font="Helvetica-Bold", fontface="b
   #calculate postion of each symbol and plot
   plot <- gList()
   
-  ddG <- log(psam+1e-2)
+  ddG <- if(pssm) psam else log(psam+1e-2)
   ddG.mu<-colMeans(ddG)
   ddG.height <- t(t(ddG) - ddG.mu)
   ddG.h.pos <- ddG.h.neg <- ddG.height
