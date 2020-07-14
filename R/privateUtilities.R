@@ -41,16 +41,17 @@ importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
     # get ghostscript path
     gscmd <- Sys.getenv("R_GSCMD")
     if(is.null(gscmd) || !nzchar(gscmd)) {
-      gscmd <- switch(.Platform$OS.type,
-                      unix = "gs",
-                      windows = {
-                        poss <- Sys.which(c("gswin64c.exe",
-                                            "gswin32c.exe"))
-                        poss <- poss[nzchar(poss)]
-                        if (length(poss)) gscmd <- poss
-                      })
+      if(.Platform$OS.type=="windows"){
+        poss <- Sys.which(c("gswin64c.exe",
+                            "gswin32c.exe"))
+        poss <- poss[nzchar(poss)]
+        return(length(poss)>0)
+      }else{
+        gscmd <- "gs"
+      }
     }
-    return((!is.null(gscmd)) || nzchar(gscmd))
+    suppressWarnings(rc <- system(paste(shQuote(gscmd), "-help > /dev/null")))
+    return(rc == 0) 
   }
   if(checkGhost() && !requireNamespace("grImport", quietly = TRUE)){
     ## install grImport
