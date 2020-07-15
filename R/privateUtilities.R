@@ -89,9 +89,10 @@ importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
     ## plot
     gl <- gList()
     for(i in seq_along(picture)){
-      gl <- gList(gl, polygonGrob(picture[[i]]$x,
-                                  picture[[i]]$y,
-                                  gp = gpar(fill=picture[[i]]$color)))
+      gl <- gList(gl, polygonGrob(picture[[i]]$x*width+x,
+                                  picture[[i]]$y*height+y,
+                                  gp = gpar(fill=picture[[i]]$color,
+                                            col=picture[[i]]$color)))
     }
     return(gl)
   }, envir=envir)
