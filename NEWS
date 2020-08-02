@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.32.1
+-----------------------
+
+  o fix the issue for importMatrix for meme when check the version num.
+  
 CHANGES IN VERSION 1.31.2
 -----------------------
 

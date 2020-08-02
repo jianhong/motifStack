@@ -313,7 +313,7 @@ importM_meme <- function(fns){
   m <- lapply(fns, function(fn){
     lines <- readLines(fn)
     ## MEME version
-    if(!grepl("MEME\\s+version\\s", lines[1])){
+    if(!any(grepl("MEME\\s+version\\s", lines))){
       stop("MEME version is required in first line.")
     }
     lines <- lines[-1]
