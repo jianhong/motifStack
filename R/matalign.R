@@ -67,7 +67,7 @@ matalign <- function(pcms,
                       "startPos1", "startPos2", "endPos1", "endPos2",
                       "alignmentLength", "P_value", 
                       "distance", 'alignedDist',
-                      "direction")
+                      "direction")[seq.int(ncol(align))]
   return(align)
 }
 
@@ -87,7 +87,10 @@ compareProfiles <- function(pcm1, pcm2,
   method <- match.arg(method, 
                       choices = c("Smith-Waterman", "Needleman-Wunsch"))
   hspF <- compare2profiles(pcm1, pcm2, method, pseudo)
-  if(!revComp) return(hspF)
+  if(!(pcm1@alphabet %in% c("DNA", "RNA")) || !revComp){
+    hspF$direction <- "Forward"
+    return(hspF)
+  }
   hspR <- compare2profiles(pcm1, matrixReverseComplement(pcm2),
                            method, pseudo)
   if(hspF$score >= hspR$score){

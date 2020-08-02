@@ -68,7 +68,9 @@ motifStack <-function(pfms,
       if(!psam){
         hc <- clusterMotifs(pfms)
         pfms <- pfms[hc$order]
-        pfms <- DNAmotifAlignment(pfms)
+        if(pfms[[1]]@alphabet %in% c("DNA", "RNA")) {
+          pfms <- DNAmotifAlignment(pfms)
+        }
         phylog <- hclust2phylog(hc)
       }
     }

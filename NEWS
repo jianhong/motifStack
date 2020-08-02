@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.33.9
+-----------------------
+
+  o fix the issue for AA motif of clusterMotifs
+  
 CHANGES IN VERSION 1.33.8
 -----------------------
 

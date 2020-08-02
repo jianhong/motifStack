@@ -20,7 +20,7 @@ importMatrix <- function(filenames,
                          format=c("auto", "pfm", "cm", "pcm", "meme", 
                                   "transfac", "jaspar", "scpd", "cisbp",
                                   "psam"), 
-                         to=c("auto", "pcm", "pfm", "psam")){
+                         to=c("auto", "pcm", "pfm", "pssm", "psam")){
   if(missing(filenames)){
     stop("filenames are required.")
   }
@@ -331,7 +331,7 @@ importM_meme <- function(fns){
   m <- lapply(fns, function(fn){
     lines <- readLines(fn)
     ## MEME version
-    if(!grepl("MEME\\s+version\\s", lines[1])){
+    if(!any(grepl("MEME\\s+version\\s", lines))){
       stop("MEME version is required in first line.")
     }
     lines <- lines[-1]
