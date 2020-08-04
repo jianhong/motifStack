@@ -152,17 +152,41 @@ getScore <- function(pcm1, pcm2, pseudo=1){
   profile2 <- pcm2@mat
   P1 <- pcm1@background
   P2 <- pcm2@background
+  isAA <- pcm1@alphabet=="AA" && pcm2@alphabet=="AA"
   score <- matrix(0, 
                   nrow = ncol(profile1),
                   ncol = ncol(profile2))
   for(i in seq.int(ncol(profile1))){
     for(j in seq.int(ncol(profile2))){
-      score[i, j] <- 
-        getALLRscoreFromCounts(profile1[, i], profile2[, j], 
-                               P1, P2, pseudo)
+      if(isAA){##condense AA by chemical characteristics
+        score[i, j] <- 
+          getALLRscoreFromCounts(condenseByGroup(profile1[, i]), 
+                                 condenseByGroup(profile2[, j]), 
+                                 condenseByGroup(P1), 
+                                 condenseByGroup(P2), pseudo)
+      }else{
+        score[i, j] <- 
+          getALLRscoreFromCounts(profile1[, i], profile2[, j], 
+                                 P1, P2, pseudo)
+      }
     }
   }
   return(score)
+}
+
+condenseByGroup <- function(x, 
+                            group=list(A=c("G", "A", "V", "L", "I"),
+                                         S=c("S", "C", "U", "T", "M"),
+                                         P=c("P"),
+                                         F=c("F", "Y", "W"),
+                                         H=c("H", "K", "R"),
+                                         D=c("D", "E", "N", "Q"))){
+  stopifnot(all(names(x) %in% unlist(group)))
+  stopifnot(is.list(group))
+  stopifnot(length(names(group))>0)
+  vapply(group, FUN = function(.ele){
+    sum(x[.ele], na.rm = TRUE)
+  }, FUN.VALUE = 0.0)
 }
 
 #' calculate I'

@@ -50,6 +50,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
       markers <- pfm@markers
       if(missing(motifName)) motifName = pfm@name
       p=pfm@background[rownames(pfm@mat)]
+      p <- p/sum(p)
       colset=pfm@color[rownames(pfm@mat)]
       pfm <- pfm@mat
     }

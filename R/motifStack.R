@@ -32,6 +32,12 @@
 #'     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
 #'                  new("pfm",mat=.ele, name=.name)})
 #'     motifStack(pfms, "radialPhylog")
+#'     
+#'     ## AA motifs
+#'     pcms<-importMatrix(system.file("extdata", "prot.meme", 
+#'                                    package="motifStack"),
+#'                    format="meme", to="pfm")
+#'     motifStack(pcms[1:5])
 #'   }
 #' 
 motifStack <-function(pfms, 
@@ -43,12 +49,14 @@ motifStack <-function(pfms,
         return(invisible())
     }
     layout <- match.arg(layout)
-    if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
-      pfms <- lapply(pfms, pcm2pfm)
-    }
-    if (any(unlist(lapply(pfms, function(.ele) 
-      !inherits(.ele, c("pfm", "psam")))))) 
+    if(!pfms[[1]]@alphabet %in% c("AA")){
+      if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
+        pfms <- lapply(pfms, pcm2pfm)
+      }
+      if (any(unlist(lapply(pfms, function(.ele) 
+        !inherits(.ele, c("pfm", "psam")))))) 
         stop("pfms must be a list of pfm, pcm or psam objects")
+    }
     if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
       psam <- TRUE
     }else{
@@ -57,9 +65,15 @@ motifStack <-function(pfms,
     if (length(pfms)<2)
         stop("length of pfms less than 2")
     if (length(pfms)==2){
+      if(pfms[[1]]@alphabet %in% c("DNA", "RNA")) {
         pfms <- DNAmotifAlignment(pfms)
-        plotMotifLogoStack(pfms)
-        return(invisible(list(phylog=NULL, pfms=pfms)))
+      }else{
+        if(pfms[[1]]@alphabet %in% c("AA") && layout!="stack"){
+          pfms <- AAmotifAlignment(pfms)
+        }
+      }
+      plotMotifLogoStack(pfms)
+      return(invisible(list(phylog=NULL, pfms=pfms)))
     }
     
     ##calculate the distances
@@ -70,6 +84,10 @@ motifStack <-function(pfms,
         pfms <- pfms[hc$order]
         if(pfms[[1]]@alphabet %in% c("DNA", "RNA")) {
           pfms <- DNAmotifAlignment(pfms)
+        }else{
+          if(pfms[[1]]@alphabet %in% c("AA") && layout!="stack"){
+            pfms <- AAmotifAlignment(pfms)
+          }
         }
         phylog <- hclust2phylog(hc)
       }

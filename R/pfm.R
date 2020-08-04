@@ -238,8 +238,8 @@ setMethod("matrixReverseComplement", "pfm", function(x){
 #' @exportMethod addBlank
 #' @aliases addBlank,pfm,numeric,logical-method
 setMethod("addBlank", signature(x="pfm", n="numeric", b="logical"), function(x, n, b){
-    if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
-    N<-matrix(rep(x@background[c("A", 'C', "G", "T")], n), nrow=4)
+    #if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
+    N<-matrix(rep(x@background[rownames(x@mat)], n), nrow=nrow(x@mat))
     if(b){
         N<-cbind(x@mat,N)
     }else{

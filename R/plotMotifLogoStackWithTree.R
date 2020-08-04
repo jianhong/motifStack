@@ -32,6 +32,9 @@
 #' 
 plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ...){
   n<-length(pfms)
+  if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
+    pfms <- lapply(pfms, pcm2pfm)
+  }
   lapply(pfms,function(.ele){
     if(!inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of pfm or psam objects")
   })

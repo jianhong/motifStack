@@ -51,6 +51,9 @@ plotMotifLogoStack<-function(pfms, ...){
     }
     return()
   }
+  if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
+    pfms <- lapply(pfms, pcm2pfm)
+  }
   lapply(pfms,function(.ele){
     if(!is(.ele, "pfm")) stop("pfms must be a list of pfm objects.")
   })

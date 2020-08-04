@@ -8,7 +8,7 @@ importMatrix(
   filenames,
   format = c("auto", "pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "cisbp",
     "psam"),
-  to = c("auto", "pcm", "pfm", "psam")
+  to = c("auto", "pcm", "pfm", "pssm", "psam")
 )
 }
 \arguments{

@@ -233,8 +233,9 @@ setMethod("matrixReverseComplement", "pcm", function(x){
 #' @aliases addBlank addBlank,pcm,numeric,logical-method
 setGeneric("addBlank", function(x, n, b) standardGeneric("addBlank"))
 setMethod("addBlank", signature(x="pcm", n="numeric", b="logical"), function(x, n, b){
-    if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
-    N<-matrix(rep(rep(0,4), n), nrow=4)
+    #if(x@alphabet!="DNA") stop("alphabet of pfm must be DNA")
+    N<-matrix(rep(rep(0,nrow(x@mat)), n), nrow=nrow(x@mat))
+    rownames(N) <- rownames(x@mat)
     if(b){
         N<-cbind(x@mat,N)
     }else{
@@ -272,7 +273,10 @@ setMethod("pcm2pfm", signature(x="matrix", background="numeric"), function(x, ba
     s[s==0] <- NA
     p<-apply(x,1,function(.ele) .ele/s)
     n<-length(s[is.na(s)])
-    if(any(is.na(s))) p[is.na(p[,1]),] <- c(rep(background, n))
+    bck <- background/sum(background)
+    if(any(is.na(s))) {
+      p[is.na(p[,1]),] <- rep(bck, each=n)
+    }
     t(p)
 })
 
@@ -290,7 +294,9 @@ setMethod("pcm2pfm", signature(x="data.frame"), function(x, background="missing"
 
 ## pcm to pfm from pcm object
 setMethod("pcm2pfm", signature(x="pcm"), function(x, background="missing"){
-    .mat <- pcm2pfm(x@mat, x@background)
+  bck <- x@background[rownames(x@mat)]
+  if(any(is.na(bck))) stop("some elements does not have background value", bck)
+    .mat <- pcm2pfm(x@mat, bck)
     new("pfm", mat=.mat, name=x@name, alphabet=x@alphabet, 
         color=x@color, background=x@background, tags=x@tags,
         markers=x@markers)

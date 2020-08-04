@@ -374,6 +374,58 @@ UngappedAlignment<-function(pfms, i, threshold, minimalConsensus=0,
     }
     pfms
 }
+
+UngappedAlignmentAA<-function(pcms, i, threshold, minimalConsensus){
+  pcm1 <- pcms[[i-1]]
+  pcm2 <- pcms[[i]]
+  offset1 <- 0
+  offset2 <- 0
+  ## trim pcm
+  trimPCMbyIC <- function(pcm, t){
+    ic <- getIC(pcm)
+    w <- rle(ic < t)
+    offL <- offR <- 0
+    if(w$values[1]) {
+      offL <- w$lengths[1]
+    }
+    if(w$values[length(w$values)]) {
+      offR <- w$lengths[length(w$values)]
+    }
+    if(offL+1>ncol(pcm@mat)-offR){
+      return(pcm=NULL, offL=offL, offR=offR)
+    }
+    pcm@mat <- pcm@mat[, (offL+1):(ncol(pcm@mat)-offR), drop=FALSE]
+    list(pcm=pcm, offL=offL, offR=offR)
+  }
+  res <- trimPCMbyIC(pcm1, t=threshold)
+  if(is.null(res$pcm)){
+    return(pcms)
+  }
+  pcm1 <- res$pcm
+  offset1 <- res$offL
+  res <- trimPCMbyIC(pcm2, t=threshold)
+  if(is.null(res$pcm)){
+    return(pcms)
+  }
+  pcm2 <- res$pcm
+  offset2 <- res$offL
+  res<-compare2profiles(pcm1, pcm2, method="Smith-Waterman")
+  if(res$length>=minimalConsensus){
+    of1 <- offset1 + res$i_start
+    of2 <- offset2 + res$j_start
+    if(of1<of2){
+      pcms[seq.int(i-1)] <- lapply(pcms[seq.int(i-1)], function(.ele){
+        addBlank(.ele, of2-of1, FALSE)
+      })
+    }else{
+      if(of1>of2){
+        pcms[[i]] <- addBlank(pcms[[i]], of1-of2, FALSE)
+      }
+    }
+  }
+  pcms
+}
+
 getAlignedICWithoutGap<-function(pfm1, pfm2, threshold, revcomp=TRUE){
     if(!is(pfm1, "pfm") | !is(pfm2, "pfm")) 
       stop("class of pfm1 and pfm2 must be pfm")

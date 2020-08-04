@@ -42,6 +42,12 @@ Plot a DNA sequence logo stack
     pfms <- mapply(pfms, names(pfms), FUN=function(.ele, .name){
                  new("pfm",mat=.ele, name=.name)})
     motifStack(pfms, "radialPhylog")
+    
+    ## AA motifs
+    pcms<-importMatrix(system.file("extdata", "prot.meme", 
+                                   package="motifStack"),
+                   format="meme", to="pfm")
+    motifStack(pcms[1:5])
   }
 
 }

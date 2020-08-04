@@ -114,6 +114,9 @@ plotMotifStackWithRadialPhylog <-
 {
   if (!inherits(phylog, "phylog"))
     stop("Non convenient data")
+  if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
+      pfms <- lapply(pfms, pcm2pfm)
+  }
   leaves.number <- length(phylog$leaves)
   checkLength <- function(tobechecked){
     !((length(tobechecked)>=leaves.number)||is.null(tobechecked))

@@ -71,6 +71,9 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
 ){
   if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
   n<-length(pfms)
+  if(all(sapply(pfms, function(.ele) is(.ele, "pcm")))) {
+    pfms <- lapply(pfms, pcm2pfm)
+  }
   lapply(pfms,function(.ele){
     if(!inherits(.ele, c("pfm", "psam"))) stop("pfms must be a list of pfm or psam objects.")
   })
