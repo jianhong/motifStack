@@ -310,11 +310,20 @@ plotMarkers <- function(markers, dw, h, lo=NULL){
                height <- sapply(pos, function(.ele) max(h[.ele]))
                y <- height/2
              }
-             rectGrob(x= (m@start + m@stop-1)*dw/2,
-                      y = y,
-                      width = dw*(m@stop - m@start + 1),
-                      height = height, 
-                      gp = m@gp)
+             res <- rectGrob(x= (m@start + m@stop-1)*dw/2,
+                             y = y,
+                             width = dw*(m@stop - m@start + 1),
+                             height = height, 
+                             gp = m@gp)
+             if(any(nchar(m@label)>0)){
+               tG <- textGrob(label=m@label,
+                              x = (m@start+m@stop-1)*dw/2,
+                              y = height,
+                              vjust = -.5,
+                              gp = m@gp)
+               res <- gList(res, tG)
+             }
+             res
              },
            "text"={
              pos <- mapply(seq, m@start, m@stop, SIMPLIFY = FALSE)
@@ -329,9 +338,20 @@ plotMarkers <- function(markers, dw, h, lo=NULL){
            "line"={
              pos <- mapply(seq, m@start, m@stop, SIMPLIFY = FALSE)
              height <- sapply(pos, function(.ele) max(h[.ele]))
-             linesGrob(x = as.numeric(rbind(m@start-1, m@stop)*dw), 
-                       y = height,
-                       gp = m@gp)
+             res <- segmentsGrob(x0 = (m@start-1)*dw, 
+                                 x1 = m@stop*dw,
+                                 y0 = height,
+                                 y1 = height,
+                                 gp = m@gp)
+             if(any(nchar(m@label)>0)){
+               tG <- textGrob(label=m@label,
+                              x = (m@start+m@stop-1)*dw/2,
+                              y = height,
+                              vjust = -.5,
+                              gp = m@gp)
+               res <- gList(res, tG)
+             }
+             res
              })
   }))
 }
