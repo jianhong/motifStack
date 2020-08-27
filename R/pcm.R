@@ -269,15 +269,19 @@ setMethod("getIC", signature(x="pcm"), function(x, p="missing"){
 #' pcm2pfm,data.frame,numeric-method 
 setGeneric("pcm2pfm", function(x, background) standardGeneric("pcm2pfm"))
 setMethod("pcm2pfm", signature(x="matrix", background="numeric"), function(x, background){
-    s<-apply(x,2,sum)
-    s[s==0] <- NA
-    p<-apply(x,1,function(.ele) .ele/s)
-    n<-length(s[is.na(s)])
+    s <- max(colSums(x, na.rm = TRUE), na.rm = TRUE)
     bck <- background/sum(background)
-    if(any(is.na(s))) {
-      p[is.na(p[,1]),] <- rep(bck, each=n)
+    if(s==0){
+      mat <- matrix(rep(bck, ncol(x)), nrow = nrow(x), ncol = ncol(x))
+      rownames(mat) <- rownames(x)
+      colnames(mat) <- colnames(x)
+      return(mat)
     }
-    t(p)
+    p <- x/s
+    cs <- colSums(p)
+    cs[is.na(cs)] <- 0
+    p[, cs < 1] <- p[, cs < 1] + rep((1-cs[cs < 1]), each=nrow(x))*bck
+    p
 })
 
 setMethod("pcm2pfm", signature(x="matrix"), function(x, background="missing"){

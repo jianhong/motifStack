@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.33.12
+-----------------------
+
+  o fix the issue for pcm2pfm if the column counts are not identical.
+  
 CHANGES IN VERSION 1.33.11
 -----------------------
 

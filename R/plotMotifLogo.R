@@ -297,7 +297,7 @@ plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=T
   }
 }
 
-#' @importFrom grid gList rectGrob textGrob linesGrob
+#' @importFrom grid gList rectGrob textGrob linesGrob segmentsGrob
 plotMarkers <- function(markers, dw, h, lo=NULL){
   do.call(gList, lapply(markers, function(m){
     switch(m@type,
