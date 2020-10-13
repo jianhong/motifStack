@@ -24,12 +24,16 @@
 \alias{pcm2pfm,matrix,numeric-method}
 \alias{pcm2pfm,data.frame,ANY-method}
 \alias{pcm2pfm,data.frame,numeric-method}
+\alias{pcm2pfm,list,ANY-method}
+\alias{pcm2pfm,list,numeric-method}
 \alias{pcm2pssm}
 \alias{pcm2pssm,pcm,ANY-method}
 \alias{pcm2pssm,matrix,ANY-method}
 \alias{pcm2pssm,matrix,numeric-method}
 \alias{pcm2pssm,data.frame,ANY-method}
 \alias{pcm2pssm,data.frame,numeric-method}
+\alias{pcm2pssm,list,ANY-method}
+\alias{pcm2pssm,list,numeric-method}
 \alias{as.data.frame,pcm-method}
 \alias{format,pcm-method}
 \title{Class \code{"pcm"}}

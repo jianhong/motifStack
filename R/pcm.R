@@ -266,7 +266,8 @@ setMethod("getIC", signature(x="pcm"), function(x, p="missing"){
 #' @exportMethod pcm2pfm
 #' @aliases pcm2pfm pcm2pfm,pcm,ANY-method pcm2pfm,matrix,ANY-method
 #' pcm2pfm,matrix,numeric-method pcm2pfm,data.frame,ANY-method
-#' pcm2pfm,data.frame,numeric-method 
+#' pcm2pfm,data.frame,numeric-method pcm2pfm,list,ANY-method
+#' pcm2pfm,list,numeric-method 
 setGeneric("pcm2pfm", function(x, background) standardGeneric("pcm2pfm"))
 setMethod("pcm2pfm", signature(x="matrix", background="numeric"), function(x, background){
     s <- max(colSums(x, na.rm = TRUE), na.rm = TRUE)
@@ -306,11 +307,19 @@ setMethod("pcm2pfm", signature(x="pcm"), function(x, background="missing"){
         markers=x@markers)
 })
 
+setMethod("pcm2pfm", signature(x="list"), function(x, background="missing"){
+  lapply(x, pcm2pfm)
+})
+setMethod("pcm2pfm", signature(x="list", background="numeric"), function(x, background){
+  lapply(x, pcm2pfm, background=background)
+})
+
 #' @rdname pcm-class
 #' @exportMethod pcm2pssm
 #' @aliases pcm2pssm pcm2pssm,pcm,ANY-method pcm2pssm,matrix,ANY-method
 #' pcm2pssm,matrix,numeric-method pcm2pssm,data.frame,ANY-method
-#' pcm2pssm,data.frame,numeric-method 
+#' pcm2pssm,data.frame,numeric-method pcm2pssm,list,ANY-method
+#' pcm2pssm,list,numeric-method
 setGeneric("pcm2pssm", function(x, background) standardGeneric("pcm2pssm"))
 setMethod("pcm2pssm", signature(x="matrix", background="numeric"), function(x, background){
   ## check the background order, first order, length=4; second order, length=16
@@ -386,6 +395,13 @@ setMethod("pcm2pssm", signature(x="pcm"), function(x, background="missing"){
   new("pssm", mat=.mat, name=x@name, alphabet=x@alphabet, 
       color=x@color, background=x@background, tags=x@tags,
       markers=x@markers)
+})
+
+setMethod("pcm2pssm", signature(x="list"), function(x, background="missing"){
+  lapply(x, pcm2pssm)
+})
+setMethod("pcm2pssm", signature(x="list", background="numeric"), function(x, background){
+  lapply(x, pcm2pssm, background=background)
 })
 
 

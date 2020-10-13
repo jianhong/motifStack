@@ -7,6 +7,7 @@
 motifStack(
   pfms,
   layout = c("stack", "treeview", "phylog", "radialPhylog"),
+  reorder = TRUE,
   ...
 )
 }
@@ -14,6 +15,9 @@ motifStack(
 \item{pfms}{a list of objects of class \link{pfm}}
 
 \item{layout}{layout of the logo stack, stack, treeview or radialPhylog}
+
+\item{reorder}{logical(1). Default TRUE. Set to FALSE will do alignment but
+keep the order of the pfms. This parameter only work for stack layout.}
 
 \item{\dots}{any parameters could to pass to \link{plotMotifLogoStack},
 \link{plotMotifLogoStackWithTree}, \link{plotMotifStackWithPhylog} or
@@ -48,6 +52,7 @@ Plot a DNA sequence logo stack
                                    package="motifStack"),
                    format="meme", to="pfm")
     motifStack(pcms[1:5])
+    motifStack(pcms[1:5], reorder=FALSE)
   }
 
 }

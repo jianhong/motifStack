@@ -147,6 +147,13 @@ motifs<-importMatrix(dir(file.path(find.package("motifStack"),
 ## plot stacks
 motifStack(motifs, layout="stack", ncex=1.0)
 ```
+```{r rnalogostack,fig.cap="Plot RNA motifs with sequence logo stack style", fig.width=4,fig.height=6}
+rnaMotifs <- DNAmotifToRNAmotif(motifs)
+names(rnaMotifs)
+motifStack(rnaMotifs, layout = "stack", 
+           reorder=FALSE) ## we can also use reorder=FALSE to keep the order of input. 
+```
+
 ```{r logostack2,fig.cap="Plot affinity logos with sequence logo stack style",fig.width=4,fig.height=3.5}
 motif2 <- motif
 motif2$mat <- motif$mat[, 5:12]

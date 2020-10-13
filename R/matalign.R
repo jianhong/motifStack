@@ -6,7 +6,8 @@
 #' @param method Alignment method. "Smith-Waterman" or "Needleman-Wunsch".
 #' Default is "Smith-Waterma"
 #' @param pseudo pseudocount
-#' @param revComp Check reverseComplement or not.
+#' @param revcomp Check reverseComplement or not.
+#' @param ... Not use.
 #' @return A data frame with alignment information. The column names
 #' are motif1, motif2, alignmentScore, startPos1, startPos2, endPos1, endPos2,
 #' alignmentLength.
@@ -22,7 +23,8 @@
 matalign <- function(pcms, 
                      method=c("Smith-Waterman", "Needleman-Wunsch"),
                      pseudo=1,
-                     revComp=TRUE){
+                     revcomp=TRUE,
+                     ...){
   method <- match.arg(method, 
                       choices = c("Smith-Waterman", "Needleman-Wunsch"))
   stopifnot(is.numeric(pseudo))
@@ -54,12 +56,19 @@ matalign <- function(pcms,
   })
   n <- vapply(pcms, FUN = function(.ele) .ele@name,
               FUN.VALUE = "a", USE.NAMES = FALSE)
+  alphab <- vapply(pcms, function(.ele) .ele@alphabet=="RNA", FUN.VALUE = TRUE)
+  if(any(alphab)&revcomp){
+    message("The input is RNA motif. 
+            The reverse complementation alignment will be turn off.
+            To avoid this message, please set revcomp=FALSE")
+    revcomp <- FALSE
+  }
   stopifnot("There is duplicated motif names"=!duplicated(n))
   names(pcms) <- n
   cmb <- combn(n, m = 2, simplify = FALSE)
   align <- lapply(cmb, FUN=function(.ele){
     compareProfiles(pcms[[.ele[1]]], pcms[[.ele[2]]],
-                    pseudo=pseudo, revComp=revComp)
+                    pseudo=pseudo, revcomp=revcomp)
   })
   align <- do.call(rbind, align)
   align <- cbind(do.call(rbind, cmb), align[, -(2:3)])
@@ -77,17 +86,17 @@ matalign <- function(pcms,
 #' @param method Alignment method. "Smith-Waterman" or "Needleman-Wunsch".
 #' Default is "Smith-Waterma"
 #' @param pseudo pseudocount
-#' @param revComp Check reverseComplement or not.
+#' @param revcomp Check reverseComplement or not.
 #' @return a list with names: motif1, motif2, alignmentScore, 
 #' startPos1, startPos2, endPos1, endPos2, alignmentLength.
 compareProfiles <- function(pcm1, pcm2, 
                             method=c("Smith-Waterman", "Needleman-Wunsch"),
                             pseudo=1, 
-                            revComp=TRUE){
+                            revcomp=TRUE){
   method <- match.arg(method, 
                       choices = c("Smith-Waterman", "Needleman-Wunsch"))
   hspF <- compare2profiles(pcm1, pcm2, method, pseudo)
-  if(!(pcm1@alphabet %in% c("DNA", "RNA")) || !revComp){
+  if(!(pcm1@alphabet %in% c("DNA", "RNA")) || !revcomp){
     hspF$direction <- "Forward"
     return(hspF)
   }

@@ -9,7 +9,7 @@ compareProfiles(
   pcm2,
   method = c("Smith-Waterman", "Needleman-Wunsch"),
   pseudo = 1,
-  revComp = TRUE
+  revcomp = TRUE
 )
 }
 \arguments{
@@ -20,7 +20,7 @@ Default is "Smith-Waterma"}
 
 \item{pseudo}{pseudocount}
 
-\item{revComp}{Check reverseComplement or not.}
+\item{revcomp}{Check reverseComplement or not.}
 }
 \value{
 a list with names: motif1, motif2, alignmentScore, 

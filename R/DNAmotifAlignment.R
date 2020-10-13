@@ -32,10 +32,17 @@ DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0,
     if(!inherits(.ele, c("pfm", "pcm"))) {
       stop("pfms must be a list of pfm objects.")
     }
-    if(.ele@alphabet!="DNA") {
-      stop("the alphabet of pfm must be DNA")
+    if(!.ele@alphabet %in% c("DNA", 'RNA')) {
+      stop("the alphabet of pfm must be DNA or RNA")
     }
   })
+  alphab <- vapply(pfms, function(.ele) .ele@alphabet=="RNA", FUN.VALUE = TRUE)
+  if(any(alphab & revcomp)){
+    message("The input is RNA motif. 
+            The reverse complementation alignment will be turn off.
+            To avoid this message, please set revcomp=rep(FALSE, length(pfms))")
+    revcomp[alphab] <- FALSE
+  }
   pfmcopy<-list(length=length(pfms))
   pfmcopy[[1]]<-pfms[[1]]
   for(i in 2:length(pfms)){

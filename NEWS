@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.33.14
+-----------------------
+
+  o remove reverse complement alignment for RNA motifs.
+  
 CHANGES IN VERSION 1.33.13
 -----------------------
 

@@ -2,6 +2,7 @@
 
 export(AAmotifAlignment)
 export(DNAmotifAlignment)
+export(DNAmotifToRNAmotif)
 export(GeomMotif)
 export(browseMotifs)
 export(browseMotifsOutput)

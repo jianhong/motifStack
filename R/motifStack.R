@@ -9,6 +9,8 @@
 #' 
 #' @param pfms a list of objects of class \link{pfm}
 #' @param layout layout of the logo stack, stack, treeview or radialPhylog
+#' @param reorder logical(1). Default TRUE. Set to FALSE will do alignment but
+#' keep the order of the pfms. This parameter only work for stack layout.
 #' @param \dots any parameters could to pass to \link{plotMotifLogoStack},
 #' \link{plotMotifLogoStackWithTree}, \link{plotMotifStackWithPhylog} or
 #' \link{plotMotifStackWithRadialPhylog}
@@ -38,10 +40,12 @@
 #'                                    package="motifStack"),
 #'                    format="meme", to="pfm")
 #'     motifStack(pcms[1:5])
+#'     motifStack(pcms[1:5], reorder=FALSE)
 #'   }
 #' 
 motifStack <-function(pfms, 
-                      layout=c("stack", "treeview", "phylog", "radialPhylog"), 
+                      layout=c("stack", "treeview", "phylog", "radialPhylog"),
+                      reorder=TRUE,
                       ...){
     if(!is.list(pfms)){
       if(is(pfms, "pcm")) pfms <- pcm2pfm(pfms)
@@ -62,11 +66,21 @@ motifStack <-function(pfms,
     }else{
       psam <- FALSE
     }
+    alphab <- vapply(pfms, function(.ele) .ele@alphabet=="RNA", 
+                     FUN.VALUE = TRUE)
+    alphab <- any(alphab)
+    dots <- list(...)
+    if("revcomp" %in% names(dots)){
+      revcomp <- dots$revcomp
+    }else{
+      revcomp <- rep(!alphab, length(pfms))
+      dots$revcomp <- revcomp[1]
+    }
     if (length(pfms)<2)
         stop("length of pfms less than 2")
     if (length(pfms)==2){
       if(pfms[[1]]@alphabet %in% c("DNA", "RNA")) {
-        pfms <- DNAmotifAlignment(pfms)
+        pfms <- DNAmotifAlignment(pfms, revcomp = revcomp)
       }else{
         if(pfms[[1]]@alphabet %in% c("AA") && layout!="stack"){
           pfms <- AAmotifAlignment(pfms)
@@ -75,15 +89,14 @@ motifStack <-function(pfms,
       plotMotifLogoStack(pfms)
       return(invisible(list(phylog=NULL, pfms=pfms)))
     }
-    
+    dots$motifs <- pfms
     ##calculate the distances
-    dots <- list(...)
     if(!"phylog" %in% names(dots)){
       if(!psam){
-        hc <- clusterMotifs(pfms)
-        pfms <- pfms[hc$order]
+        hc <- do.call(clusterMotifs, args=dots)
+        if(layout!="stack" && reorder) pfms <- pfms[hc$order]
         if(pfms[[1]]@alphabet %in% c("DNA", "RNA")) {
-          pfms <- DNAmotifAlignment(pfms)
+          pfms <- DNAmotifAlignment(pfms, revcomp = revcomp)
         }else{
           if(pfms[[1]]@alphabet %in% c("AA") && layout!="stack"){
             pfms <- AAmotifAlignment(pfms)
@@ -94,7 +107,8 @@ motifStack <-function(pfms,
     }
     if(layout=="treeview" && !exists("hc")){
       if(!psam){
-        hc <- clusterMotifs(pfms)
+        dots$motifs <- pfms
+        hc <- do.call(clusterMotifs, args=dots)
       }
     }
     switch(layout,
