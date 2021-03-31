@@ -1,0 +1,76 @@
+.d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: #ececec;
+  color: #000;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: #ececec;
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Northward tooltips */
+.d3-tip.n:after {
+  content: "\25BC";
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+  text-align: center;
+}
+
+/* Eastward tooltips */
+.d3-tip.e:after {
+  content: "\25C0";
+  margin: -4px 0 0 0;
+  top: 50%;
+  left: -8px;
+}
+
+/* Southward tooltips */
+.d3-tip.s:after {
+  content: "\25B2";
+  margin: 0 0 1px 0;
+  top: -8px;
+  left: 0;
+  text-align: center;
+}
+
+/* Westward tooltips */
+.d3-tip.w:after {
+  content: "\25B6";
+  margin: -4px 0 0 -1px;
+  top: 50%;
+  left: 100%;
+}
+
+/* tooltips table */
+.d3-tip table{
+  border-collapse: collapse;
+}
+.d3-tip th, td {
+  border-bottom: 1px dashed #ccc;
+  padding: 5px;
+  text-align: right;
+  font-size: 8px;
+  font-weight: normal;
+  background-color: #E6E6E6;
+}
+.d3-tip tr, tr:nth-child(even) {
+  background-color: #E6E6E6;
+  font-size: 8px;
+}
+.d3-tip tr, tr:nth-child(odd) {
+  background-color: #FFE6E6;
+  font-size: 8px;
+}
