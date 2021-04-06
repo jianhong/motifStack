@@ -5,7 +5,10 @@ on:
     branches: [master]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
     container: bioconductor/bioconductor_docker:devel
     steps:
       - name: Checkout code
