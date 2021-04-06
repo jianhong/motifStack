@@ -1,13 +1,13 @@
 on:
   push:
-    branches: [master, staging]
+    branches: [master]
   pull_request:
     branches: [master]
 jobs:
   build:
     strategy:
       matrix:
-        platform: [ubuntu-latest, windows-latest]
+        platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     container: bioconductor/bioconductor_docker:devel
     steps:
