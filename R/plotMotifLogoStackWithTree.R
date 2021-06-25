@@ -43,7 +43,11 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   #opar<-par(mar=c(0,0,0,0), mfrow=par("mfrow"))
   #layout(matrix(c(rep(1,n),rep(2:(n+1),ceiling(1/treewidth)-1)),nrow=n,ncol=ceiling(1/treewidth)))
   #plot tree
-  grid.newpage()
+  
+  dots <- list(...)
+  if(is.null(dots$draw)) dots$draw <- TRUE
+  if(is.null(dots$newpage)) dots$newpage <- TRUE
+  
   if(trueDist) h <- hc$height / max(hc$height) / 1.05
   else h<- seq(0.01, 0.95, length.out=length(hc$height))[order(hc$height)]
   m <- hc$merge
@@ -67,31 +71,39 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
   }
   
   draw_connection <- function(x1, x2, y1, y2, x){
-    grid.lines(x = c(x1, x), y = c(y1, y1))
-    grid.lines(x = c(x2, x), y = c(y2, y2))
-    grid.lines(x = c(x, x), y = c(y1, y2))
+    gList(
+      linesGrob(x = c(x1, x), y = c(y1, y1)),
+      linesGrob(x = c(x2, x), y = c(y2, y2)),
+      linesGrob(x = c(x, x), y = c(y1, y2))
+    )
   }
-  
+  plot <- gList()
   for(i in 1:nrow(m)){
-    draw_connection(dist[m[i, 1], 1], dist[m[i, 2], 1], dist[m[i, 1], 2], dist[m[i, 2], 2], trx(h[i]))
+    plot <- gList(plot, 
+                  draw_connection(dist[m[i, 1], 1],
+                                  dist[m[i, 2], 1],
+                                  dist[m[i, 1], 2],
+                                  dist[m[i, 2], 2], trx(h[i])))
   }
   
   #plot logo
-  vp <- viewport(x = .5 + treewidth/2, y = .5,
-                 width = 1-treewidth, height = 1)
-  pushViewport(vp)
+  subplots <- gList()
   if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
+    .local <- function(..., newpage, draw){
+      plotAffinityLogo(..., newpage = FALSE, draw = FALSE)
+    }
     ht <- 1/n
     y0 <- .5 * ht
     for(i in seq.int(n)){
-      pushViewport(viewport(y=y0, height=ht))
       ht.title <- convertUnit(unit(1.5, "lines"), unitTo = "npc", valueOnly = TRUE)
       ht.body <- 1 - ht.title
-      grid.text(label=pfms[[i]]@name, y=1-.5*ht.title)
-      pushViewport(viewport(y=ht.body*.5, height=ht.body))
-      plotAffinityLogo(pfms[[i]], newpage=FALSE)
-      popViewport()
-      popViewport()
+      plotsub <- gTree(children = .local(psam=pfms[[i]], ...), 
+                       vp = viewport(y=ht.body*.5, height=ht.body))
+      subplots <- gList(subplots, 
+                    gTree(children = gList(textGrob(label=pfms[[i]]@name,
+                                                     y=1-.5*ht.title),
+                                           plotsub),
+                          vp = viewport(y=y0, height=ht)))
       y0 <- y0 + ht
     }
   }else{
@@ -99,19 +111,32 @@ plotMotifLogoStackWithTree<-function(pfms, hc, treewidth=1/8, trueDist=FALSE, ..
       if(!is(.ele, "pfm")) stop("pfms must be a list of pfm objects.")
     })
     assign("tmp_motifStack_symbolsCache", list(), envir=.globals)
+    .local <- function(..., newpage, draw){
+      plotMotifLogo(..., newpage = FALSE, draw = FALSE)
+    }
     ht <- 1/n
     y0 <- .5 * ht
     for(i in seq.int(n)){
-      pushViewport(viewport(y=y0, height=ht))
-      plotMotifLogo(pfms[[i]], motifName=pfms[[i]]@name, 
-                    p=pfms[[i]]@background, colset = pfms[[i]]@color,
-                    xlab=NA, newpage=FALSE, 
-                    margins=c(1.5, 4.1, 1.1, .1), ...)
-      popViewport()
+      subplots <- 
+        gList(subplots, gTree(children=
+                            .local(pfm=pfms[[i]], motifName=pfms[[i]]@name, 
+                                   p=pfms[[i]]@background,
+                                   colset = pfms[[i]]@color,
+                                   xlab=NA, newpage=FALSE,
+                                   margins=c(1.5, 4.1, 1.1, .1), ...),
+                          vp= viewport(y=y0, height=ht)))
       y0 <- y0 + ht
     }
     rm(list="tmp_motifStack_symbolsCache", envir=.globals)
   }
-  popViewport()
-  return()
+  plot <- 
+    gList(plot, gTree(children = subplots,
+                      vp = viewport(x = .5 + treewidth/2, y = .5,
+                                    width = 1-treewidth, height = 1)))
+  if(dots$draw){
+    if(dots$newpage) grid.newpage()
+    suppressWarnings(grid.draw(plot))
+  }else{
+    plot
+  }
 }

@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.37.1
+-----------------------
+
+  o handle the error "failed to load cairo DLL"
+  
 CHANGES IN VERSION 1.35.2
 -----------------------
 

@@ -95,8 +95,9 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   # plot.default(0, 0, type = "n", xlab = "", ylab = "", xaxt = "n", 
   #              yaxt = "n", xlim = c(-maxx*0.15, maxx/f.phylog), ylim = c(-0, 1), xaxs = "i", 
   #              yaxs = "i", frame.plot = FALSE)
-  grid.newpage()
-  pushViewport(viewport(xscale = c(-maxx*0.15, maxx/f.phylog)))
+  plot <- gList()
+  vp <- viewport(xscale = c(-maxx*0.15, maxx/f.phylog))
+
   x.leaves <- phylog$droot[leaves.names]
   x.nodes <- phylog$droot[nodes.names]
   
@@ -120,21 +121,46 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
     if (f.logo > 0.85) f.logo <- 0.85
     if (f.logo < f.phylog) f.logo <- f.phylog+.05 
   }
-  for (i in 1:leaves.number) {
+  subplot <- gList()
+  for (i in seq.int(leaves.number)) {
     if(clabel.leaves>0) 
-      grid.text(x=xcar, y=y[i], label=leaves.car[i], just = 0, 
-                gp=gpar(cex = par("cex") * clabel.leaves), default.units = "native")
-    grid.segments(x0=xcar, y0=y[i], x1=xx[i], y1=y[i], gp = gpar(col = grey(0.7)), default.units = "native")
+      subplot <- 
+        gList(subplot, 
+              textGrob(x=xcar, y=y[i], label=leaves.car[i], just = 0, 
+                gp=gpar(cex = par("cex") * clabel.leaves),
+                default.units = "native"))
+    subplot <- gList(subplot, 
+                          segmentsGrob(x0=xcar, y0=y[i], x1=xx[i], y1=y[i], 
+                                       gp = gpar(col = grey(0.7)), 
+                                       default.units = "native"))
+    
     if(!is.null(pfms)){
       vpwidth <- vpheight * ncol(pfms[[i]]@mat) / 2
-      pushViewport(viewport(x=f.logo, y=y[i], width=vpwidth, height=vpheight, just=c(0, .5)))
       if(!is.null(pfms[[i]])) 
         if(!is(pfms[[i]], "psam")){
-          plotMotifLogoA(pfms[[i]], font=font, ic.scale=ic.scale)
+          subplot <- 
+            gList(subplot,
+                  gTree(children = plotMotifLogoA(pfms[[i]],
+                                                  font=font,
+                                                  ic.scale=ic.scale,
+                                                  draw = FALSE),
+                        vp = viewport(x=f.logo, y=y[i],
+                                      width=vpwidth,
+                                      height=vpheight,
+                                      just=c(0, .5))))
         }else{
-          plotAffinityLogo(pfms[[i]], font=font, newpage=FALSE)
+          subplot <- 
+            gList(subplot,
+                  gTree(children = plotAffinityLogo(pfms[[i]],
+                                                    font=font,
+                                                    newpage=FALSE,
+                                                    draw = FALSE),
+                        vp = viewport(x=f.logo,
+                                      y=y[i],
+                                      width=vpwidth,
+                                      height=vpheight,
+                                      just=c(0, .5))))
         }
-      popViewport()
     }
   }
   rm(list="tmp_motifStack_symbolsCache", envir=.globals)
@@ -142,38 +168,62 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
   yleaves <- y[1:leaves.number]
   xleaves <- xx[1:leaves.number]
   if (cleaves > 0) {
-    for (i in 1:leaves.number) {
-      grid.points(x=xx[i], y=y[i], pch = 21, 
-                  gp=gpar(fill=1, cex = par("cex") * cleaves * .5), 
-                  default.units = "native")
+    for (i in seq.int(leaves.number)) {
+      subplot <- gList(subplot,
+                       pointsGrob(x=xx[i], y=y[i], pch = 21,
+                                  gp=gpar(fill=1,
+                                          cex = par("cex") * cleaves * .5), 
+                                   default.units = "native"))
     }
   }
   yn <- rep(0, nodes.number)
   names(yn) <- nodes.names
   y <- c(y, yn)
-  for (i in 1:length(phylog$parts)) {
+  for (i in seq_along(phylog$parts)) {
     w <- phylog$parts[[i]]
     but <- names(phylog$parts)[i]
     y[but] <- mean(y[w])
     b <- range(y[w])
-    grid.segments(x0=xx[but], y0=b[1], x1=xx[but], y1=b[2], default.units = "native")
+    subplot <- gList(subplot,
+                     segmentsGrob(x0=xx[but],
+                                  y0=b[1],
+                                  x1=xx[but],
+                                  y1=b[2],
+                                  default.units = "native"))
     x1 <- xx[w]
     y1 <- y[w]
     x2 <- rep(xx[but], length(w))
-    grid.segments(x0=x1, y0=y1, x1=x2, y1=y1, default.units = "native")
+    subplot <- gList(subplot,
+                     segmentsGrob(x0=x1,
+                                  y0=y1,
+                                  x1=x2,
+                                  y1=y1, 
+                                  default.units = "native"))
   }
   if (cnodes > 0) {
     for (i in nodes.names) {
-      grid.points(x=xx[i], y=y[i], pch = 21, gp=gpar(fill="white", cex = cnodes))
+      subplot <- gList(subplot,
+                       pointsGrob(x=xx[i], y=y[i],
+                                  pch = 21,
+                                  gp=gpar(fill="white", cex = cnodes)))
     }
   }
   if (clabel.nodes > 0) {
-    grid.eti(xx[names(x.nodes)], y[names(x.nodes)], nodes.car, clabel.nodes)
+    subplot <- gList(subplot,
+                     grid.eti(xx[names(x.nodes)],
+                              y[names(x.nodes)],
+                              nodes.car,
+                              clabel.nodes,
+                              draw = FALSE))
   }
-  if (cleaves > 0) grid.points(x=xleaves, y=yleaves, pch = 21, 
-                               gp = gpar(fill=1, cex = par("cex") * cleaves *.5),
-                               default.units = "native")
-  popViewport()
-  return(invisible())
+  if (cleaves > 0){
+    subplot <- gList(subplot,
+                     pointsGrob(x=xleaves, y=yleaves, pch = 21, 
+                                gp = gpar(fill=1, cex = par("cex") * cleaves *.5),
+                                default.units = "native"))
+  } 
+  plot <- gTree(children = subplot, vp = vp)
+  suppressWarnings(grid.draw(plot))
+  return(invisible(plot))
 }
 

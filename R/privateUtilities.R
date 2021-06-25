@@ -20,22 +20,35 @@ colalpha <- function(col, alpha){
 #' @importFrom grid convertHeight stringHeight grid.text gpar polygonGrob
 #' @importFrom utils install.packages
 importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
-  if(capabilities("cairo") && !requireNamespace("grImport2", quietly = TRUE)){
+  run_grImport2 <- TRUE
+  if(exists("tmp_motifStack_grImport2", envir = .globals)){
+    run_grImport2 <- get("tmp_motifStack_grImport2", envir = .globals)
+  }
+  if(capabilities("cairo") && !requireNamespace("grImport2", quietly = TRUE) &&
+     run_grImport2){
     ## install grImport2
     install.packages("grImport2", repos = "https://cloud.r-project.org",
                      quiet = TRUE)
   }
-  if(capabilities("cairo") && requireNamespace("grImport2", quietly = TRUE)){
+  if(capabilities("cairo") && requireNamespace("grImport2", quietly = TRUE) &&
+     run_grImport2){
     psfilename<-tempfile(fileext = ".svg")
     svg(psfilename, width = 1, height = 1, bg = NA, pointsize=72, family = font)
     h <- convertHeight(stringHeight(ch), unitTo = "points", valueOnly = TRUE)
     grid.text(ch, gp = gpar(fontsize=floor(1.05*72*(72/h)), 
                             fontfamily=font, col=color, fontface=fontface))
     dev.off()
-    x <- grImport2::readPicture(psfilename)
+    x <- tryCatch(grImport2::readPicture(psfilename), error=function(.e){
+      message(.e, "Will try grImport")
+      assign("tmp_motifStack_grImport2", FALSE, envir=.globals)
+      NULL
+    })
     unlink(psfilename)
-    assign("pictureGrob", grImport2::pictureGrob, envir=envir)
-    return(x)
+    if(length(x)){
+      assign("pictureGrob", grImport2::pictureGrob, envir=envir)
+      assign("tmp_motifStack_grImport2", TRUE, envir=.globals)
+      return(x)
+    }
   }
   checkGhost <- function(){
     # get ghostscript path
@@ -1888,7 +1901,7 @@ makeLeaveNames <- function(ch){
 #' @importFrom grid stringWidth stringHeight grid.rect gpar grid.text
 grid.eti <- function(x, y, label, clabel, boxes=FALSE, 
                      coul = rep(1, length(x)), 
-                     bg = "white"){
+                     bg = "white", draw=TRUE){
   if (length(label) == 0) 
     return(invisible())
   if (is.null(label)) 
@@ -1896,7 +1909,8 @@ grid.eti <- function(x, y, label, clabel, boxes=FALSE,
   if (any(label == "")) 
     return(invisible())
   cex0 <- par("cex") * clabel
-  for (i in 1:(length(x))) {
+  plot <- gList()
+  for (i in seq_along(x)) {
     cha <- as.character(label[i])
     cha <- paste(" ", cha, " ", sep = "")
     x1 <- x[i]
@@ -1904,12 +1918,19 @@ grid.eti <- function(x, y, label, clabel, boxes=FALSE,
     xh <- cex0*stringWidth(cha)
     yh <- cex0*stringHeight(cha) * 1.66666666667
     if (boxes) {
-      grid.rect(x=x1, y=y1, width=xh, height=yh, 
-           gp=gpar(fill = bg, col = coul[i]), 
-           default.units = "native")
+      plot <- gList(plot,
+                    rectGrob(x=x1, y=y1, width=xh, height=yh, 
+                             gp=gpar(fill = bg, col = coul[i]), 
+                             default.units = "native"))
     }
-    grid.text(x=x1, y=y1, label=cha, 
-              gp=gpar(cex = cex0, col = coul[i]), 
-              default.units = "native")
+    plot <- gList(plot,
+                  textGrob(x=x1, y=y1, label=cha, 
+                           gp=gpar(cex = cex0, col = coul[i]), 
+                           default.units = "native"))
+  }
+  if(draw){
+    suppressWarnings(grid.draw(plot))
+  }else{
+    plot
   }
 } 
