@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.37.2
+-----------------------
+
+  o Improve importMatrix to read the tags from file.
+  
 CHANGES IN VERSION 1.37.1
 -----------------------
 

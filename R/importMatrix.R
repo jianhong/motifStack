@@ -71,6 +71,7 @@ importMatrix <- function(filenames,
   }
   ## check is counts
   isCounts <- function(cnt){
+    cnt <- cnt$mat
     if(typeof(cnt)=="integer"){
       return(TRUE)
     }else{
@@ -97,16 +98,16 @@ importMatrix <- function(filenames,
   mapply(function(.m, .type, .f){
     if(to=="pcm"){
       if(!.type){
-        stop("Can not import", .f, "to pcm format!")
+        stop("Can not import ", .f, " to pcm format!")
       }
-      new("pcm", mat=as.matrix(.m), name=.f)
+      new("pcm", mat=as.matrix(.m$mat), tags=.m$tags, name=.f)
     }else{
-      if(isPFMmatrix(.m)){
-        new("pfm", mat=as.matrix(.m), name=.f)
+      if(isPFMmatrix(.m$mat)){
+        new("pfm", mat=as.matrix(.m$mat), tags=.m$tags, name=.f)
       }else{
         if(.type){
           message("trying to convert data into position frequency matrix from count matrix.")
-          pcm2pfm(new("pcm", mat=as.matrix(m), name=.f))
+          pcm2pfm(new("pcm", mat=as.matrix(.m$mat), tags=.m$tags, name=.f))
         }else{
           stop("Can not import data into PFM. Columns of PFM must add up to 1.0")
         }
@@ -162,7 +163,7 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
     }
     .ele <- matrix(scan(text=.ele, what=double(), quiet=TRUE), nrow=4, byrow = TRUE)
     rownames(.ele) <- rown
-    .ele
+    list(mat=.ele, tags=list())
   })
 }
 importMulFASTAlike <- function(fns, comment.char=">"){
@@ -198,6 +199,8 @@ importTRANSFAClikeFile <- function(fn){
     AC <- getMarker("AC")
     DE <- getMarker("DE")
     BF <- getMarker("BF")
+    CC <- getMarker("CC")
+    tags <- list("ID"=ID, "AC"=AC, "DE"=DE, "BF"=BF, "CC"=CC)
     tfName <- c(ID, AC, DE, BF)[1]
     ## check P0
     Po <- which(grepl("^P[O0]\\s", .ele))
@@ -217,10 +220,10 @@ importTRANSFAClikeFile <- function(fn){
     .ele <- .ele[, -1]
     colnames(.ele) <- c("A", "C", "G", "T")
     .ele <- t(.ele)
-    list(name=tfName, mat=.ele)
+    list(name=tfName, mat=.ele, tags=tags)
   })
   names(m) <- make.names(sapply(m, function(.ele) .ele$name), unique = TRUE, allow_ = TRUE)
-  lapply(m, function(.ele) .ele$mat)
+  m
 }
 
 importMulTRANSFAClike <- function(fns){
@@ -255,6 +258,8 @@ importCisBP <- function(fn){
     TF <- getMarker("TF")[1]
     TFn <- getMarker("TF\\s+Name")
     Motif <- getMarker("Motif")
+    Family <- getMarker("Family")
+    tags <- list("TF"=TF, "TFn"=TFn, "Motif"=Motif, "Family"=Family)
     tfName <- c(TFn, TF, Motif)[1]
     ## check P0
     Po <- which(grepl("^Pos\\s", .ele))
@@ -280,11 +285,11 @@ importCisBP <- function(fn){
     .ele <- .ele[, -1]
     colnames(.ele) <- c("A", "C", "G", "T")
     .ele <- t(.ele)
-    list(name=tfName, mat=.ele)
+    list(name=tfName, mat=.ele, tags=tags)
   })
   m <- m[sapply(m, function(.ele) !is.null(.ele[1]))]
   names(m) <- make.names(sapply(m, function(.ele) .ele$name), unique = TRUE, allow_ = TRUE)
-  lapply(m, function(.ele) .ele$mat)
+  m
 }
 
 importMulCisBP <- function(fns){
