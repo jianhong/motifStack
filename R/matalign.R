@@ -67,7 +67,7 @@ matalign <- function(pcms,
   names(pcms) <- n
   cmb <- combn(n, m = 2, simplify = FALSE)
   align <- lapply(cmb, FUN=function(.ele){
-    compareProfiles(pcms[[.ele[1]]], pcms[[.ele[2]]],
+    compareProfiles(pcms[[.ele[1]]], pcms[[.ele[2]]], method = method,
                     pseudo=pseudo, revcomp=revcomp)
   })
   align <- do.call(rbind, align)

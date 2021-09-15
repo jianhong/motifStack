@@ -64,8 +64,6 @@ motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 plot(motif)
 #plot the logo with same height
 plot(motif, ic.scale=FALSE, ylab="probability")
-#try a different font
-plot(motif, font="mono,Courier", fontface="plain") # fontface can be 1=plain, 2=bold, 3=italic, 4=bold italic
 #try a different font and a different color group
 motif@color <- colorset(colorScheme='basepairing')
 plot(motif,font="Times")
