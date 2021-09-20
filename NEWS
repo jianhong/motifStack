@@ -1,4 +1,4 @@
-CHANGES IN VERSION 1.37.3
+CHANGES IN VERSION 1.37.4
 -----------------------
 
   o Fix the bug that the rownames were not checked for alignment.
