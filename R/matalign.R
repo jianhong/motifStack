@@ -126,6 +126,12 @@ compare2profiles <- function(pcm1, pcm2,
                              ){
   method <- match.arg(method, 
                       choices = c("Smith-Waterman", "Needleman-Wunsch"))
+  if(!identical(rownames(pcm1@mat), rownames(pcm2@mat))){
+    stop("the alphabet of the matrix are not identical.",
+         "The alphabet (", rownames(pcm1@mat),
+         ") is not identical with (", rownames(pcm2@mat),
+         ")")
+  }
   profile1 <- pcm1@mat
   profile2 <- pcm2@mat
   width1 <- ncol(profile1)
@@ -204,6 +210,8 @@ condenseByGroup <- function(x,
 #' @param P background of profile1
 #' @return numeric(1)
 calI <- function(freq1, freq2, P){
+  stopifnot("The nrow of the matrix are not identical"
+            =length(freq1)==length(freq2))
   sum(freq2*log(freq1/P)/log(2))
 }
 

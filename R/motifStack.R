@@ -84,6 +84,11 @@ motifStack <-function(pfms,
       }else{
         if(pfms[[1]]@alphabet %in% c("AA") && layout!="stack"){
           pfms <- AAmotifAlignment(pfms)
+        }else{
+          if(pfms[[1]]@alphabet=="others"){
+            warning("alphabet is set to 'others'. ",
+                    "Currently 'others' is not support for alignment.")
+          }
         }
       }
       plotMotifLogoStack(pfms)
@@ -100,6 +105,11 @@ motifStack <-function(pfms,
         }else{
           if(pfms[[1]]@alphabet %in% c("AA") && layout!="stack"){
             pfms <- AAmotifAlignment(pfms)
+          }else{
+            if(pfms[[1]]@alphabet=="others"){
+              warning("alphabet is set to 'others'. ",
+                      "Currently 'others' is not support for alignment.")
+            }
           }
         }
         phylog <- hclust2phylog(hc)

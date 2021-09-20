@@ -1,6 +1,11 @@
 CHANGES IN VERSION 1.37.3
 -----------------------
 
+  o Fix the bug that the rownames were not checked for alignment.
+  
+CHANGES IN VERSION 1.37.3
+-----------------------
+
   o Fix the bug method argument of matAlign is ignored.
   
 CHANGES IN VERSION 1.37.2

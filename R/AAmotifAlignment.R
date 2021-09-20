@@ -17,12 +17,23 @@
 #'
 AAmotifAlignment <- function(pcms, threshold=0.4, minimalConsensus = 0){
   if(length(pcms)<2) stop("less than 2 motifs")
+  ## check rownames of the mat
+  alphabet_letters <- rownames(pcms[[1]]@mat)
+  if(length(alphabet_letters)!=nrow(pcms[[1]]@mat)){
+    stop("not correct alphabet in matrix")
+  }
   pcms <- lapply(pcms,function(.ele){
     if(!inherits(.ele, c("pfm", "pcm"))) {
       stop("pcms must be a list of pcm objects.")
     }
     if(.ele@alphabet!="AA") {
       stop("the alphabet of pcm must be AA")
+    }
+    if(!identical(rownames(.ele@mat), alphabet_letters)){
+      stop("the alphabet of the matrix are not identical.",
+           "The alphabet (", alphabet_letters,
+           ") is not identical with (", rownames(.ele@mat),
+           ")")
     }
     if(is(.ele, 'pfm')){
       .ele <- pfm2pcm(.ele)
