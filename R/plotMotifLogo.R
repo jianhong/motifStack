@@ -181,15 +181,16 @@ plotXaxis<-function(pfm, p=rep(0.25, 4)){
 #' @importFrom grid yaxisGrob gpar unit gList convertUnit
 plotYaxis<-function(ymax){
   ie <- ymax
-  majorat<-seq(0,floor(ie),length.out = 5)
+  interval <- 5
+  majorat<-seq(0,floor(ie),length.out = interval)
   majorat <- majorat/ie
-  majorlab<-seq(0,floor(ie),length.out = 5)
+  majorlab<-seq(0,floor(ie),length.out = interval)
   majorY <- yaxisGrob(at=majorat,label=majorlab,
                       name = "majorY",
                       gp=gpar(lwd=1, lex=1, lineheight=1))
   YgList <- gList(majorY)
   if(convertUnit(unit(1, "npc"), unitTo = "lines", valueOnly = TRUE) > 10){
-    minorat<-seq(0, floor(ie), length.out = 25)
+    minorat<-seq(0, floor(ie), length.out = (interval-1)*5+1)
     minorat <- seq(0, ie, by=diff(minorat)[1])
     minorat <- minorat/ie
     minorat<-minorat[!(minorat %in% majorat)]
