@@ -1,6 +1,11 @@
 CHANGES IN VERSION 1.37.5
 -----------------------
 
+  o Change the style of motifPile.
+  
+CHANGES IN VERSION 1.37.5
+-----------------------
+
   o Fix the bug of the ylab grid.
   
 CHANGES IN VERSION 1.37.4

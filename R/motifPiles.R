@@ -246,7 +246,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         clabel.nodes <- clabel.nodes * ratio
         IndexCex <- IndexCex * ratio
         cleaves <- cleaves * ratio
-        cnodes <- cleaves * ratio
+        cnodes <- cnodes * ratio
         r.anno <- r.anno * ratio
         r.leaves <- r.leaves * ratio
         if(!is.null(pfms)) vpwidth <- vpwidth * ratio
@@ -270,7 +270,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
     
     if (cleaves > 0) {
         for (i in 1:leaves.number) {
-            points(xx[i], y[i], pch = 21, bg=1, 
+            points(xx[i], y[i], pch = 21, bg=col.tree[i], 
                    cex = par("cex") * cleaves, col=col.tree[i])
         }
     }
@@ -323,7 +323,7 @@ motifPiles <- function (phylog, pfms=NULL, pfms2=NULL,
         if(clabel.leaves>0) 
             text(xcar, y[i], leaves.car[i], adj = 0, cex = par("cex") * 
                      clabel.leaves, col=col.leaves[i])
-        segments(xcar, y[i], xx[i], y[i], col = grey(0.7))
+        #segments(xcar, y[i], xx[i], y[i], col = grey(0.7))
     }
     
     for(metaChar in c("\\","$","*","+",".","?","[","]","^","{","}","|","(",")"))
