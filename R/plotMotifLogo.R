@@ -9,7 +9,9 @@
 #' @param font font of logo
 #' @param fontface fontface of logo
 #' @param colset color setting for each logo letter
-#' @param xaxis draw x-axis or not
+#' @param xaxis draw x-axis or not. If a vector of character or numeric is
+#' provided, the function will try to plot the x-axis by setting the labels
+#' as the vectors.
 #' @param yaxis draw y-axis or not
 #' @param xlab x-label, do nothing if set xlab as NA
 #' @param ylab y-label, do nothing if set ylab as NA
@@ -124,7 +126,15 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
   if(length(markers)>0){
     plot <- gList(plot, plotMarkers(markers, dw, y.poss))
   }
-  if(xaxis) plot <- gList(plot, plotXaxis(pfm, p))
+  if(is.logical(xaxis)){
+    if(xaxis[1]){
+      plot <- gList(plot, plotXaxis(pfm, p))
+    }
+  }else{
+    if(length(xaxis)){
+      plot <- gList(plot, plotXaxis(pfm, p, label=xaxis))
+    }
+  }
   if(yaxis) plot <- gList(plot, plotYaxis(ie))
   plot <- gTree(children=plot, vp= plotViewport(margins = margins))
   if(!is.na(xlab)) plot <- gList(plot, textGrob(xlab, y=unit(1, units = "lines"), gp=gpar(cex=xlcex), name="xlab"))
@@ -147,21 +157,25 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
 #' 
 #' @param pfm position frequency matrices
 #' @param p background possibility
+#' @param label x-axis labels
 #' @return none
 #' @importFrom grid xaxisGrob gpar unit 
-plotXaxis<-function(pfm, p=rep(0.25, 4)){
+plotXaxis<-function(pfm, p=rep(0.25, 4), label=NULL){
   npos<-ncol(pfm)
   ic<-getIC(pfm,p)
   dw<-1/npos
   at<-c()
-  label<-c()
+  label_j <- c()
   j=1
-  for(i in 1:npos){
+  for(i in seq.int(npos)){
     if(ic[i]>0){
       at<-c(at,dw*(i-0.5))
-      label<-c(label,j)
+      label_j<-c(label_j,j)
       j<-j+1
     }
+  }
+  if(length(label)!=length(at)){
+    label <- label_j
   }
   grob <- xaxisGrob(at=at,label=label, gp=gpar(lwd=1, lex=1, lineheight=1))
   grob$children$labels$y <- unit(-1.1, "lines")

@@ -37,7 +37,9 @@ plotMotifLogo(
 
 \item{colset}{color setting for each logo letter}
 
-\item{xaxis}{draw x-axis or not}
+\item{xaxis}{draw x-axis or not. If a vector of character or numeric is
+provided, the function will try to plot the x-axis by setting the labels
+as the vectors.}
 
 \item{yaxis}{draw y-axis or not}
 

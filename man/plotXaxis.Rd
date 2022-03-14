@@ -4,12 +4,14 @@
 \alias{plotXaxis}
 \title{plot x-axis}
 \usage{
-plotXaxis(pfm, p = rep(0.25, 4))
+plotXaxis(pfm, p = rep(0.25, 4), label = NULL)
 }
 \arguments{
 \item{pfm}{position frequency matrices}
 
 \item{p}{background possibility}
+
+\item{label}{x-axis labels}
 }
 \value{
 none
