@@ -54,7 +54,11 @@ as the vectors.}
 \item{ncex}{cex value for motif name}
 
 \item{ic.scale}{logical If TRUE, the height of each column is proportional
-to its information content. Otherwise, all columns have the same height.}
+to its information content. Otherwise, all columns have the same height.
+It will also can be set as FALSE followed by a numeric vectors.
+The format is c(FALSE, scale).
+If it is FALSE followed by a number (eg c(FALSE, 100)), 
+the y axis labels will be re-scaled by 100.}
 
 \item{newpage}{logical If TRUE, plot it in a new page.}
 

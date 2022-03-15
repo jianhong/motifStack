@@ -4,10 +4,12 @@
 \alias{plotYaxis}
 \title{plot y-axis}
 \usage{
-plotYaxis(ymax)
+plotYaxis(ymax, ic.scale)
 }
 \arguments{
 \item{ymax}{max value of y axix}
+
+\item{ic.scale}{Use IC scale or not. See plotMotifLogo for help.}
 }
 \value{
 none

@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.39.2
+-----------------------
+
+  o Accept scales for y-axis for logo when ic.scale is FALSE.
+  
 CHANGES IN VERSION 1.39.1
 -----------------------
 

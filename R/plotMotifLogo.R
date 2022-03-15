@@ -20,6 +20,10 @@
 #' @param ncex cex value for motif name
 #' @param ic.scale logical If TRUE, the height of each column is proportional
 #' to its information content. Otherwise, all columns have the same height.
+#' It will also can be set as FALSE followed by a numeric vectors.
+#' The format is c(FALSE, scale).
+#' If it is FALSE followed by a number (eg c(FALSE, 100)), 
+#' the y axis labels will be re-scaled by 100.
 #' @param newpage logical If TRUE, plot it in a new page.
 #' @param margins A numeric vector interpreted in the same way as par(mar) in
 #' base graphics.
@@ -88,7 +92,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
   #calculate postion of each symbol and plot
   plot <- gList()
   ic<-getIC(pfm, p)
-  if(ic.scale){
+  if(ic.scale[1]){
     ie<-getIE(pfm)
     ie <- max(c(ie, ic))
   }else{
@@ -99,7 +103,7 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
   y.poss <- numeric(length=npos)
   for(j in 1:npos){
     column<-pfm[,j]
-    if(ic.scale){
+    if(ic.scale[1]){
       heights<-column*ic[j]/ie
     }else{
       heights <- column
@@ -135,8 +139,9 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
       plot <- gList(plot, plotXaxis(pfm, p, label=xaxis))
     }
   }
-  if(yaxis) plot <- gList(plot, plotYaxis(ie))
-  plot <- gTree(children=plot, vp= plotViewport(margins = margins))
+  if(yaxis) plot <- gList(plot, plotYaxis(ie, ic.scale))
+  plot <- gTree(children=plot,
+                vp= plotViewport(margins = margins))
   if(!is.na(xlab)) plot <- gList(plot, textGrob(xlab, y=unit(1, units = "lines"), gp=gpar(cex=xlcex), name="xlab"))
   if(!is.na(ylab)) plot <- gList(plot, textGrob(ylab, x=unit(1, units = "lines"), gp=gpar(cex=ylcex), rot=90, name="ylab"))
   if(!missing(motifName)) plot <- gList(plot, textGrob(motifName,y=unit(1, "npc")-unit(.5, units = "lines"), gp=gpar(cex=ncex), name="motifName"))
@@ -191,14 +196,22 @@ plotXaxis<-function(pfm, p=rep(0.25, 4), label=NULL){
 #' 
 #' 
 #' @param ymax max value of y axix
+#' @param ic.scale Use IC scale or not. See plotMotifLogo for help.
 #' @return none
 #' @importFrom grid yaxisGrob gpar unit gList convertUnit
-plotYaxis<-function(ymax){
+plotYaxis<-function(ymax, ic.scale){
   ie <- ymax
   interval <- 5
   majorat<-seq(0,floor(ie),length.out = interval)
   majorat <- majorat/ie
   majorlab<-seq(0,floor(ie),length.out = interval)
+  if(!ic.scale[1]){
+    if(length(ic.scale)>1){
+      if(is.numeric(ic.scale[1])){
+        majorlab <- majorlab*ic.scale[2]
+      }
+    }
+  }
   majorY <- yaxisGrob(at=majorat,label=majorlab,
                       name = "majorY",
                       gp=gpar(lwd=1, lex=1, lineheight=1))
