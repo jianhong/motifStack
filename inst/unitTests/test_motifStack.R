@@ -189,4 +189,15 @@ test_importMatrix<-function(){
   importMatrix(file.path(path, "PWM.cisbp"))
   ## psam
   importMatrix(file.path(path, "PSAM.mxr"), format = "psam")
+  ## TFBSTools::XMatrix
+  data(MA0004.1)
+  data(MA0003.2)
+  data(MA0048)
+  data(MA0043)
+  importMatrix(MA0043)
+  importMatrix(MA0004.1)
+  ## TFBSTools::XMatrixList
+  importMatrix(PFMatrixList(pfm1=MA0003.2, pfm2=MA0004.1,
+                            pfm3=MA0043, pfm4=MA0048,
+                            use.names=TRUE))
 }

@@ -7,12 +7,15 @@
 importMatrix(
   filenames,
   format = c("auto", "pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "cisbp",
-    "psam"),
+    "psam", "xmatrix"),
   to = c("auto", "pcm", "pfm", "pssm", "psam")
 )
 }
 \arguments{
-\item{filenames}{filename to be imported.}
+\item{filenames}{filename, 
+an \link[TFBSTools:XMatrixList-class]{XMatrixList} object,
+or an \link[TFBSTools:XMatrix-class]{XMatrix} object
+to be imported.}
 
 \item{format}{file format}
 

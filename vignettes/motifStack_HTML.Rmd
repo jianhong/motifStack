@@ -30,6 +30,8 @@ library(motifStack)
 library(MotifDb)
 library(ade4)
 library(ggplot2)
+library(TFBSTools)
+library(JASPAR2020)
 if(.Platform$OS.type=="windows"){
   opts_chunk$set(eval=FALSE)
 }
@@ -44,9 +46,35 @@ in enzymes. Although many tools, such as seqlogo[@Oliver2006], have been
 developed to create sequence motif and to represent it as individual sequence 
 logo, software tools for depicting the relationship among multiple sequence 
 motifs are still lacking. We developed a flexible and powerful open-source 
-R/Bioconductor package, motifStack, for visualization of the alignment of 
+R/Bioconductor package, __motifStack__, for visualization of the alignment of 
 multiple sequence motifs.
 
+# Import matrix
+
+The `importMatrix` function is used to import motifs from files or convert
+`XMatrix`/`XMatrixList` object into __motifStack__ compatable format.
+
+## convert motifs from `XMatrixList`
+
+```{r importMatrix,fig.cap="import data from PFMatrixList",fig.width=6,fig.height=3}
+library(motifStack)
+library(JASPAR2020)
+motifs <- importMatrix(getMatrixSet(JASPAR2020, 
+                                    list(species="Mus musculus")))
+plot(motifs[[1]])
+```
+
+## import motifs from files
+
+The supported formats are "meme", "transfac", "jaspar", "scpd", "cisbp",
+and "psam".
+
+```{r importFromFiles,fig.cap="import data from file",fig.width=6,fig.height=3}
+RUNX1 <- importMatrix(system.file("extdata", "MA0002.1.jaspar",
+                                  package = "motifStack",
+                                  mustWork = TRUE))[[1]]
+plot(RUNX1)
+```
 
 # Examples of using motifStack
 ## plot a DNA sequence logo with different fonts and colors
@@ -66,7 +94,7 @@ plot(motif)
 plot(motif, ic.scale=FALSE, ylab="probability")
 #try a different font and a different color group
 motif@color <- colorset(colorScheme='basepairing')
-plot(motif,font="Times")
+plot(motif,font="serif")
 ```
 
 ## plot sequence logo with markers
@@ -133,7 +161,6 @@ motif<-new("psam", mat=motif, name="affinity logo",
                             gp=gpar(col="#009E73", fill=NA, lty=2))))
 plot(motif)
 ```
-
 
 ## plot sequence logo stack
 
@@ -370,7 +397,7 @@ motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA",
              markers=c(markerRect, markerLine, markerText))
 pfm <- pcm2pfm(motif)
 df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1), 
-                 fontfamily=c("Times", "mono,Courier"), fontface=c(2, 1))
+                 fontfamily=c("serif", "mono,Courier"), fontface=c(2, 1))
 df$motif <- list(pfm, pfm)
 
 library(ggplot2)
@@ -380,7 +407,7 @@ ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif,
     geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
 
 df <- data.frame(x=.5, y=c(.25, .75), width=.5, height=.25, 
-                 fontfamily=c("Times", "mono,Courier"), fontface=c(2, 1))
+                 fontfamily=c("serif", "mono,Courier"), fontface=c(2, 1))
 df$motif <- list(pfm, pfm)
 
 ggplot(df, aes(x=x, y=y, width=width, height=height, motif=motif, 

@@ -4,7 +4,10 @@
 #' exported from Transfac, CisBP, and JASPAR.
 #' 
 #' 
-#' @param filenames filename to be imported.
+#' @param filenames filename, 
+#' an \link[TFBSTools:XMatrixList-class]{XMatrixList} object,
+#' or an \link[TFBSTools:XMatrix-class]{XMatrix} object
+#' to be imported.
 #' @param format file format
 #' @param to import to \link{pcm-class} or \link{pfm-class}
 #' @return a list of object \link{pcm-class} or \link{pfm-class}
@@ -19,47 +22,65 @@
 importMatrix <- function(filenames, 
                          format=c("auto", "pfm", "cm", "pcm", "meme", 
                                   "transfac", "jaspar", "scpd", "cisbp",
-                                  "psam"), 
+                                  "psam", "xmatrix"), 
                          to=c("auto", "pcm", "pfm", "pssm", "psam")){
   if(missing(filenames)){
     stop("filenames are required.")
   }
-  stopifnot(is.character(filenames))
+  stopifnot(is.character(filenames) ||
+              is(filenames, "XMatrixList") ||
+              is(filenames, "XMatrix"))
+  
   format <- match.arg(format)
   to <- match.arg(to)
-  stopifnot(all(file.exists(filenames)))
-  fi <- file.info(filenames)
-  if(any(fi$isdir)){
-    stop("filenames could not contain folders.")
+  
+  if(is(filenames, "XMatrixList") ||
+     is(filenames, "XMatrix")){
+    if(!format %in% c("auto", "xmatrix")){
+      message("format will be set to xmatrix")
+    }
+    format <- "xmatrix"
+    ## check the format of XMatrix
+    if(is(filenames, "XMatrix")){
+      return(importM_xmatrix(list(filenames)))
+    }
+  }else{
+    stopifnot(all(file.exists(filenames)))
+    fi <- file.info(filenames)
+    if(any(fi$isdir)){
+      stop("filenames could not contain folders.")
+    }
+    if(format=="auto"){
+      getFileNameExtension <- function(fn){
+        fn <- basename(fn)
+        fn <- strsplit(fn, "\\.")
+        ext <- lapply(fn, function(.ele){
+          l <- length(.ele)
+          if(l==1){
+            NA
+          }else{
+            .ele[l]
+          }
+        })
+        unlist(ext)
+      }
+      ext <- getFileNameExtension(filenames)
+      if(any(is.na(ext))){
+        stop("Can not determine the format of inputs by its extensions.")
+      }
+      ext <- unique(ext)
+      if(length(ext)!=1){
+        stop("There are multiple file formats in your inputs.")
+      }
+      format <- c("pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "cisbp", "psam")
+      format <- format[format==ext]
+      if(length(format)!=1){
+        stop("Can not determine the format of inputs by its extensions.")
+      }
+    }
   }
-  if(format=="auto"){
-    getFileNameExtension <- function(fn){
-      fn <- basename(fn)
-      fn <- strsplit(fn, "\\.")
-      ext <- lapply(fn, function(.ele){
-        l <- length(.ele)
-        if(l==1){
-          NA
-        }else{
-          .ele[l]
-        }
-      })
-      unlist(ext)
-    }
-    ext <- getFileNameExtension(filenames)
-    if(any(is.na(ext))){
-      stop("Can not determine the format of inputs by its extensions.")
-    }
-    ext <- unique(ext)
-    if(length(ext)!=1){
-      stop("There are multiple file formats in your inputs.")
-    }
-    format <- c("pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "cisbp", "psam")
-    format <- format[format==ext]
-    if(length(format)!=1){
-      stop("Can not determine the format of inputs by its extensions.")
-    }
-  }
+  
+  
   ## importM_... will output a list of matrix, 
   ## matrix rownames must be symbols, such as c(A, C, G, T)
   m <- do.call(paste0("importM_", format), list(fns=filenames))
@@ -95,25 +116,33 @@ importMatrix <- function(filenames,
       to <- "pfm"
     }
   }
-  mapply(function(.m, .type, .f){
+  mapply(function(.m, .type){
+    .m$mat <- as.matrix(.m$mat)
+    c2f <- FALSE
     if(to=="pcm"){
       if(!.type){
-        stop("Can not import ", .f, " to pcm format!")
+        stop("Can not import ", .m$name, " to pcm format!")
       }
-      new("pcm", mat=as.matrix(.m$mat), tags=.m$tags, name=.f)
+      .m$Class <- "pcm"
     }else{
       if(isPFMmatrix(.m$mat)){
-        new("pfm", mat=as.matrix(.m$mat), tags=.m$tags, name=.f)
+        .m$Class <- "pfm"
       }else{
         if(.type){
           message("trying to convert data into position frequency matrix from count matrix.")
-          pcm2pfm(new("pcm", mat=as.matrix(.m$mat), tags=.m$tags, name=.f))
+          .m$Class <- "pcm"
+          c2f <- TRUE
         }else{
           stop("Can not import data into PFM. Columns of PFM must add up to 1.0")
         }
       }
     }
-  }, m, isCnt, names(m))
+    .m <- do.call(new, .m)
+    if(c2f){
+      .m <- pcm2pfm(.m)
+    }
+    .m
+  }, m, isCnt)
 }
 
 ## output named list of matrix
@@ -133,7 +162,8 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
     lines <- c(paste0(comment.char, sub("\\.(pcm|pfm|cm|jaspar|scpd|beeml|cisbp)$", "", basename(fn))), lines)
     sep <- grepl(paste0("^", comment.char), lines)
   }
-  tfNames <- make.names(sub(paste0("^", comment.char, "\\s*"), "", lines[sep]), unique = TRUE, allow_ = TRUE)
+  tfNames <- sub(paste0("^", comment.char, "\\s*"), "", lines[sep])
+  names(tfNames) <- make.names(tfNames, unique = TRUE, allow_ = TRUE)
   sep.f <- diff(c(which(sep), length(lines)+1))
   if(any(sep.f!=5)){
     stop("The file contain unexpect lines.",
@@ -142,10 +172,10 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
          "and followed with four lines indicates the A, C, G, T counts")
   }
   lines <- lines[!sep]
-  seq.f <- rep(tfNames, each=4)
+  seq.f <- rep(names(tfNames), each=4)
   tfData <- split(lines, seq.f)
   rown <- c("A", "C", "G", "T")
-  lapply(tfData, function(.ele){
+  mapply(tfData, tfNames[names(tfData)], FUN=function(.ele, .name){
     ## check ACGT
     .rown <- substr(.ele, 1, 1)
     if(any(grepl("[a-zA-Z]", .rown))){
@@ -163,8 +193,8 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
     }
     .ele <- matrix(scan(text=.ele, what=double(), quiet=TRUE), nrow=4, byrow = TRUE)
     rownames(.ele) <- rown
-    list(mat=.ele, tags=list())
-  })
+    list(mat=.ele, tags=list(), name=.name)
+  }, SIMPLIFY = FALSE)
 }
 importMulFASTAlike <- function(fns, comment.char=">"){
   d <- lapply(fns, function(.ele){
@@ -400,7 +430,7 @@ importM_meme <- function(fns){
             background <- as.numeric(bcklines[2, ])
             names(background) <- bcklines[1, ]
           }
-          mapply(function(mat, tfName) new("pfm", mat=mat, name=tfName, alphabet=alphabet, background=background),
+          mapply(function(mat, tfName) new("pfm", mat=mat, name=tfName, alphabet=alphabet),
                  motifs, names(motifs))
         }else{
           stop("Not all the matrix have background")
@@ -455,8 +485,17 @@ importM_psam <- function(fns){
     psam <- read.delim(text = psam, header = FALSE, skip = 2)
     psam <- t(psam)
     rownames(psam) <- c("A", "C", "G", "T")
-    new("psam", mat=psam, name=make.names(basename(fn)))
+    new("psam", mat=psam, name=basename(fn))
   })
   names(m) <- make.names(sapply(m, function(.ele) .ele@name), unique = TRUE, allow_ = TRUE)
+  m
+}
+
+#' @importMethodsFrom TFBSTools name bg tags Matrix
+importM_xmatrix <- function(fns){
+  m <- lapply(fns, function(.ele){
+    list(name=name(.ele), mat=Matrix(.ele),
+         tags=tags(.ele), background=bg(.ele))
+  })
   m
 }
