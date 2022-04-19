@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.39.4
+-----------------------
+
+  o Change the fontfamily from 'mono,Courier' to 'mono' in vignettes.
+  
 CHANGES IN VERSION 1.39.3
 -----------------------
 

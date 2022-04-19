@@ -397,7 +397,7 @@ motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA",
              markers=c(markerRect, markerLine, markerText))
 pfm <- pcm2pfm(motif)
 df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1), 
-                 fontfamily=c("serif", "mono,Courier"), fontface=c(2, 1))
+                 fontfamily=c("serif", "mono"), fontface=c(2, 1))
 df$motif <- list(pfm, pfm)
 
 library(ggplot2)
@@ -407,7 +407,7 @@ ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif,
     geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
 
 df <- data.frame(x=.5, y=c(.25, .75), width=.5, height=.25, 
-                 fontfamily=c("serif", "mono,Courier"), fontface=c(2, 1))
+                 fontfamily=c("serif", "mono"), fontface=c(2, 1))
 df$motif <- list(pfm, pfm)
 
 ggplot(df, aes(x=x, y=y, width=width, height=height, motif=motif, 
