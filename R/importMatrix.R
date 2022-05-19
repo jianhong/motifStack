@@ -370,11 +370,14 @@ importM_meme <- function(fns){
       stop("MEME version is required in first line.")
     }
     lines <- lines[-1]
-    alphabet <- lines[grepl("^ALPHABET", lines)]
+    alphabet <- lines[grepl("^ALPHABET", lines, ignore.case = TRUE)]
     alphabet <- sub("^.*(AC.*)\\s*$", "\\1", alphabet)
     alphabet <- unique(alphabet)
     if(length(alphabet)>1){
       stop("mixed alphabet in your input file.")
+    }
+    if(length(alphabet)==0){
+      stop("Can not detect the alphabet in your input file.")
     }
     alphabet <- switch(alphabet, ACGT="DNA", ACGU="RNA", ACDEFGHIKLMNPQRSTVWY="AA", "others")
     letters <- switch(alphabet, DNA=c("A", "C", "G", "T"),

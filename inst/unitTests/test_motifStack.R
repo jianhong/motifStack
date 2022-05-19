@@ -175,6 +175,7 @@ test_importMatrix<-function(){
   path <- system.file("extdata", package = "motifStack")
   ## meme
   importMatrix(file.path(path, "dna.meme"))
+  importMatrix(file.path(path, "momo.txt"), format = "meme")
   ## pcm
   importMatrix(dir(path, "*.pcm", full.names = TRUE))
   ## pfm
