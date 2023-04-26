@@ -1,6 +1,6 @@
 Package: motifStack
 Type: Package
-Version: 1.45.0
+Version: 1.45.1
 Title: Plot stacked logos for single or multiple DNA, RNA and amino
         acid sequence
 Authors@R: c(person(given="Jianhong", family="Ou", email="jianhong.ou@duke.edu", 
@@ -16,7 +16,7 @@ Maintainer: Jianhong Ou <jianhong.ou@duke.edu>
 Depends: R (>= 2.15.1), methods, grid
 Imports: ade4, Biostrings, ggplot2, grDevices, graphics, htmlwidgets, 
          stats, stats4, utils, XML, TFBSTools
-Suggests: grImport, grImport2, BiocGenerics, 
+Suggests: Cairo, grImport, grImport2, BiocGenerics, 
           MotifDb, RColorBrewer,
           BiocStyle, knitr, RUnit, rmarkdown,
           JASPAR2020
@@ -31,5 +31,5 @@ Description: The motifStack package is designed for graphic
 License: GPL (>= 2)
 Lazyload: yes
 VignetteBuilder: knitr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8

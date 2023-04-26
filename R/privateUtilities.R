@@ -33,7 +33,8 @@ importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
   if(capabilities("cairo") && requireNamespace("grImport2", quietly = TRUE) &&
      run_grImport2){
     psfilename<-tempfile(fileext = ".svg")
-    svg(psfilename, width = 1, height = 1, bg = NA, pointsize=72, family = font)
+    if(requireNamespace("Cairo")) FUN = Cairo::CairoSVG else FUN = svg
+    FUN(psfilename, width = 1, height = 1, bg = NA, pointsize=72, family = font)
     h <- convertHeight(stringHeight(ch), unitTo = "points", valueOnly = TRUE)
     grid.text(ch, gp = gpar(fontsize=floor(1.05*72*(72/h)), 
                             fontfamily=font, col=color, fontface=fontface))
@@ -1503,17 +1504,28 @@ importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
   return(x)
 }
 
+checkSummary <- function(x){
+  if("summary" %in% slotNames(x)){
+    if(any(is.na(x@summary@xscale))){
+      x@summary@xscale <- c(0, 72)
+    }
+    if(any(is.na(x@summary@yscale))){
+      x@summary@yscale <- c(72, 0)
+    }
+  }
+  x
+}
 coloredSymbols <- function(ncha, font, color, rname, alpha, 
                            fontface="bold", envir = .globals){
   symbols<-list()
   for(i in 1:ncha){
-    symbols[[i]]<-importSVG(font, color[i], rname[i], fontface)
+    symbols[[i]]<-checkSummary(importSVG(font, color[i], rname[i], fontface))
   }
   if(!missing(alpha)){
     for(i in 1:ncha){
-      symbols[[paste0(i, "_", alpha)]]<-
+      symbols[[paste0(i, "_", alpha)]]<-checkSummary(
         importSVG(font, colalpha(color, alpha)[i], rname[i], 
-                  fontface, envir = envir)
+                  fontface, envir = envir))
     }
   }
   symbols

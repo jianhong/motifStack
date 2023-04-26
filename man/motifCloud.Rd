@@ -17,7 +17,7 @@ motifCloud(
   group.col = NULL,
   groups = NULL,
   draw.legend = FALSE,
-  font = "Helvetica-Bold",
+  font = "sans",
   ic.scale = TRUE
 )
 }

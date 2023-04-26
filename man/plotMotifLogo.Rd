@@ -8,7 +8,7 @@ plotMotifLogo(
   pfm,
   motifName,
   p = rep(0.25, 4),
-  font = "Helvetica-Bold",
+  font = "sans",
   fontface = "bold",
   colset = c("#00811B", "#2000C7", "#FFB32C", "#D00001"),
   xaxis = TRUE,

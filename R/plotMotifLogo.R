@@ -40,7 +40,7 @@
 #' plotMotifLogo(pfm)
 #' 
 plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4), 
-                        font="Helvetica-Bold", fontface="bold", 
+                        font="sans", fontface="bold", 
                         colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
                         xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
                         xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE,
@@ -259,7 +259,7 @@ plotYaxis<-function(ymax, ic.scale){
 #' motif <- new("pfm", mat=pfm, name="bin_SOLEXA")
 #' plotMotifLogoA(motif)
 #' 
-plotMotifLogoA<-function(pfm, font="Helvetica-Bold", fontface="bold", ic.scale=TRUE, draw=TRUE){
+plotMotifLogoA<-function(pfm, font="sans", fontface="bold", ic.scale=TRUE, draw=TRUE){
   if (is(pfm, "pcm")){
     pfm <- pcm2pfm(pfm)
   }
@@ -423,11 +423,11 @@ plotMarkers <- function(markers, dw, h, lo=NULL){
 motifGrob <- function(pfm, x = unit(0.5, "npc"), y = unit(0.5, "npc"),
                       width = unit(1, "npc"), height = unit(1, "npc"),
                       angle = 0, ic.scale=TRUE, default.units = "native", name=NULL, 
-                      gp = gpar(fontfamily="Helvetica-Bold",
+                      gp = gpar(fontfamily="sans",
                                 fontface="bold")){
   vp <- viewport(x=x, y=y, width = width, height = height, 
                  default.units = default.units, angle = angle, name = "motifVP")
-  fontfamily <- ifelse(length(gp$fontfamily)>0, gp$fontfamily[1], "Helvetica-Bold")
+  fontfamily <- ifelse(length(gp$fontfamily)>0, gp$fontfamily[1], "sans")
   fontface <- ifelse(length(gp$fontface)>0, gp$fontface[1], "bold")
   gTree(children=plotMotifLogoA(pfm, font = fontfamily, fontface = fontface, ic.scale = ic.scale, draw=FALSE),
         name=name, vp=vp, cl="motif")
@@ -548,7 +548,7 @@ geom_motif <- function(mapping = NULL, data = NULL,
 GeomMotif <- 
   ggproto("GeomMotif", Geom, 
           required_aes = c("xmin", "ymin", "xmax", "ymax", "motif"),
-          default_aes = aes(angle=0, fontfamily="Helvetica-Bold", 
+          default_aes = aes(angle=0, fontfamily="sans", 
                             fontface="bold"),
           draw_panel = function(data, panel_params, coord, ic.scale=TRUE){
             coords <- coord$transform(data, panel_params)
@@ -570,7 +570,7 @@ GeomMotif <-
 GeomMotifA <- 
   ggproto("GeomMotif", Geom, 
           required_aes = c("x", "y", "width", "height", "motif"),
-          default_aes = aes(angle=0, fontfamily="Helvetica-Bold", 
+          default_aes = aes(angle=0, fontfamily="sans", 
                             fontface="bold"),
           draw_panel = function(data, panel_params, coord, ic.scale=TRUE){
             if(is.unit(data$x)) data$x <- convertUnit(data$x, unitTo = "native", valueOnly = TRUE)

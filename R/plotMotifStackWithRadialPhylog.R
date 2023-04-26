@@ -110,7 +110,7 @@ plotMotifStackWithRadialPhylog <-
             motifScale=c("linear","logarithmic"), ic.scale=TRUE,
             plotIndex=FALSE, IndexCol="black", IndexCex=.8,
             groupDistance=NA, groupDistanceLineCol="red", 
-            plotAxis=FALSE, font="Helvetica-Bold")
+            plotAxis=FALSE, font="sans")
 {
   if (!inherits(phylog, "phylog"))
     stop("Non convenient data")

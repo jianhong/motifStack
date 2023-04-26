@@ -6,7 +6,7 @@
 \usage{
 plotMotifLogoA(
   pfm,
-  font = "Helvetica-Bold",
+  font = "sans",
   fontface = "bold",
   ic.scale = TRUE,
   draw = TRUE

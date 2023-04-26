@@ -28,7 +28,7 @@
 #' plotMotifOverMotif(pcms[[1]], pcms[[2]], bgNoise=0.05)
 #' 
 plotMotifOverMotif <- function(motif, backgroundMotif, bgNoise=NA, 
-                               font="Helvetica-Bold", textgp=gpar()){
+                               font="sans", textgp=gpar()){
     if(!inherits(motif, c("pcm", "pfm")))
         stop("motif must be an object of pcm or pfm")
     if(!inherits(backgroundMotif, c("pcm", "pfm")))

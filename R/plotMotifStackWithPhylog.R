@@ -67,7 +67,7 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
                                      clabel.leaves=1,
                                      labels.nodes = names(phylog$nodes), 
                                      clabel.nodes = 0, 
-                                     font="Helvetica-Bold", ic.scale=TRUE
+                                     font="sans", ic.scale=TRUE
 ){
   if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
   n<-length(pfms)

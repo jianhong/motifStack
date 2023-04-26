@@ -8,7 +8,7 @@ plotMotifOverMotif(
   motif,
   backgroundMotif,
   bgNoise = NA,
-  font = "Helvetica-Bold",
+  font = "sans",
   textgp = gpar()
 )
 }

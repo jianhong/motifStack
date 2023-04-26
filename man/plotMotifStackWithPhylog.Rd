@@ -15,7 +15,7 @@ plotMotifStackWithPhylog(
   clabel.leaves = 1,
   labels.nodes = names(phylog$nodes),
   clabel.nodes = 0,
-  font = "Helvetica-Bold",
+  font = "sans",
   ic.scale = TRUE
 )
 }

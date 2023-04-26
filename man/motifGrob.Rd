@@ -14,7 +14,7 @@ motifGrob(
   ic.scale = TRUE,
   default.units = "native",
   name = NULL,
-  gp = gpar(fontfamily = "Helvetica-Bold", fontface = "bold")
+  gp = gpar(fontfamily = "sans", fontface = "bold")
 )
 }
 \arguments{

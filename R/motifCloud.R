@@ -58,7 +58,7 @@ motifCloud <- function(motifSig, rcpostfix="(RC)",
                        draw.box=TRUE, draw.freq=TRUE, 
                        box.col="gray", freq.col="gray",
                        group.col=NULL, groups=NULL, draw.legend=FALSE,
-                       font="Helvetica-Bold", ic.scale=TRUE)
+                       font="sans", ic.scale=TRUE)
 {
   if (!inherits(motifSig, "motifSig")) 
     stop("motifSig be object of motifSig. You could try\n

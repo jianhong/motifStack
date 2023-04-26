@@ -7,7 +7,7 @@
 plotAffinityLogo(
   psam,
   motifName,
-  font = "Helvetica-Bold",
+  font = "sans",
   fontface = "bold",
   colset = c("#00811B", "#2000C7", "#FFB32C", "#D00001"),
   alpha = 0.5,

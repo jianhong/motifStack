@@ -38,7 +38,7 @@ plotMotifStackWithRadialPhylog(
   groupDistance = NA,
   groupDistanceLineCol = "red",
   plotAxis = FALSE,
-  font = "Helvetica-Bold"
+  font = "sans"
 )
 }
 \arguments{
