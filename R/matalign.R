@@ -29,6 +29,11 @@ matalign <- function(pcms,
                       choices = c("Smith-Waterman", "Needleman-Wunsch"))
   stopifnot(is.numeric(pseudo))
   stopifnot(is.list(pcms))
+  stopifnot(is.logical(revcomp))
+  if(length(revcomp)>1){
+    message('only the first revcomp will be used.')
+    revcomp <- revcomp[1]
+  }
   if(length(names(pcms))!=length(pcms)) 
     names(pcms) <- paste0("M", seq_along(pcms))
   pcms <- mapply(pcms, names(pcms), FUN=function(.ele, .name){
@@ -57,7 +62,7 @@ matalign <- function(pcms,
   n <- vapply(pcms, FUN = function(.ele) .ele@name,
               FUN.VALUE = "a", USE.NAMES = FALSE)
   alphab <- vapply(pcms, function(.ele) .ele@alphabet=="RNA", FUN.VALUE = TRUE)
-  if(any(alphab)&revcomp){
+  if(any(alphab)&&revcomp[1]){
     message("The input is RNA motif. 
             The reverse complementation alignment will be turn off.
             To avoid this message, please set revcomp=FALSE")

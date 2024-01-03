@@ -21,7 +21,8 @@ plotMotifLogo(
   ic.scale = TRUE,
   newpage = TRUE,
   margins = c(4.1, 4.1, 2.1, 0.1),
-  draw = TRUE
+  draw = TRUE,
+  ...
 )
 }
 \arguments{
@@ -66,6 +67,8 @@ the y axis labels will be re-scaled by 100.}
 base graphics.}
 
 \item{draw}{Vector (logical(1)). TRUE to plot. FALSE, return a gList}
+
+\item{...}{Not used.}
 }
 \value{
 none

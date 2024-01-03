@@ -23,7 +23,8 @@ DNAmotifAlignment<-function(pfms, threshold=0.4, minimalConsensus=0,
                             revcomp=rep(TRUE, length(pfms))){
   if(length(pfms)<2) stop("less than 2 motifs")
   if(length(revcomp)!=length(pfms)){
-    stop("length of revcomp and pfms is not identical")
+    if(length(revcomp)>1) message("length of revcomp and pfms is not identical")
+    revcomp <- rep(revcomp, length(pfms))[seq_along(pfms)]
   }
   if(all(sapply(pfms, function(.ele) is(.ele, "psam")))){
     return(alignmentByPCC(pfms, minimalConsensus, rcpostfix, revcomp))

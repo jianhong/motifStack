@@ -38,7 +38,8 @@ plotMotifStackWithRadialPhylog(
   groupDistance = NA,
   groupDistanceLineCol = "red",
   plotAxis = FALSE,
-  font = "sans"
+  font = "sans",
+  ...
 )
 }
 \arguments{
@@ -123,6 +124,8 @@ which can help user to describe the motifLogo}
 \item{plotAxis}{logical. If TRUE, will plot distance axis.}
 
 \item{font}{font of logo}
+
+\item{...}{not used.}
 }
 \value{
 none

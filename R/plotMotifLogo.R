@@ -28,6 +28,7 @@
 #' @param margins A numeric vector interpreted in the same way as par(mar) in
 #' base graphics.
 #' @param draw Vector (logical(1)). TRUE to plot. FALSE, return a gList
+#' @param ... Not used.
 #' @return none
 #' @export
 #' @importFrom grid gList gTree plotViewport textGrob unit gpar grid.newpage
@@ -44,7 +45,8 @@ plotMotifLogo<-function(pfm, motifName, p=rep(0.25, 4),
                         colset=c("#00811B","#2000C7","#FFB32C","#D00001"), 
                         xaxis=TRUE,yaxis=TRUE,xlab="position",ylab="bits",
                         xlcex=1.2, ylcex=1.2, ncex=1.2, ic.scale=TRUE,
-                        newpage=TRUE, margins=c(4.1, 4.1, 2.1, .1), draw=TRUE){
+                        newpage=TRUE, margins=c(4.1, 4.1, 2.1, .1), draw=TRUE,
+                        ...){
   markers <- NULL
   if (is(pfm, "data.frame")){
     pfm <- as.matrix(pfm)

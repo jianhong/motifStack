@@ -73,6 +73,12 @@ test_DNAmotifAlignment<-function(){
 							 revcomp=c(TRUE, TRUE, FALSE))
 	checkEquals("GAT1-ScerTF(RC)", pfms.revcomp.test[[2]]@name)
 	checkEquals("GAT1-UniPROBE", pfms.revcomp.test[[3]]@name)
+	pfms <- c(pfm.gat1.jaspar, pfm.gat1.scertf, pfm.gat1.uniprobe)
+	# test revcomp parameter.
+	for(layout in c("stack", "treeview", "phylog", "radialPhylog")){
+	  motifStack(pfms, layout = layout, revcomp=FALSE)
+	  motifStack(pfms, layout = layout, revcomp=rep(FALSE, length(pfms)))
+	}
 }
 
 test_hex2psrgb<-function(){

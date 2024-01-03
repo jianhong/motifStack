@@ -57,6 +57,7 @@
 #' @param groupDistanceLineCol groupDistance line color, default: red
 #' @param plotAxis logical. If TRUE, will plot distance axis.
 #' @param font font of logo
+#' @param ... not used.
 #' @return none
 #' @seealso \link[ade4:plot.phylog]{plot.phylog}
 #' @export
@@ -110,7 +111,8 @@ plotMotifStackWithRadialPhylog <-
             motifScale=c("linear","logarithmic"), ic.scale=TRUE,
             plotIndex=FALSE, IndexCol="black", IndexCex=.8,
             groupDistance=NA, groupDistanceLineCol="red", 
-            plotAxis=FALSE, font="sans")
+            plotAxis=FALSE, font="sans",
+            ...)
 {
   if (!inherits(phylog, "phylog"))
     stop("Non convenient data")

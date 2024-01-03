@@ -28,6 +28,7 @@
 #' @param font font of logo
 #' @param ic.scale logical If TRUE, the height of each column is proportional
 #' to its information content. Otherwise, all columns have the same height.
+#' @param ... not used.
 #' @return none
 #' @seealso \link[ade4:plot.phylog]{plot.phylog}
 #' @export
@@ -67,7 +68,8 @@ plotMotifStackWithPhylog <- function(phylog, pfms=NULL,
                                      clabel.leaves=1,
                                      labels.nodes = names(phylog$nodes), 
                                      clabel.nodes = 0, 
-                                     font="sans", ic.scale=TRUE
+                                     font="sans", ic.scale=TRUE,
+                                     ...
 ){
   if(!inherits(phylog, "phylog")) stop("phylog must be an object of phylog")
   n<-length(pfms)

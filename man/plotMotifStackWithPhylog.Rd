@@ -16,7 +16,8 @@ plotMotifStackWithPhylog(
   labels.nodes = names(phylog$nodes),
   clabel.nodes = 0,
   font = "sans",
-  ic.scale = TRUE
+  ic.scale = TRUE,
+  ...
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ par("cex")*clabel.nodes. If zero, no nodes labels are drawn}
 
 \item{ic.scale}{logical If TRUE, the height of each column is proportional
 to its information content. Otherwise, all columns have the same height.}
+
+\item{...}{not used.}
 }
 \value{
 none
