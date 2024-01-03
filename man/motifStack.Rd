@@ -21,7 +21,8 @@ keep the order of the pfms. This parameter only work for stack layout.}
 
 \item{\dots}{any parameters could to pass to \link{plotMotifLogoStack},
 \link{plotMotifLogoStackWithTree}, \link{plotMotifStackWithPhylog} or
-\link{plotMotifStackWithRadialPhylog}}
+\link{plotMotifStackWithRadialPhylog}.
+And the `revcomp` parameter for \link{DNAmotifAlignment}.}
 }
 \value{
 return a list contains pfms and phylog
