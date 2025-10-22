@@ -7,7 +7,7 @@
 importMatrix(
   filenames,
   format = c("auto", "pfm", "cm", "pcm", "meme", "transfac", "jaspar", "scpd", "cisbp",
-    "psam", "xmatrix"),
+    "psam", "xmatrix", "hocomoco"),
   to = c("auto", "pcm", "pfm", "pssm", "psam")
 )
 }

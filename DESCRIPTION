@@ -1,6 +1,6 @@
 Package: motifStack
 Type: Package
-Version: 1.53.0
+Version: 1.53.1
 Title: Plot stacked logos for single or multiple DNA, RNA and amino
         acid sequence
 Authors@R: c(person(given="Jianhong", family="Ou", email="jou@morgridge.org", 
@@ -31,5 +31,5 @@ Description: The motifStack package is designed for graphic
 License: GPL (>= 2)
 Lazyload: yes
 VignetteBuilder: knitr
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.3
 Encoding: UTF-8

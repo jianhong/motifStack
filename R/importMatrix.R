@@ -22,7 +22,7 @@
 importMatrix <- function(filenames, 
                          format=c("auto", "pfm", "cm", "pcm", "meme", 
                                   "transfac", "jaspar", "scpd", "cisbp",
-                                  "psam", "xmatrix"), 
+                                  "psam", "xmatrix", "hocomoco"), 
                          to=c("auto", "pcm", "pfm", "pssm", "psam")){
   if(missing(filenames)){
     stop("filenames are required.")
@@ -146,7 +146,7 @@ importMatrix <- function(filenames,
 }
 
 ## output named list of matrix
-importFASTAlikeFile <- function(fn, comment.char=">"){
+importFASTAlikeFile <- function(fn, comment.char=">", vertical=FALSE){
   stopifnot(length(fn)==1)
   lines <- readLines(fn)
   lines <- lines[!grepl("^\\s*$", lines)]
@@ -164,6 +164,46 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
   }
   tfNames <- sub(paste0("^", comment.char, "\\s*"), "", lines[sep])
   names(tfNames) <- make.names(tfNames, unique = TRUE, allow_ = TRUE)
+  if(vertical){
+    ## format is
+    # >AHCTF1.H13CORE.0.B.B
+    # 250.0	118.0	145.0	168.0
+    # 332.0	76.0	67.0	206.0
+    # 681.0	0.0	0.0	0.0
+    # 681.0	0.0	0.0	0.0
+    # 681.0	0.0	0.0	0.0
+    # 0.0	0.0	0.0	681.0
+    # 281.0	91.0	113.0	196.0
+    header_idx <- which(sep)
+    tfData <- lapply(seq_along(header_idx), function(i){
+      start <- header_idx[i] +1
+      end <- ifelse(i < length(header_idx),
+                    header_idx[i + 1] - 1,
+                    length(lines))
+      lines[seq(from=start, to=end)]
+    })
+    coln <- c("A", "C", "G", "T")
+    motifs <- mapply(tfData, tfNames, FUN=function(.ele, .name){
+      ## check ACGT
+      header <-all(vapply(coln, function(.n){
+        grepl(.n, .ele[1])
+      }, logical(1L)))
+      .ele <- read.table(text = .ele, header = header)
+      if(header){
+        if(!all(coln %in% colnames(.ele))){
+          stop("unexpect cols. The cols should be A, C, G and T.")
+        }
+      }else{
+        if(ncol(.ele)!=4){
+          stop("unexpect cols. The cols should be 4.")
+        }
+        colnames(.ele) <- coln
+      }
+      .ele <- t(.ele[, coln])
+      list(mat=.ele, tags=list(), name=.name)
+    },SIMPLIFY = FALSE)
+    return(motifs)
+  }
   sep.f <- diff(c(which(sep), length(lines)+1))
   if(any(sep.f!=5)){
     stop("The file contain unexpect lines.",
@@ -196,9 +236,9 @@ importFASTAlikeFile <- function(fn, comment.char=">"){
     list(mat=.ele, tags=list(), name=.name)
   }, SIMPLIFY = FALSE)
 }
-importMulFASTAlike <- function(fns, comment.char=">"){
+importMulFASTAlike <- function(fns, comment.char=">", vertical=FALSE){
   d <- lapply(fns, function(.ele){
-    importFASTAlikeFile(.ele, comment.char)
+    importFASTAlikeFile(.ele, comment.char, vertical = vertical)
   })
   do.call(c, d)
 }
@@ -336,6 +376,10 @@ importM_pfm <- function(fns){
 
 importM_jaspar <- function(fns){
   importMulFASTAlike(fns)
+}
+
+importM_hocomoco <- function(fns){
+  importMulFASTAlike(fns, vertical = TRUE)
 }
 
 importM_cm <- function(fns){
