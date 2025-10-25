@@ -1,4 +1,9 @@
-CHANGES IN VERSION 1.51.3
+CHANGES IN VERSION 1.53.2
+-----------------------
+
+  o Speedup motifHclust
+  
+CHANGES IN VERSION 1.53.1
 -----------------------
 
   o Support import Hocomoco format.
