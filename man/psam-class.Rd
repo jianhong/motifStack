@@ -19,6 +19,8 @@
 
 \S4method{plot}{psam,ANY}(x, y = "missing", ...)
 
+\S4method{coerce}{psam,matrix}(from, to = "matrix", strict = TRUE)
+
 \S4method{matrixReverseComplement}{psam}(x)
 
 \S4method{addBlank}{psam,numeric,logical}(x, n, b)
@@ -35,6 +37,11 @@
 \item{y}{Not use.}
 
 \item{\dots}{Further potential arguments passed to \code{plotAffinityLogo}.}
+
+\item{from, to}{The classes between which the coerce methods def and 
+replace perform coercion.}
+
+\item{strict}{argument is irrelevant}
 
 \item{n}{how many spaces should be added.}
 

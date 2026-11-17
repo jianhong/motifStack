@@ -164,6 +164,9 @@ setMethod("plot", signature(x="pfm"),
 #' @rdname pfm-class
 #' @aliases coerce,pfm,matrix-method
 #' @exportMethod coerce
+#' @param from,to The classes between which the coerce methods def and 
+#' replace perform coercion.
+#' @param strict argument is irrelevant
 setAs(from="pfm", to="matrix", function(from){
     from@mat
 })
@@ -171,8 +174,7 @@ setAs(from="pfm", to="matrix", function(from){
 ## get information content profile from PFM
 #' @rdname pfm-class
 #' @exportMethod getIC
-#' @aliases getIC,pfm,ANY-method getIC,matrix,numeric-method 
-#' getIC,matrix,matrix-method
+#' @aliases getIC,pfm,ANY-method getIC,matrix,numeric-method getIC,matrix,matrix-method
 setMethod("getIC", signature(x="pfm"), function(x, p="missing"){
     colSums(x@mat * (addPseudolog2(x@mat) - addPseudolog2(x@background)))
 })

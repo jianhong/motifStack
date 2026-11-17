@@ -129,6 +129,9 @@ setMethod("plot", signature(x="psam"),
 #' @rdname psam-class
 #' @aliases coerce,psam,matrix-method
 #' @exportMethod coerce
+#' @param from,to The classes between which the coerce methods def and 
+#' replace perform coercion.
+#' @param strict argument is irrelevant
 setAs(from="psam", to="matrix", function(from){
   from@mat
 })

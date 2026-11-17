@@ -11,8 +11,7 @@
 #' @param ... other parameters can be passed to plotMotifLogo function
 #' @return none
 #' @export
-#' @importFrom grid grid.newpage grid.lines viewport pushViewport convertUnit 
-#' unit grid.text popViewport
+#' @importFrom grid grid.newpage grid.lines viewport pushViewport convertUnit unit grid.text popViewport
 #' @examples
 #' 
 #'   #####Input#####

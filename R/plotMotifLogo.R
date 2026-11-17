@@ -31,8 +31,7 @@
 #' @param ... Not used.
 #' @return none
 #' @export
-#' @importFrom grid gList gTree plotViewport textGrob unit gpar grid.newpage
-#' grid.draw gList grid.draw pointsGrob
+#' @importFrom grid gList gTree plotViewport textGrob unit gpar grid.newpage grid.draw gList grid.draw pointsGrob
 #' @examples
 #' 
 #' pcm<-matrix(runif(40,0,100),nrow=4,ncol=10)

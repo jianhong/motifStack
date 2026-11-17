@@ -46,8 +46,7 @@
 #' @param groupDistanceLineCol groupDistance line color, default: red
 #' @return none
 #' @export
-#' @importFrom graphics par plot.default strwidth points segments 
-#' abline rect text 
+#' @importFrom graphics par plot.default strwidth points segments abline rect text abline rect
 #' @importFrom grDevices grey col2rgb rgb dev.size
 #' @importFrom ade4 scatterutil.eti
 #' @importFrom grid pushViewport viewport popViewport grid.text gpar

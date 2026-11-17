@@ -42,6 +42,8 @@
 
 \S4method{plot}{pcm,ANY}(x, y = "missing", ...)
 
+\S4method{coerce}{pcm,matrix}(from, to = "matrix", strict = TRUE)
+
 trimMotif(x, t)
 
 matrixReverseComplement(x)
@@ -68,6 +70,11 @@ be an object of matrix.}
 \item{y}{Not use.}
 
 \item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
+
+\item{from, to}{The classes between which the coerce methods def and 
+replace perform coercion.}
+
+\item{strict}{argument is irrelevant}
 
 \item{t}{numeric value of information content threshold for trimming.}
 

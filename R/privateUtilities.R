@@ -27,8 +27,9 @@ importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
   if(capabilities("cairo") && !requireNamespace("grImport2", quietly = TRUE) &&
      run_grImport2){
     ## install grImport2
-    install.packages("grImport2", repos = "https://cloud.r-project.org",
-                     quiet = TRUE)
+    warning('grImport2 is not installed. Please try to install grImport2 via:',
+            'install.packages("grImport2", repos = "https://cloud.r-project.org",
+                     quiet = TRUE)')
   }
   if(capabilities("cairo") && requireNamespace("grImport2", quietly = TRUE) &&
      run_grImport2){
@@ -69,8 +70,10 @@ importSVG <- function(font, color, ch, fontface="bold", envir=.globals){
   }
   if(checkGhost() && !requireNamespace("grImport", quietly = TRUE)){
     ## install grImport
-    install.packages("grImport", repos = "https://cloud.r-project.org",
-                     quiet = TRUE)
+    warning('grImport or grImport2 is not installed. Please try to install grImport or grImport2.',
+         'eg: ',
+            'install.packages("grImport", repos = "https://cloud.r-project.org",
+                     quiet = TRUE)')
   }
   if(checkGhost() && requireNamespace("grImport", quietly = TRUE)){
     motifStack_private_fontsize <- 18

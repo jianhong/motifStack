@@ -8,8 +8,7 @@
 #' @param ... other parameters can be passed to plotMotifLogo function
 #' @return none
 #' @export
-#' @importFrom grid grid.newpage pushViewport viewport convertUnit unit
-#' grid.text popViewport
+#' @importFrom grid grid.newpage pushViewport viewport convertUnit unit grid.text popViewport
 #' @examples
 #' 
 #'   pcm1<-matrix(c(0,50,0,50,

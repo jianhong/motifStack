@@ -22,10 +22,8 @@
 #' to its information content. Otherwise, all columns have the same height.
 #' @return none
 #' @export
-#' @importFrom grid grid.polygon gpar pushViewport viewport grid.rect grid.text
-#' popViewport unit 
-#' @importFrom graphics plot.window par plot.new strheight plot.default segments
-#' legend 
+#' @importFrom grid grid.polygon gpar pushViewport viewport grid.rect grid.text popViewport unit
+#' @importFrom graphics plot.window par plot.new strheight plot.default segments legend 
 #' @importFrom stats runif
 #' @examples
 #' 

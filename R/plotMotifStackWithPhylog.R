@@ -32,8 +32,7 @@
 #' @return none
 #' @seealso \link[ade4:plot.phylog]{plot.phylog}
 #' @export
-#' @importFrom grid grid.newpage pushViewport viewport grid.text gpar
-#' grid.segments popViewport grid.points
+#' @importFrom grid grid.newpage pushViewport viewport grid.text gpar grid.segments popViewport grid.points
 #' @importFrom graphics par
 #' @importFrom grDevices grey
 #' @examples

@@ -61,8 +61,7 @@
 #' @return none
 #' @seealso \link[ade4:plot.phylog]{plot.phylog}
 #' @export
-#' @importFrom graphics par plot.default strwidth polygon text segments
-#' points lines symbols box
+#' @importFrom graphics par plot.default strwidth polygon text segments points lines symbols box
 #' @importFrom grDevices grey dev.size
 #' @importFrom stats median
 #' @importFrom grid pushViewport viewport popViewport grid.text gpar grid.xaxis

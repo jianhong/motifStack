@@ -19,6 +19,8 @@
 
 \S4method{plot}{pssm,ANY}(x, y = "missing", ...)
 
+\S4method{coerce}{pssm,matrix}(from, to = "matrix", strict = TRUE)
+
 \S4method{matrixReverseComplement}{pssm}(x)
 
 \S4method{addBlank}{pssm,numeric,logical}(x, n, b)
@@ -36,6 +38,11 @@ followed, x should be an object of matrix.}
 \item{y}{Not use.}
 
 \item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
+
+\item{from, to}{The classes between which the coerce methods def and 
+replace perform coercion.}
+
+\item{strict}{argument is irrelevant}
 
 \item{n}{how many spaces should be added.}
 

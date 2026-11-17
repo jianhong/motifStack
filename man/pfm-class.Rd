@@ -23,6 +23,8 @@
 
 \S4method{plot}{pfm,ANY}(x, y = "missing", ...)
 
+\S4method{coerce}{pfm,matrix}(from, to = "matrix", strict = TRUE)
+
 \S4method{getIC}{pfm,ANY}(x, p = "missing")
 
 \S4method{trimMotif}{pfm,numeric}(x, t)
@@ -44,6 +46,11 @@ followed, x should be an object of matrix.}
 \item{y}{Not use.}
 
 \item{\dots}{Further potential arguments passed to \code{plotMotifLogo}.}
+
+\item{from, to}{The classes between which the coerce methods def and 
+replace perform coercion.}
+
+\item{strict}{argument is irrelevant}
 
 \item{p}{p is the background frequency.}
 

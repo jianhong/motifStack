@@ -63,8 +63,7 @@
 #' @seealso \code{\link{plotMotifStackWithRadialPhylog}}
 #' @keywords misc
 #' @export
-#' @importFrom graphics par plot.default strwidth polygon text segments
-#' points lines symbols box
+#' @importFrom graphics par plot.default strwidth polygon text segments points lines symbols box lines symbols box
 #' @importFrom grDevices grey dev.size
 #' @importFrom stats median
 #' @importFrom grid pushViewport viewport popViewport grid.text gpar grid.xaxis
