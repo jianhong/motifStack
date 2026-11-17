@@ -35,6 +35,7 @@ library(JASPAR2020)
 if(.Platform$OS.type=="windows"){
   opts_chunk$set(eval=FALSE)
 }
+knitr::opts_chunk$set(warning = FALSE)
 ```
 
 # Introduction
@@ -56,7 +57,7 @@ The `importMatrix` function is used to import motifs from files or convert
 
 ## convert motifs from `XMatrixList`
 
-```{r importMatrix,fig.cap="import data from PFMatrixList",fig.width=6,fig.height=3}
+```{r importMatrix,fig.cap="import data from PFMatrixList",fig.width=4,fig.height=2}
 library(motifStack)
 library(JASPAR2020)
 motifs <- importMatrix(getMatrixSet(JASPAR2020, 
@@ -69,7 +70,7 @@ plot(motifs[[1]])
 The supported formats are "meme", "transfac", "jaspar", "scpd", "cisbp",
 and "psam".
 
-```{r importFromFiles,fig.cap="import data from file",fig.width=6,fig.height=3}
+```{r importFromFiles,fig.cap="import data from file",fig.width=4,fig.height=2}
 RUNX1 <- importMatrix(system.file("extdata", "MA0002.1.jaspar",
                                   package = "motifStack",
                                   mustWork = TRUE))[[1]]
@@ -90,7 +91,7 @@ motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA")
 #motif <- pcm2pfm(pcm)
 #motif <- new("pfm", mat=motif, name="bin_SOLEXA")
 plot(motif)
-#plot the logo with same height
+#plot the logo by probabilities
 plot(motif, ic.scale=FALSE, ylab="probability")
 #try a different font and a different color group
 motif@color <- colorset(colorScheme='basepairing')
@@ -107,15 +108,10 @@ markerText <- new("marker", type="text", start=c(1, 5),
                   label=c("*", "core"), gp=gpar(cex=2, col="red"))
 motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA", 
              markers=c(markerRect, markerLine, markerText))
-plot(motif)
+plot(motif,
+     xaxis=paste0("pos", seq.int(7)+10) # change the x-axis labels
+     )
 ```
-
-## change the x-axis labels
-
-```{r seqLogoXaxis, fig.cap="Plot a DNA sequence logo with pre-defined xlabels", fig.width=8,fig.height=2.5}
-plot(motif, xaxis=paste0("pos", seq.int(7)+10))
-```
-
 
 ## plot a RNA sequence logo
 
@@ -168,7 +164,7 @@ To show multiple motifs on the same canvas as a sequence logo stack, the distanc
 
 
 
-```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=6}
+```{r logostack,fig.cap="Plot motifs with sequence logo stack style",fig.width=4,fig.height=4}
 library(motifStack)
 #####Input#####
 motifs<-importMatrix(dir(file.path(find.package("motifStack"),
@@ -176,12 +172,12 @@ motifs<-importMatrix(dir(file.path(find.package("motifStack"),
                          full.names = TRUE))
 
 ## plot stacks
-motifStack(motifs, layout="stack", ncex=1.0)
+motifStack(motifs[seq.int(4)], layout="stack", ncex=1.0)
 ```
-```{r rnalogostack,fig.cap="Plot RNA motifs with sequence logo stack style", fig.width=4,fig.height=6}
+```{r rnalogostack,fig.cap="Plot RNA motifs with sequence logo stack style", fig.width=4,fig.height=4}
 rnaMotifs <- DNAmotifToRNAmotif(motifs)
 names(rnaMotifs)
-motifStack(rnaMotifs, layout = "stack", 
+motifStack(rnaMotifs[seq.int(4)], layout = "stack", 
            reorder=FALSE) ## we can also use reorder=FALSE to keep the order of input. 
 ```
 
@@ -193,9 +189,9 @@ psamMotifs <- list(motif, motif2)
 motifStack(psamMotifs)
 ```
 
-```{r treestack,fig.cap="Sequence logo stack with hierarchical cluster tree",fig.width=5,fig.height=6}
+```{r treestack,fig.cap="Sequence logo stack with hierarchical cluster tree",fig.width=5,fig.height=5}
 ## plot stacks with hierarchical tree
-motifStack(motifs, layout="tree")
+motifStack(motifs[seq_len(5)], layout="tree")
 ```
 
 ```{r radialstack,fig.cap="Plot motifs in a radial style when the number of motifs is too much to be shown in a vertical stack",fig.width=6,fig.height=6}
@@ -241,7 +237,7 @@ motifStack(motifs2, layout="radialPhylog",
 
 We can also plot a sequence logo cloud for DNA motifs.
 
-```{r motifCloud,fig.cap="Sequence logo cloud with rectangle packing layout",fig.width=6,fig.height=6}
+```{r motifCloud,fig.cap="Sequence logo cloud with rectangle packing layout",fig.width=4,fig.height=4}
 ## assign groups for motifs
 groups <- rep(paste("group",1:5,sep=""), each=10)
 names(groups) <- names(pfms)
@@ -355,7 +351,7 @@ browseMotifs(pfms = pfms, phylog = phylog, layout="tree", yaxis = FALSE, baseWid
 
 Plot the motifs in radialPhylog layout.
 
-```{r browseMotifsRadialPhylog,fig.width=8,fig.height=8}
+```{r browseMotifsRadialPhylog,fig.width=8,fig.height=8, eval=FALSE}
 browseMotifs(pfms = pfms, phylog = phylog, layout="radialPhylog", yaxis = FALSE, xaxis = FALSE, baseWidth=6, baseHeight = 15)
 ```
 
@@ -385,7 +381,7 @@ You will see the test.pdf file in the folder of tmp4motifstack.
 
 motifs could be plotted by `geom_motif` function.
 
-```{r geommotif,fig.width=8, fig.height=8}
+```{r geommotif,fig.width=6, fig.height=3}
 pcm <- read.table(file.path(find.package("motifStack"), 
                             "extdata", "bin_SOLEXA.pcm"))
 pcm <- pcm[,3:ncol(pcm)]
@@ -396,7 +392,8 @@ markerText <- new("marker", type="text", start=1, label="*", gp=gpar(cex=2, col=
 motif <- new("pcm", mat=as.matrix(pcm), name="bin_SOLEXA", 
              markers=c(markerRect, markerLine, markerText))
 pfm <- pcm2pfm(motif)
-df <- data.frame(xmin=c(.25, .25), ymin=c(.25, .75), xmax=c(.75, .75), ymax=c(.5, 1), 
+# using xmin,ymin,xmax,ymax
+df <- data.frame(xmin=c(.1, .1), ymin=c(.05, .55), xmax=c(.9, .9), ymax=c(.45, .95), 
                  fontfamily=c("serif", "mono"), fontface=c(2, 1))
 df$motif <- list(pfm, pfm)
 
@@ -405,8 +402,10 @@ library(ggplot2)
 ggplot(df, aes(xmin=xmin, ymin=ymin, xmax=xmax, ymax=ymax, motif=motif, 
                fontfamily=fontfamily, fontface=fontface)) + 
     geom_motif() + theme_bw() + ylim(0, 1) + xlim(0, 1)
-
-df <- data.frame(x=.5, y=c(.25, .75), width=.5, height=.25, 
+```
+```{r geommotif2,fig.width=8, fig.height=8, eval=FALSE}
+# using x,y,width,height to plot the same figure.
+df <- data.frame(x=.5, y=c(.25, .75), width=.8, height=.4, 
                  fontfamily=c("serif", "mono"), fontface=c(2, 1))
 df$motif <- list(pfm, pfm)
 
