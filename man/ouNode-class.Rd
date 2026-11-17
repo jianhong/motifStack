@@ -6,14 +6,22 @@
 \alias{ouNode}
 \alias{$,ouNode-method}
 \alias{$<-,ouNode-method}
+\alias{show,ouNode-method}
 \title{Class \code{ouNode}}
 \usage{
 \S4method{$}{ouNode}(x, name)
+
+\S4method{show}{ouNode}(object)
 }
 \arguments{
 \item{x}{A ouNode object}
 
 \item{name}{slot name of ouNode object}
+
+\item{object}{An object of class \code{ouNode}.}
+}
+\value{
+An object of class \code{ouNode}.
 }
 \description{
 An object of class \code{"ouNode"} represents a motif node in a cluster tree

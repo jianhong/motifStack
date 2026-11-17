@@ -13,6 +13,7 @@
 #' \code{new("pssm", mat, name, alphabet, color, background)}.
 #' @keywords classes
 #' @export
+#' @return An object of class \code{pssm}.
 #' @examples
 #' 
 #' pcm <- read.table(file.path(find.package("motifStack"), 
@@ -42,6 +43,22 @@ setClass("pssm",
            re
          }
 )
+
+#' @rdname pssm-class
+#' @exportMethod show
+#' @param object An object of class \code{pssm}.
+#' 
+#' @aliases show,pssm-method
+setMethod("show", "pssm", function(object){
+  cat("This is an object of pssm\n",
+      " name:", object@name,
+      "\n alphabet:", object@alphabet)
+  cat("\n color:\n")
+  show(object@color)
+  cat("\n background:\n")
+  show(object@background)
+})
+
 
 #' "pssm" methods
 #' 

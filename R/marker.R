@@ -10,6 +10,7 @@
 #' \code{new("marker", type, start, stop, label, gp)}.
 #' @keywords classes
 #' @exportClass marker
+#' @return An object of class \code{marker}.
 #' @examples
 #' 
 #'  new("marker", type="rect", start=c(2, 4), gp=gpar(lty=3))
@@ -37,6 +38,21 @@ setClass(
     re
   }
 )
+
+#' @rdname marker-class
+#' @exportMethod show
+#' @param object An object of class \code{marker}.
+#' 
+#' @aliases show,marker-method
+setMethod("show", "marker", function(object){
+  cat("This is an object of marker\n",
+      " type:", object@type,
+      "\n start:", object@start,
+      "\n stop:", object@stop,
+      "\n label:", object@label)
+  cat("\n gpar:\n")
+  show(object@gp)
+})
 
 #' @rdname marker-class
 #' @docType methods

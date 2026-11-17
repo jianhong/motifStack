@@ -4,6 +4,7 @@
 \name{pfm-class}
 \alias{pfm-class}
 \alias{pfm}
+\alias{show,pfm-method}
 \alias{$,pfm-method}
 \alias{$<-,pfm-method}
 \alias{plot,pfm,ANY-method}
@@ -19,6 +20,8 @@
 \alias{format,pfm-method}
 \title{Class \code{"pfm"}}
 \usage{
+\S4method{show}{pfm}(object)
+
 \S4method{$}{pfm}(x, name)
 
 \S4method{plot}{pfm,ANY}(x, y = "missing", ...)
@@ -38,6 +41,8 @@
 \S4method{format}{pfm}(x, ...)
 }
 \arguments{
+\item{object}{An object of class \code{pfm}.}
+
 \item{x}{An object of class \code{pfm}. For \code{getIC}, if parameter p is
 followed, x should be an object of matrix.}
 
@@ -61,6 +66,9 @@ replace perform coercion.}
 \item{b}{logical value to indicate where the space should be added.}
 
 \item{row.names, optional}{see as.data.frame}
+}
+\value{
+An object of class \code{pfm}.
 }
 \description{
 An object of class \code{"pfm"} represents the position frequency matrix of

@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.53.4
+-----------------------
+
+  o Fix the errors and warning in BiocCheck.
+  
 CHANGES IN VERSION 1.53.3
 -----------------------
 

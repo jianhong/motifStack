@@ -4,6 +4,7 @@
 \name{pcm-class}
 \alias{pcm-class}
 \alias{pcm}
+\alias{show,pcm-method}
 \alias{$,pcm-method}
 \alias{$<-,pcm-method}
 \alias{plot}
@@ -38,6 +39,8 @@
 \alias{format,pcm-method}
 \title{Class \code{"pcm"}}
 \usage{
+\S4method{show}{pcm}(object)
+
 \S4method{$}{pcm}(x, name)
 
 \S4method{plot}{pcm,ANY}(x, y = "missing", ...)
@@ -61,6 +64,8 @@ pcm2pssm(x, background)
 \S4method{format}{pcm}(x, ...)
 }
 \arguments{
+\item{object}{An object of class \code{pcm}.}
+
 \item{x}{An object of class \code{pcm}. For \code{getIC}, if parameter p is
 followed, x should be an object of matrix.  For \code{pcm2pfm}, x also could
 be an object of matrix.}
@@ -87,6 +92,9 @@ replace perform coercion.}
 \item{background}{a \code{"numeric"} vector. The background frequency.}
 
 \item{row.names, optional}{see as.data.frame}
+}
+\value{
+An object of class \code{pcm}.
 }
 \description{
 An object of class \code{"pcm"} represents the position count matrix of a

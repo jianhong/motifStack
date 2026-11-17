@@ -528,6 +528,7 @@ geom_motif <- function(mapping = NULL, data = NULL,
 #' @seealso geom_motif
 #' @export
 #' @importFrom ggplot2 ggproto aes Geom
+#' @return An object of class \code{GeomMotif}.
 #' @examples
 #' 
 #' pcm <- read.table(file.path(find.package("motifStack"), 

@@ -15,6 +15,9 @@ Geom, gg>
 \usage{
 GeomMotif
 }
+\value{
+An object of class \code{GeomMotif}.
+}
 \description{
 GeomMotif object is a ggproto object.
 }

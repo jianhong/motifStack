@@ -4,6 +4,7 @@
 \name{psam-class}
 \alias{psam-class}
 \alias{psam}
+\alias{show,psam-method}
 \alias{$,psam-method}
 \alias{$<-,psam-method}
 \alias{plot,psam,ANY-method}
@@ -15,6 +16,8 @@
 \alias{format,psam-method}
 \title{Class \code{"psam"}}
 \usage{
+\S4method{show}{psam}(object)
+
 \S4method{$}{psam}(x, name)
 
 \S4method{plot}{psam,ANY}(x, y = "missing", ...)
@@ -30,6 +33,8 @@
 \S4method{format}{psam}(x, ...)
 }
 \arguments{
+\item{object}{An object of class \code{psam}.}
+
 \item{x}{An object of class \code{psam}.}
 
 \item{name}{Slot name.}
@@ -48,6 +53,9 @@ replace perform coercion.}
 \item{b}{logical value to indicate where the space should be added.}
 
 \item{row.names, optional}{see as.data.frame}
+}
+\value{
+An object of class \code{psam}.
 }
 \description{
 An object of class \code{"psam"} represents the position specific affinity

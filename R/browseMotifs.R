@@ -141,6 +141,8 @@ browseMotifs <- function(pfms, phylog,
 #'
 #' @export
 #' @importFrom htmlwidgets shinyWidgetOutput
+#' @return An output or render function that enables the use of the browseMotifs
+#' widget within Shiny applications.
 browseMotifsOutput <- function(outputId, width = '100%', height = '400px'){
   htmlwidgets::shinyWidgetOutput(outputId, 'browseMotifs', width, height, 
                                  package = 'motifStack')

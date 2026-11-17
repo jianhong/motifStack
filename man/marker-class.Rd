@@ -4,16 +4,24 @@
 \name{marker-class}
 \alias{marker-class}
 \alias{marker}
+\alias{show,marker-method}
 \alias{$,marker-method}
 \alias{$<-,marker-method}
 \title{Class \code{marker}}
 \usage{
+\S4method{show}{marker}(object)
+
 \S4method{$}{marker}(x, name)
 }
 \arguments{
+\item{object}{An object of class \code{marker}.}
+
 \item{x}{A marker object}
 
 \item{name}{slot name of marker object}
+}
+\value{
+An object of class \code{marker}.
 }
 \description{
 An object of class \code{"marker"} represents a marker in a motif

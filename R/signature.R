@@ -11,6 +11,7 @@
 #' @keywords classes
 #' @export
 #' @import methods
+#' @return An object of class \code{ouNode}.
 #' @examples
 #' 
 #'  new("ouNode", left="A", right="B", parent="Root", distl=1, distr=2, sizel=1, sizer=1)
@@ -35,6 +36,22 @@ setReplaceMethod("$", "ouNode",
                      x
                  })
 
+#' @rdname ouNode-class
+#' @exportMethod show
+#' @param object An object of class \code{ouNode}.
+#' 
+#' @aliases show,ouNode-method
+setMethod("show", "ouNode", function(object){
+  cat("This is an object of ouNode\n",
+      " left:", object@left,
+      "\n right:", object@right,
+      "\n parent:", object@parent,
+      "\n distl:", object@distl,
+      "\n distr:", object@distr,
+      "\n sizel:", object@sizel,
+      "\n sizer:", object@sizer)
+})
+
 #' Class \code{"motifSig"}
 #' 
 #' An object of class \code{"motifSig"} represents the output of function
@@ -47,6 +64,7 @@ setReplaceMethod("$", "ouNode",
 #' @section Objects from the Class: Objects can be created by calls of the form
 #' \code{new("motifSig", signature, freq, nodelist, gpcol)}.
 #' @keywords classes
+#' @return An object of class \code{motifSig}
 #' @export
 setClass("motifSig", representation(signatures="list", freq="numeric", 
                                     nodelist="list", gpcol="character"),
@@ -58,6 +76,21 @@ setClass("motifSig", representation(signatures="list", freq="numeric",
              re
          }
 )
+
+#' @rdname motifSig-class
+#' @exportMethod show
+#' 
+#' @aliases show,motifSig-method
+setMethod("show", "motifSig", function(object){
+  cat("This is an object of motifSig\n",
+      "frequence:", object@freq)
+  cat("signatures list length ")
+  length(object@signatures)
+  cat("\n nodelist length ")
+  length(object@nodelist)
+  cat("try to use signatures(object), frequence(object), nodelist(object) and
+      sigColor(object) to access the details.")
+})
 
 #' "motifSig" methods
 #' 

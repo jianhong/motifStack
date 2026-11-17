@@ -4,6 +4,7 @@
 \name{pssm-class}
 \alias{pssm-class}
 \alias{pssm}
+\alias{show,pssm-method}
 \alias{$,pssm-method}
 \alias{$<-,pssm-method}
 \alias{plot,pssm,ANY-method}
@@ -15,6 +16,8 @@
 \alias{format,pssm-method}
 \title{Class \code{"pssm"}}
 \usage{
+\S4method{show}{pssm}(object)
+
 \S4method{$}{pssm}(x, name)
 
 \S4method{plot}{pssm,ANY}(x, y = "missing", ...)
@@ -30,6 +33,8 @@
 \S4method{format}{pssm}(x, ...)
 }
 \arguments{
+\item{object}{An object of class \code{pssm}.}
+
 \item{x}{An object of class \code{pssm}. For \code{getIC}, if parameter p is
 followed, x should be an object of matrix.}
 
@@ -49,6 +54,9 @@ replace perform coercion.}
 \item{b}{logical value to indicate where the space should be added.}
 
 \item{row.names, optional}{see as.data.frame}
+}
+\value{
+An object of class \code{pssm}.
 }
 \description{
 An object of class \code{"pssm"} represents the position specific score 

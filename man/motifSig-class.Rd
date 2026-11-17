@@ -4,6 +4,7 @@
 \name{motifSig-class}
 \alias{motifSig-class}
 \alias{motifSig}
+\alias{show,motifSig-method}
 \alias{signatures}
 \alias{signatures,motifSig-method}
 \alias{frequence}
@@ -16,6 +17,8 @@
 \alias{$<-,motifSig-method}
 \title{Class \code{"motifSig"}}
 \usage{
+\S4method{show}{motifSig}(object)
+
 signatures(object)
 
 frequence(object)
@@ -32,6 +35,9 @@ sigColor(object)
 \item{x}{A motifSig object}
 
 \item{name}{slot name of motifSig object}
+}
+\value{
+An object of class \code{motifSig}
 }
 \description{
 An object of class \code{"motifSig"} represents the output of function

@@ -13,6 +13,7 @@
 #' \code{new("psam", mat, name, alphabet, color)}.
 #' @keywords classes
 #' @export
+#' @return An object of class \code{psam}.
 #' @examples
 #' 
 #' motif <- importMatrix(file.path(find.package("motifStack"), "extdata", "PSAM.mxr"), 
@@ -38,6 +39,19 @@ setClass("psam",
            re
          }
 )
+
+#' @rdname psam-class
+#' @exportMethod show
+#' @param object An object of class \code{psam}.
+#' 
+#' @aliases show,psam-method
+setMethod("show", "psam", function(object){
+  cat("This is an object of psam\n",
+      " name:", object@name,
+      "\n alphabet:", object@alphabet)
+  cat("\n color:\n")
+  show(object@color)
+})
 
 #' "psam" methods
 #' 

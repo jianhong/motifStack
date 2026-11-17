@@ -13,6 +13,7 @@
 #' \code{new("pfm", mat, name, alphabet, color, background)}.
 #' @keywords classes
 #' @export
+#' @return An object of class \code{pfm}.
 #' @examples
 #' 
 #' pcm <- read.table(file.path(find.package("motifStack"), "extdata", "bin_SOLEXA.pcm"))
@@ -42,6 +43,21 @@ setClass("pfm",
             re
         }
 )
+
+#' @rdname pfm-class
+#' @exportMethod show
+#' @param object An object of class \code{pfm}.
+#' 
+#' @aliases show,pfm-method
+setMethod("show", "pfm", function(object){
+  cat("This is an object of pfm\n",
+      " name:", object@name,
+      "\n alphabet:", object@alphabet)
+  cat("\n color:\n")
+  show(object@color)
+  cat("\n background:\n")
+  show(object@background)
+})
 
 #' "pfm" methods
 #' 
